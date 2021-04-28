@@ -482,21 +482,6 @@ void RSCoder::pnMult(int *p1, int *p2, int *r) {
 }
 
 
-void RSCoder::Encode(byte *Data, int DataSize, byte *DestData) {
-	int ShiftReg[MAXPAR + 1];
-
-	Clean(ShiftReg, ParSize + 1);
-	for (int I = 0; I < DataSize; I++) {
-		int D = Data[I] ^ ShiftReg[ParSize - 1];
-		for (int J = ParSize - 1; J > 0; J--)
-			ShiftReg[J] = ShiftReg[J - 1] ^ gfMult(GXPol[J], D);
-		ShiftReg[0] = gfMult(GXPol[0], D);
-	}
-	for (int I = 0; I < ParSize; I++)
-		DestData[I] = ShiftReg[ParSize - I - 1];
-}
-
-
 bool RSCoder::Decode(byte *Data, int DataSize, int *EraLoc, int EraSize) {
 	int SynData[MAXPOL];
 	bool AllZeroes = true;

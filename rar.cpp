@@ -200,11 +200,6 @@ void StringList::Rewind() {
 }
 
 
-int StringList::GetBufferSize() {
-	return (StringData.Size() + StringDataW.Size());
-}
-
-
 #ifndef SFX_MODULE
 bool StringList::Search(char *Str, wchar *StrW, bool CaseSensitive) {
 	SavePosition();
@@ -309,13 +304,6 @@ int strnicomp(const char *Str1, const char *Str2, int N) {
 	strncpy(S1, Str1, sizeof(S1));
 	strncpy(S2, Str2, sizeof(S2));
 	return (strncmp(strupper(S1), strupper(S2), N));
-}
-
-
-char *RemoveEOL(char *Str) {
-	for (int I = strlen(Str) - 1; I >= 0 && (Str[I] == '\r' || Str[I] == '\n' || Str[I] == ' ' || Str[I] == '\t'); I--)
-		Str[I] = 0;
-	return (Str);
 }
 
 
@@ -450,13 +438,6 @@ void SetExt(wchar *Name, const wchar *NewExt) {
 #endif
 
 
-#ifndef SFX_MODULE
-void SetSFXExt(char *SFXName) {
-	SetExt(SFXName, "sfx");
-}
-#endif
-
-
 char *GetExt(const char *Name) {
 	return (strrchrd(PointToName(Name), '.'));
 }
@@ -487,14 +468,6 @@ bool IsPathDiv(int Ch) {
 
 bool IsDriveDiv(int Ch) {
 	return (false);
-}
-
-
-int GetPathDisk(const char *Path) {
-	if (IsDiskLetter(Path))
-		return (toupper(*Path) - 'A');
-	else
-		return (-1);
 }
 
 
@@ -655,51 +628,12 @@ void MakeNameUsable(char *Name, bool Extended) {
 }
 
 
-char *DosSlashToUnix(char *SrcName, char *DestName) {
-	if (DestName != NULL && DestName != SrcName)
-		strcpy(DestName, SrcName);
-	for (char *s = SrcName; *s != 0; s = charnext(s)) {
-		if (*s == '\\')
-			if (DestName == NULL)
-				*s = '/';
-			else
-				DestName[s - SrcName] = '/';
-	}
-	return (DestName == NULL ? SrcName : DestName);
-}
-
-
 bool IsFullPath(const char *Path) {
 	char PathOnly[NM];
 	GetFilePath(Path, PathOnly);
 	if (IsWildcard(PathOnly))
 		return (true);
 	return (IsPathDiv(Path[0]));
-}
-
-
-bool IsDiskLetter(const char *Path) {
-	char Letter = toupper(Path[0]);
-	return (Letter >= 'A' && Letter <= 'Z' && IsDriveDiv(Path[1]));
-}
-
-
-void GetPathRoot(const char *Path, char *Root) {
-	*Root = 0;
-	if (IsDiskLetter(Path))
-		sprintf(Root, "%c:\\", *Path);
-	else if (Path[0] == '\\' && Path[1] == '\\') {
-		const char *Slash = strchr(Path + 2, '\\');
-		if (Slash != NULL) {
-			int Length;
-			if ((Slash = strchr(Slash + 1, '\\')) != NULL)
-				Length = Slash - Path + 1;
-			else
-				Length = strlen(Path);
-			strncpy(Root, Path, Length);
-			Root[Length] = 0;
-		}
-	}
 }
 
 
@@ -848,9 +782,7 @@ bool File::Open(const char *Name, const wchar *NameW, bool OpenShared, bool Upda
 	ErrorType = FILE_SUCCESS;
 	FileHandle hNewFile;
 	int flags = Update ? O_RDWR : O_RDONLY;
-#ifdef O_BINARY
-	flags |= O_BINARY;
-#endif
+
 	int handle = open(Name, flags);
 	hNewFile = handle == -1 ? BAD_HANDLE : fdopen(handle, Update ? UPDATEBINARY : READBINARY);
 	if (hNewFile == BAD_HANDLE && errno == ENOENT)
@@ -942,11 +874,6 @@ bool File::Close() {
 }
 
 
-void File::Flush() {
-	fflush(hFile);
-}
-
-
 bool File::Delete() {
 	if (HandleType != FILE_HANDLENORMAL || !AllowDelete)
 		return (false);
@@ -955,16 +882,6 @@ bool File::Delete() {
 	bool RetCode;
 	RetCode = (remove(FileName) == 0);
 	return (RetCode);
-}
-
-
-bool File::Rename(const char *NewName) {
-	bool Success = strcmp(FileName, NewName) == 0 || rename(FileName, NewName) == 0;
-	if (Success) {
-		strcpy(FileName, NewName);
-		*FileNameW = 0;
-	}
-	return (Success);
 }
 
 
@@ -1079,21 +996,10 @@ bool File::Truncate() {
 }
 
 
-void File::SetOpenFileTime(uint ft) {
-}
-
-
 void File::SetCloseFileTime(uint ft) {
 	struct utimbuf ut;
 	ut.actime = ut.modtime = DosTimeToUnix(ft);
 	utime(FileName, &ut);
-}
-
-
-uint File::GetOpenFileTime() {
-	struct stat st;
-	fstat(fileno(hFile), &st);
-	return (UnixTimeToDos(st.st_mtime));
 }
 
 
@@ -1126,46 +1032,11 @@ bool File::IsDevice() {
 }
 
 
-#ifndef SFX_MODULE
-void File::fprintf(const char *fmt, ...) {
-	va_list argptr;
-	va_start(argptr, fmt);
-	char Msg[8192], OutMsg[8192];
-	vsprintf(Msg, fmt, argptr);
-	strcpy(OutMsg, Msg);
-	Write(OutMsg, strlen(OutMsg));
-	va_end(argptr);
-}
-#endif
-
-
 void File::RemoveCreated() {
 	for (int I = 0; I < sizeof(CreatedFiles) / sizeof(CreatedFiles[0]); I++)
 		if (CreatedFiles[I] != NULL)
 			CreatedFiles[I]->Delete();
 }
-
-
-#ifndef SFX_MODULE
-long File::Copy(File &Dest, Int64 Length) {
-	Array<char> Buffer(0x10000);
-	long CopySize = 0;
-	bool CopyAll = (Length == INT64ERR);
-
-	while (CopyAll || Length > 0) {
-		Wait();
-		int SizeToRead = (!CopyAll && Length < Buffer.Size()) ? int64to32(Length) : Buffer.Size();
-		int ReadSize = Read(&Buffer[0], SizeToRead);
-		if (ReadSize == 0)
-			break;
-		Dest.Write(&Buffer[0], ReadSize);
-		CopySize += ReadSize;
-		if (!CopyAll)
-			Length -= ReadSize;
-	}
-	return (CopySize);
-}
-#endif
 
 
 /***** File: filefn.cpp *****/
@@ -1216,18 +1087,6 @@ void SetDirTime(const char *Name, uint ft) {
 }
 
 
-bool IsRemovable(const char *FileName) {
-	return (false);
-}
-
-
-#ifndef SFX_MODULE
-Int64 GetFreeDisk(const char *FileName) {
-	return (1457664);
-}
-#endif
-
-
 bool FileExist(const char *FileName, const wchar *FileNameW) {
 	struct FindData FD;
 	return (FindFile::FastFind(FileName, FileNameW, &FD));
@@ -1251,29 +1110,9 @@ bool IsDir(uint Attr) {
 }
 
 
-bool IsUnreadable(uint Attr) {
-	return (S_ISFIFO(Attr) || S_ISSOCK(Attr) || S_ISCHR(Attr));
-}
-
-
-bool IsLabel(uint Attr) {
-	return (false);
-}
-
-
 bool IsLink(uint Attr) {
 	return ((Attr & 0xF000) == 0xA000);
 }
-
-
-
-
-
-
-bool IsDeleteAllowed(uint FileAttr) {
-	return (false);
-}
-
 
 void PrepareToDelete(const char *Name, const wchar *NameW) {
 	chmod(Name, S_IRUSR | S_IWUSR);
@@ -1318,24 +1157,6 @@ void ConvertNameToFull(const wchar *Src, wchar *Dest) {
 	WideToChar(Src, AnsiName);
 	ConvertNameToFull(AnsiName, AnsiName);
 	CharToWide(AnsiName, Dest);
-}
-#endif
-
-
-#ifndef SFX_MODULE
-char *MkTemp(char *Name) {
-	int Length = strlen(Name);
-	if (Length <= 6)
-		return (NULL);
-	for (int Random = clock(), Attempt = 0;; Attempt++) {
-		sprintf(Name + Length - 6, "%06u", Random + Attempt);
-		Name[Length - 4] = '.';
-		if (!FileExist(Name))
-			break;
-		if (Attempt == 1000)
-			return (NULL);
-	}
-	return (Name);
 }
 #endif
 
@@ -1468,24 +1289,6 @@ Archive::Archive(RAROptions *InitCmd)
 
 	SilentOpen = false;
 }
-
-
-#ifndef SHELL_EXT
-void Archive::CheckArc(bool EnableBroken) {
-	if (!IsArchive(EnableBroken)) {
-		Log(FileName, St(MBadArc), FileName);
-		ErrHandler.Exit(FATAL_ERROR);
-	}
-}
-#endif
-
-
-#if !defined(SHELL_EXT) && !defined(SFX_MODULE)
-void Archive::CheckOpen(char *Name, wchar *NameW) {
-	TOpen(Name, NameW);
-	CheckArc(false);
-}
-#endif
 
 
 bool Archive::WCheckOpen(char *Name, wchar *NameW) {
@@ -2028,101 +1831,23 @@ void Archive::ConvertUnknownHeader() {
 }
 
 
-int Archive::LhdSize() {
-	return ((NewLhd.Flags & LHD_LARGE) ? SIZEOF_NEWLHD + 8 : SIZEOF_NEWLHD);
-}
-
-
-int Archive::LhdExtraSize() {
-	return (NewLhd.HeadSize - NewLhd.NameSize - LhdSize());
-}
-
-
-#ifndef SHELL_EXT
-bool Archive::ReadSubData(Array<byte> *UnpData, File *DestFile) {
-	if (HeaderCRC != SubHead.HeadCRC) {
-#ifndef SHELL_EXT
-		Log(FileName, St(MSubHeadCorrupt));
-#endif
-		ErrHandler.SetErrorCode(CRC_ERROR);
-		return (false);
-	}
-	if (SubHead.Method < 0x30 || SubHead.Method > 0x35 || SubHead.UnpVer > PACK_VER) {
-#ifndef SHELL_EXT
-		Log(FileName, St(MSubHeadUnknown));
-#endif
-		return (false);
-	}
-
-	if (SubHead.PackSize == 0 && (SubHead.Flags & LHD_SPLIT_AFTER) == 0)
-		return (true);
-
-//  ComprDataIO DataIO(NULL);
-	SubDataIO.Init();
-	Unpack Unpack(&SubDataIO);
-	Unpack.Init();
-
-	if (DestFile == NULL) {
-		UnpData->Alloc(SubHead.UnpSize);
-		SubDataIO.SetUnpackToMemory(&(*UnpData)[0], SubHead.UnpSize);
-	}
-	if (SubHead.Flags & LHD_PASSWORD)
-		if (*Cmd->Password)
-			SubDataIO.SetEncryption(SubHead.UnpVer, Cmd->Password,
-			                        (SubHead.Flags & LHD_SALT) ? SubHead.Salt : NULL, false);
-		else
-			return (false);
-	SubDataIO.SetPackedSizeToRead(SubHead.PackSize);
-	SubDataIO.EnableShowProgress(false);
-	SubDataIO.SetFiles(this, DestFile);
-	SubDataIO.UnpVolume = (SubHead.Flags & LHD_SPLIT_AFTER);
-	SubDataIO.SetSubHeader(&SubHead, NULL);
-	Unpack.SetDestSize(SubHead.UnpSize);
-	if (SubHead.Method == 0x30)
-		CmdExtract::UnstoreFile(SubDataIO, SubHead.UnpSize);
-	else
-		Unpack.DoUnpack(SubHead.UnpVer, false);
-
-	if (SubHead.FileCRC != ~SubDataIO.UnpFileCRC) {
-#ifndef SHELL_EXT
-		Log(FileName, St(MSubHeadDataCRC), SubHead.FileName);
-#endif
-		ErrHandler.SetErrorCode(CRC_ERROR);
-		if (UnpData != NULL)
-			UnpData->Reset();
-		return (false);
-	}
-	return (true);
-}
-#endif
-
-
 /***** File: unicode.cpp *****/
 
 void WideToChar(const wchar_t *Src, char *Dest, int DestSize) {
-#ifdef MBFUNCTIONS
-	if (wcstombs(Dest, Src, DestSize) == -1)
-		*Dest = 0;
-#else
 	for (int I = 0; I < DestSize; I++) {
 		Dest[I] = (char)Src[I];
 		if (Src[I] == 0)
 			break;
 	}
-#endif
 }
 
 
 void CharToWide(const char *Src, wchar_t *Dest, int DestSize) {
-#ifdef MBFUNCTIONS
-	mbstowcs(Dest, Src, DestSize);
-#else
 	for (int I = 0; I < DestSize; I++) {
 		Dest[I] = (wchar_t)Src[I];
 		if (Src[I] == 0)
 			break;
 	}
-#endif
 }
 
 
@@ -2169,20 +1894,6 @@ wchar *strncpyw(wchar *dest, const wchar *src, int n) {
 wchar *strcatw(wchar *dest, const wchar *src) {
 	return (strcpyw(dest + strlenw(dest), src));
 }
-
-
-#ifndef SFX_MODULE
-wchar *strncatw(wchar *dest, const wchar *src, int n) {
-	dest += strlenw(dest);
-	while (true)
-		if (--n < 0) {
-			*dest = 0;
-			break;
-		} else if ((*(dest++) = *(src++)) == 0)
-			break;
-	return (dest);
-}
-#endif
 
 
 int strcmpw(const wchar *s1, const wchar *s2) {
@@ -2316,7 +2027,7 @@ uint CRC(uint StartCRC, void *Addr, uint Size) {
 	if (CRCTab[1] == 0)
 		InitCRC();
 	byte *Data = (byte *)Addr;
-#if defined(LITTLE_ENDIAN) && defined(PRESENT_INT32)
+#if defined(LITTLE_ENDIAN)
 	while (Size >= 8) {
 		StartCRC ^= *(uint32 *)Data;
 		StartCRC = CRCTab[(byte)StartCRC] ^ (StartCRC >> 8);
@@ -2391,14 +2102,6 @@ void RawRead::Get(uint &Field) {
 	Field = Data[ReadPos] + (Data[ReadPos + 1] << 8) + (Data[ReadPos + 2] << 16) +
 	        (Data[ReadPos + 3] << 24);
 	ReadPos += 4;
-}
-
-
-void RawRead::Get8(Int64 &Field) {
-	uint Low, High;
-	Get(Low);
-	Get(High);
-	Field = int32to64(High, Low);
 }
 
 
@@ -2704,21 +2407,6 @@ void ConvertDate(uint ft, char *DateStr, bool FullYear) {
 
 
 #ifndef SFX_MODULE
-const char *GetMonthName(int Month) {
-#ifdef SILENT
-	return ("");
-#else
-	static MSGID MonthID[] = {
-		MMonthJan, MMonthFeb, MMonthMar, MMonthApr, MMonthMay, MMonthJun,
-		MMonthJul, MMonthAug, MMonthSep, MMonthOct, MMonthNov, MMonthDec
-	};
-	return (St(MonthID[Month]));
-#endif
-}
-#endif
-
-
-#ifndef SFX_MODULE
 uint TextAgeToSeconds(char *TimeText) {
 	uint Seconds = 0, Value = 0;
 	for (int I = 0; TimeText[I] != 0; I++) {
@@ -2858,9 +2546,6 @@ int ComprDataIO::UnpRead(byte *Addr, uint Count) {
 		Count -= RetCode;
 		UnpPackedSize -= RetCode;
 		if (UnpPackedSize == 0 && UnpVolume) {
-#ifndef NOVOLUME
-			if (!MergeArchive(*SrcArc, this, true, CurrentCommand))
-#endif
 				return (-1);
 		} else
 			break;
@@ -2944,26 +2629,12 @@ void ComprDataIO::SetFiles(File *SrcFile, File *DestFile) {
 }
 
 
-void ComprDataIO::GetUnpackedData(byte **Data, uint *Size) {
-	*Data = UnpWrAddr;
-	*Size = UnpWrSize;
-}
-
-
 void ComprDataIO::SetEncryption(int Method, char *Password, byte *Salt, bool Encrypt) {
 	if (Encrypt) {
 		Encryption = *Password ? Method : 0;
 	} else {
 		Decryption = *Password ? Method : 0;
 	}
-}
-
-
-
-void ComprDataIO::SetUnpackToMemory(byte *Addr, uint Size) {
-	UnpackToMemory = true;
-	UnpackToMemoryAddr = Addr;
-	UnpackToMemorySize = Size;
 }
 
 
@@ -3171,40 +2842,6 @@ int Ask(const char *AskStr) {
 #endif
 
 
-int KbdAnsi(char *Addr, int Size) {
-	int RetCode = 0;
-#ifndef GUI
-	for (int I = 0; I < Size; I++)
-		if (Addr[I] == 27 && Addr[I + 1] == '[') {
-			for (int J = I + 2; J < Size; J++) {
-				if (Addr[J] == '\"')
-					return (2);
-				if (!isdigit(Addr[J]) && Addr[J] != ';')
-					break;
-			}
-			RetCode = 1;
-		}
-#endif
-	return (RetCode);
-}
-
-
-void OutComment(char *Comment, int Size) {
-#ifndef GUI
-	if (KbdAnsi(Comment, Size) == 2)
-		return;
-	const int MaxOutSize = 0x400;
-	for (int I = 0; I < Size; I += MaxOutSize) {
-		char Msg[MaxOutSize + 1];
-		strncpy(Msg, Comment + I, MaxOutSize);
-		Msg[Min(MaxOutSize, Size - I)] = 0;
-		mprintf("%s", Msg);
-	}
-	mprintf("\n");
-#endif
-}
-
-
 /***** File: options.cpp *****/
 
 RAROptions::RAROptions() {
@@ -3257,14 +2894,6 @@ void ErrorHandler::Clean() {
 void ErrorHandler::MemoryError() {
 	MemoryErrorMsg();
 	Throw(MEMORY_ERROR);
-}
-
-
-void ErrorHandler::OpenError(const char *FileName) {
-#ifndef SILENT
-	OpenErrorMsg(FileName);
-	Throw(OPEN_ERROR);
-#endif
 }
 
 
@@ -3884,21 +3513,15 @@ bool RarVM::ExecuteCode(VM_PreparedCommand *PreparedCode, int CodeSize) {
 			SET_IP(GET_VALUE(false, (uint *)&Mem[R[7] & VM_MEMMASK]));
 			R[7] += 4;
 			continue;
-#ifdef VM_STANDARDFILTERS
 		case VM_STANDARD:
 			ExecuteStandardFilter((VM_StandardFilters)Cmd->Op1.Data);
 			break;
-#endif
 		case VM_PRINT:
 			break;
 		}
 		Cmd++;
 		--MaxOpCount;
 	}
-}
-
-
-void RarVM::PrintState(uint IP) {
 }
 
 
@@ -3914,7 +3537,6 @@ void RarVM::Prepare(byte *Code, int CodeSize, VM_PreparedProgram *Prg) {
 
 	Prg->CmdCount = 0;
 	if (XorSum == Code[0]) {
-#ifdef VM_STANDARDFILTERS
 		VM_StandardFilters FilterType = IsStandardFilter(Code, CodeSize);
 		if (FilterType != VMSF_NONE) {
 			Prg->Cmd.Add(1);
@@ -3925,7 +3547,6 @@ void RarVM::Prepare(byte *Code, int CodeSize, VM_PreparedProgram *Prg) {
 			CurCmd->Op2.Addr = &CurCmd->Op2.Data;
 			CodeSize = 0;
 		}
-#endif
 		uint DataFlag = fgetbits();
 		faddbits(1);
 		if (DataFlag & 0x8000) {
@@ -4122,7 +3743,6 @@ void RarVM::Optimize(VM_PreparedProgram *Prg) {
 #endif
 
 
-#ifdef VM_STANDARDFILTERS
 VM_StandardFilters RarVM::IsStandardFilter(byte *Code, int CodeSize) {
 	struct StandardFilterSignature {
 		int Length;
@@ -4378,7 +3998,6 @@ void RarVM::FilterItanium_SetBits(byte *Data, unsigned int BitField, int BitPos,
 		BitField >>= 8;
 	}
 }
-#endif
 
 
 /***** File: getbits.cpp *****/
@@ -4603,15 +4222,7 @@ bool CmdExtract::ExtractCurrentFile(CommandData *Cmd, Archive &Arc, int HeaderSi
 	char Command = *Cmd->Command;
 	if (HeaderSize <= 0)
 		if (DataIO.UnpVolume) {
-#ifdef NOVOLUME
 			return (false);
-#else
-			if (!MergeArchive(Arc, NULL, false, Command)) {
-				ErrHandler.SetErrorCode(WARNING);
-				return (false);
-			}
-			SignatureFound = false;
-#endif
 		} else
 			return (false);
 	int HeadType = Arc.GetHeaderType();
@@ -4632,13 +4243,6 @@ bool CmdExtract::ExtractCurrentFile(CommandData *Cmd, Archive &Arc, int HeaderSi
 		}
 		if (HeadType == ENDARC_HEAD)
 			if (Arc.EndArcHead.Flags & EARC_NEXT_VOLUME) {
-#ifndef NOVOLUME
-				if (!MergeArchive(Arc, NULL, false, Command)) {
-					ErrHandler.SetErrorCode(WARNING);
-					return (false);
-				}
-				SignatureFound = false;
-#endif
 				Arc.Seek(Arc.CurBlockPos, SEEK_SET);
 				return (true);
 			} else
@@ -4667,16 +4271,6 @@ bool CmdExtract::ExtractCurrentFile(CommandData *Cmd, Archive &Arc, int HeaderSi
 
 	bool WideName = (Arc.NewLhd.Flags & LHD_UNICODE);
 	wchar *DestNameW = WideName ? DestFileNameW : NULL;
-
-#ifdef UNICODE_SUPPORTED
-	if (WideName) {
-		ConvertPath(Arc.NewLhd.FileNameW, ArcFileNameW);
-		char Name[NM];
-		WideToChar(ArcFileNameW, Name);
-		if (IsNameUsable(Name))
-			strcpy(ArcFileName, Name);
-	}
-#endif
 
 	ConvertPath(ArcFileName, ArcFileName);
 
@@ -5055,98 +4649,6 @@ static void GetFirstNewVolName(const char *ArcName, char *VolName,
                                Int64 VolSize, Int64 TotalSize);
 
 
-
-bool MergeArchive(Archive &Arc, ComprDataIO *DataIO, bool ShowFileName, char Command) {
-	RAROptions *Cmd = Arc.GetRAROptions();
-
-	int HeaderType = Arc.GetHeaderType();
-	FileHeader *hd = HeaderType == NEWSUB_HEAD ? &Arc.SubHead : &Arc.NewLhd;
-	bool SplitHeader = (HeaderType == FILE_HEAD || HeaderType == NEWSUB_HEAD) &&
-	                   (hd->Flags & LHD_SPLIT_AFTER) != 0;
-
-	if (DataIO != NULL && SplitHeader && hd->UnpVer >= 20 &&
-	        hd->FileCRC != 0xffffffff && DataIO->PackedCRC != ~hd->FileCRC) {
-		Log(Arc.FileName, St(MDataBadCRC), hd->FileName, Arc.FileName);
-	}
-
-	Arc.Close();
-
-	char NextName[NM];
-	strcpy(NextName, Arc.FileName);
-	NextVolumeName(NextName, (Arc.NewMhd.Flags & MHD_NEWNUMBERING) == 0 || Arc.OldFormat);
-
-#if !defined(SFX_MODULE)
-	bool RecoveryDone = false;
-#endif
-
-	while (!Arc.Open(NextName)) {
-#ifndef SFX_MODULE
-		if (!RecoveryDone) {
-			RecVolumes RecVol;
-			RecVol.Restore(Cmd, Arc.FileName, Arc.FileNameW, true);
-			RecoveryDone = true;
-			continue;
-		}
-#endif
-
-#ifndef GUI
-		if (!Cmd->VolumePause && !IsRemovable(NextName)) {
-			Log(Arc.FileName, St(MAbsNextVol), NextName);
-			return (false);
-		}
-#endif
-#ifndef SILENT
-		if (Cmd->AllYes || !AskNextVol(NextName))
-#endif
-			return (false);
-	}
-	Arc.CheckArc(true);
-
-	if (Command == 'T' || Command == 'X' || Command == 'E')
-		mprintf(St(Command == 'T' ? MTestVol : MExtrVol), Arc.FileName);
-	if (SplitHeader)
-		Arc.SearchBlock(HeaderType);
-	else
-		Arc.ReadHeader();
-	if (Arc.GetHeaderType() == FILE_HEAD) {
-		Arc.ConvertAttributes();
-		Arc.Seek(Arc.NextBlockPos - Arc.NewLhd.FullPackSize, SEEK_SET);
-	}
-#ifndef GUI
-	if (ShowFileName) {
-		mprintf(St(MExtrPoints), IntNameToExt(Arc.NewLhd.FileName));
-		if (!Cmd->DisablePercentage)
-			mprintf("     ");
-	}
-#endif
-	if (DataIO != NULL) {
-		if (HeaderType == ENDARC_HEAD)
-			DataIO->UnpVolume = false;
-		else {
-			DataIO->UnpVolume = (hd->Flags & LHD_SPLIT_AFTER);
-			DataIO->SetPackedSizeToRead(hd->FullPackSize);
-		}
-		DataIO->PackedCRC = 0xffffffff;
-//    DataIO->SetFiles(&Arc,NULL);
-	}
-	return (true);
-}
-
-
-
-
-
-
-#ifndef SILENT
-bool AskNextVol(char *ArcName) {
-	eprintf(St(MAskNextVol), ArcName);
-	if (Ask(St(MContinueQuit)) == 2)
-		return (false);
-	return (true);
-}
-#endif
-
-
 /***** File: list.cpp *****/
 
 static void ListFileHeader(FileHeader &hd, bool Verbose, bool Technical, bool &TitleShown);
@@ -5244,15 +4746,7 @@ void ListArchive(CommandData *Cmd) {
 
 				ArcCount++;
 
-#ifndef NOVOLUME
-				if (Cmd->VolSize != 0 && ((Arc.NewLhd.Flags & LHD_SPLIT_AFTER) ||
-				                          Arc.GetHeaderType() == ENDARC_HEAD &&
-				                          (Arc.EndArcHead.Flags & EARC_NEXT_VOLUME) != 0) &&
-				        MergeArchive(Arc, NULL, false, *Cmd->Command)) {
-					Arc.Seek(0, SEEK_SET);
-				} else
-#endif
-					break;
+				break;
 			} else {
 				if (Cmd->ArcNames->ItemsCount() < 2)
 					mprintf(St(MNotRAR), Arc.FileName);
@@ -5932,9 +5426,6 @@ void PPM_CONTEXT::rescale(ModelPPM *Model) {
 
 
 inline PPM_CONTEXT *ModelPPM::CreateSuccessors(bool Skip, STATE *p1) {
-#ifdef __ICL
-	static
-#endif
 	STATE UpState;
 	PPM_CONTEXT *pc = MinContext, * UpBranch = FoundState->Successor;
 	STATE *p, * ps[MAX_O], ** pps = ps;

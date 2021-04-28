@@ -21,7 +21,6 @@ public:
 	ErrorHandler();
 	void Clean();
 	void MemoryError();
-	void OpenError(const char *FileName);
 	void CloseError(const char *FileName);
 	void ReadError(const char *FileName);
 	bool AskRepeatRead(const char *FileName);
@@ -104,21 +103,6 @@ extern ErrorHandler ErrHandler;
 
 #define _stdfunction
 
-#ifdef _APPLE
-#ifndef BIG_ENDIAN
-#define BIG_ENDIAN
-#endif
-#ifdef LITTLE_ENDIAN
-#undef LITTLE_ENDIAN
-#endif
-#endif
-
-#if defined(__sparc) || defined(sparc)
-#ifndef BIG_ENDIAN
-#define BIG_ENDIAN
-#endif
-#endif
-
 typedef const char *MSGID;
 
 
@@ -141,7 +125,6 @@ typedef unsigned short   ushort; //preferably 16 bits, but can be more
 typedef unsigned int     uint;   //32 bits or more
 
 typedef unsigned int     uint32; //32 bits exactly
-#define PRESENT_INT32
 
 typedef wchar_t wchar;
 
@@ -518,12 +501,6 @@ Int64 atoil(char *Str);
 /***** File: unicode.hpp *****/
 
 
-#define MBFUNCTIONS
-
-#if defined(MBFUNCTIONS )
-#define UNICODE_SUPPORTED
-#endif
-
 void WideToChar(const wchar *Src, char *Dest, int DestSize = 0x10000000);
 void CharToWide(const char *Src, wchar *Dest, int DestSize = 0x10000000);
 wchar *RawToWide(const byte *Src, wchar *Dest, int DestSize = 0x10000000);
@@ -532,7 +509,6 @@ int strlenw(const wchar *str);
 wchar *strcpyw(wchar *dest, const wchar *src);
 wchar *strncpyw(wchar *dest, const wchar *src, int n);
 wchar *strcatw(wchar *dest, const wchar *src);
-wchar *strncatw(wchar *dest, const wchar *src, int n);
 int strcmpw(const wchar *s1, const wchar *s2);
 int strncmpw(const wchar *s1, const wchar *s2, int n);
 int stricmpw(const wchar *s1, const wchar *s2);
@@ -943,15 +919,12 @@ char *ConvertPath(const char *SrcPath, char *DestPath);
 wchar *ConvertPath(const wchar *SrcPath, wchar *DestPath);
 void SetExt(char *Name, const char *NewExt);
 void SetExt(wchar *Name, const wchar *NewExt);
-void SetSFXExt(char *SFXName);
-void SetSFXExt(wchar *SFXName);
 char *GetExt(const char *Name);
 wchar *GetExt(const wchar *Name);
 bool CmpExt(const char *Name, const char *Ext);
 bool IsWildcard(const char *Str, const wchar *StrW = NULL);
 bool IsPathDiv(int Ch);
 bool IsDriveDiv(int Ch);
-int GetPathDisk(const char *Path);
 void AddEndSlash(char *Path);
 void AddEndSlash(wchar *Path);
 void GetFilePath(const char *FullName, char *Path);
@@ -962,10 +935,7 @@ void GetConfigName(const char *Name, char *FullName);
 void NextVolumeName(char *ArcName, bool OldNumbering);
 bool IsNameUsable(const char *Name);
 void MakeNameUsable(char *Name, bool Extended);
-char *DosSlashToUnix(char *SrcName, char *DestName = NULL);
 bool IsFullPath(const char *Path);
-bool IsDiskLetter(const char *Path);
-void GetPathRoot(const char *Path, char *Root);
 int ParseVersionFileName(char *Name, wchar *NameW, bool Truncate);
 char *VolNameToFirstName(const char *VolName, char *FirstName, bool NewNumbering);
 void GenerateArcName(char *ArcName, char *GenerateMask);
@@ -983,7 +953,6 @@ char *strlower(char *Str);
 char *strupper(char *Str);
 int stricomp(const char *Str1, const char *Str2);
 int strnicomp(const char *Str1, const char *Str2, int N);
-char *RemoveEOL(char *Str);
 char *RemoveLF(char *Str);
 unsigned int loctolower(unsigned int ch);
 unsigned int loctoupper(unsigned int ch);
@@ -1021,7 +990,6 @@ public:
 	unsigned int ItemsCount() {
 		return (StringsCount);
 	};
-	int GetBufferSize();
 	bool Search(char *Str, wchar *StrW, bool CaseSensitive);
 	void SavePosition();
 	void RestorePosition();
@@ -1073,9 +1041,7 @@ public:
 	void TCreate(const char *Name, const wchar *NameW = NULL);
 	bool WCreate(const char *Name, const wchar *NameW = NULL);
 	bool Close();
-	void Flush();
 	bool Delete();
-	bool Rename(const char *NewName);
 	void Write(const void *Data, int Size);
 	int Read(void *Data, int Size);
 	int DirectRead(void *Data, int Size);
@@ -1086,11 +1052,9 @@ public:
 	byte GetByte();
 	void PutByte(byte Byte);
 	bool Truncate();
-	void SetOpenFileTime(uint ft);
 	void SetCloseFileTime(uint ft);
 	void SetOpenFileStat(uint FileTime);
 	void SetCloseFileStat(uint FileTime, uint FileAttr);
-	uint GetOpenFileTime();
 	bool IsOpened() {
 		return (hFile != BAD_HANDLE);
 	};
@@ -1100,7 +1064,6 @@ public:
 		return (HandleType);
 	};
 	bool IsDevice();
-	void fprintf(const char *fmt, ...);
 	static void RemoveCreated();
 	FileHandle GetHandle() {
 		return (hFile);
@@ -1114,7 +1077,6 @@ public:
 	char *GetName() {
 		return (FileName);
 	}
-	long Copy(File &Dest, Int64 Length = INT64ERR);
 	void SetAllowDelete(bool Allow) {
 		AllowDelete = Allow;
 	}
@@ -1149,23 +1111,17 @@ enum MKDIR_CODE {MKDIR_SUCCESS, MKDIR_ERROR, MKDIR_BADPATH};
 MKDIR_CODE MakeDir(const char *Name, const wchar *NameW, uint Attr);
 void CreatePath(const char *Path, const wchar *PathW, bool SkipLastName);
 void SetDirTime(const char *Name, uint ft);
-bool IsRemovable(const char *FileName);
-Int64 GetFreeDisk(const char *FileName);
 bool FileExist(const char *FileName, const wchar *FileNameW = NULL);
 bool WildFileExist(const char *FileName, const wchar *FileNameW = NULL);
 bool IsDir(uint Attr);
-bool IsUnreadable(uint Attr);
-bool IsLabel(uint Attr);
 bool IsLink(uint Attr);
 void SetSFXMode(const char *FileName);
 void EraseDiskContents(const char *FileName);
-bool IsDeleteAllowed(uint FileAttr);
 void PrepareToDelete(const char *Name, const wchar *NameW);
 uint GetFileAttr(const char *Name, const wchar *NameW = NULL);
 bool SetFileAttr(const char *Name, const wchar *NameW, uint Attr);
 void ConvertNameToFull(const char *Src, char *Dest);
 void ConvertNameToFull(const wchar *Src, wchar *Dest);
-char *MkTemp(char *Name);
 uint CalcFileCRC(File *SrcFile, Int64 Size = INT64ERR);
 
 
@@ -1354,7 +1310,6 @@ public:
 	void EnableShowProgress(bool Show) {
 		ShowProgress = Show;
 	}
-	void GetUnpackedData(byte **Data, uint *Size);
 	void SetPackedSizeToRead(Int64 Size) {
 		UnpPackedSize = Size;
 	}
@@ -1373,7 +1328,6 @@ public:
 		SubHeadPos = Pos;
 	}
 	void SetEncryption(int Method, char *Password, byte *Salt, bool Encrypt);
-	void SetUnpackToMemory(byte *Addr, uint Size);
 	void SetCurrentCommand(char Cmd) {
 		CurrentCommand = Cmd;
 	}
@@ -1533,8 +1487,6 @@ public:
 	int PrepareNamesToWrite(char *Name, wchar *NameW, char *DestName, byte *DestNameW);
 	void SetLhdSize();
 	int ReadHeader();
-	void CheckArc(bool EnableBroken);
-	void CheckOpen(char *Name, wchar *NameW = NULL);
 	bool WCheckOpen(char *Name, wchar *NameW = NULL);
 	bool TestLock(int Mode);
 	void MakeTemp();
@@ -1557,12 +1509,9 @@ public:
 	bool IsArcDir();
 	bool IsArcLabel();
 	void ConvertAttributes();
-	int LhdSize();
-	int LhdExtraSize();
 	int GetRecoverySize(bool Required);
 	void VolSubtractHeaderSize(int SubSize);
 	void AddSubData(byte *SrcData, int DataSize, File *SrcFile, char *Name, bool AllowSplit);
-	bool ReadSubData(Array<byte> *UnpData, File *DestFile);
 	int GetHeaderType() {
 		return (CurHeaderType);
 	};
@@ -1694,9 +1643,6 @@ bool GetPassword(PASSWORD_TYPE Type, const char *FileName, char *Password, int M
 int Ask(const char *AskStr);
 #endif
 
-int KbdAnsi(char *Addr, int Size);
-void OutComment(char *Comment, int Size);
-
 #ifdef SILENT
 inline void mprintf(const char *fmt, const char *a = NULL, const char *b = NULL) {}
 inline void eprintf(const char *fmt, const char *a = NULL, const char *b = NULL) {}
@@ -1755,7 +1701,6 @@ public:
 	void Get(byte &Field);
 	void Get(ushort &Field);
 	void Get(uint &Field);
-	void Get8(Int64 &Field);
 	void Get(byte *Field, int Size);
 	void Get(wchar *Field, int Size);
 	uint GetCRC(bool ProcessedOnly);
@@ -1798,12 +1743,12 @@ int stricompcw(const wchar *Str1, const wchar *Str2);
 int strnicompc(const char *Str1, const char *Str2, int N);
 int strnicompcw(const wchar *Str1, const wchar *Str2, int N);
 
+
 /***** File: timefn.hpp *****/
 
 void InitTime();
 uint SecondsToDosTime(uint Seconds);
 void ConvertDate(uint ft, char *DateStr, bool FullYear);
-const char *GetMonthName(int Month);
 uint TextAgeToSeconds(char *TimeText);
 uint IsoTextToDosTime(char *TimeText);
 uint UnixTimeToDos(time_t UnixTime);
@@ -1850,8 +1795,6 @@ enum FilterType {
 
 
 /***** File: rarvm.hpp *****/
-
-#define VM_STANDARDFILTERS
 
 #ifndef SFX_MODULE
 #define VM_OPTIMIZE
@@ -1926,19 +1869,16 @@ private:
 	inline uint GetValue(bool ByteMode, uint *Addr);
 	inline void SetValue(bool ByteMode, uint *Addr, uint Value);
 	inline uint *GetOperand(VM_PreparedOperand *CmdOp);
-	void PrintState(uint IP);
 	void DecodeArg(VM_PreparedOperand &Op, bool ByteMode);
 #ifdef VM_OPTIMIZE
 	void Optimize(VM_PreparedProgram *Prg);
 #endif
 	bool ExecuteCode(VM_PreparedCommand *PreparedCode, int CodeSize);
-#ifdef VM_STANDARDFILTERS
 	VM_StandardFilters IsStandardFilter(byte *Code, int CodeSize);
 	void ExecuteStandardFilter(VM_StandardFilters FilterType);
 	unsigned int FilterItanium_GetBits(byte *Data, int BitPos, int BitCount);
 	void FilterItanium_SetBits(byte *Data, unsigned int BitField, int BitPos,
 	                           int BitCount);
-#endif
 
 	byte *Mem;
 	uint R[8];
@@ -2454,10 +2394,7 @@ public:
 
 void SplitArchive(Archive &Arc, FileHeader *fh, Int64 *HeaderPos,
                   ComprDataIO *DataIO);
-bool MergeArchive(Archive &Arc, ComprDataIO *DataIO, bool ShowFileName,
-                  char Command);
 void SetVolWrite(Archive &Dest, Int64 VolSize);
-bool AskNextVol(char *ArcName);
 
 
 /***** File: ulinks.hpp *****/
