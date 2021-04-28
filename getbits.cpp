@@ -1,24 +1,20 @@
 #include "rar.hpp"
 
-BitInput::BitInput()
-{
+BitInput::BitInput() {
 	InBuf = new byte[MAX_SIZE];
 }
 
 
-BitInput::~BitInput()
-{
+BitInput::~BitInput() {
 	delete[] InBuf;
 }
 
 
-void BitInput::faddbits(int Bits)
-{
+void BitInput::faddbits(int Bits) {
 	addbits(Bits);
 }
 
 
-unsigned int BitInput::fgetbits()
-{
+unsigned int BitInput::fgetbits() {
 	return (getbits());
 }

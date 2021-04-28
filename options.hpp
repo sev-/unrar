@@ -19,16 +19,14 @@ enum OVERWRITE_MODE { OVERWRITE_ASK, OVERWRITE_ALL, OVERWRITE_NONE};
 #define     MAX_FILTERS           16
 enum FilterState {FILTER_DEFAULT = 0, FILTER_AUTO, FILTER_FORCE, FILTER_DISABLE};
 
-struct FilterMode
-{
+struct FilterMode {
 	FilterState State;
 	int Param1;
 	int Param2;
 };
 
 
-class RAROptions
-{
+class RAROptions {
 public:
 	RAROptions();
 	~RAROptions();

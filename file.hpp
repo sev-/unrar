@@ -10,8 +10,7 @@ enum FILE_HANDLETYPE {FILE_HANDLENORMAL, FILE_HANDLESTD, FILE_HANDLEERR};
 
 enum FILE_ERRORTYPE {FILE_SUCCESS, FILE_NOTFOUND};
 
-struct FileStat
-{
+struct FileStat {
 	uint FileAttr;
 	uint FileTime;
 	Int64 FileSize;
@@ -19,8 +18,7 @@ struct FileStat
 };
 
 
-class File
-{
+class File {
 private:
 	FileHandle hFile;
 	bool LastWrite;

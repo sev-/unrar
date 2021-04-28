@@ -3,8 +3,7 @@
 
 enum EXTRACT_ARC_CODE {EXTRACT_ARC_NEXT, EXTRACT_ARC_REPEAT};
 
-class CmdExtract
-{
+class CmdExtract {
 private:
 	ComprDataIO DataIO;
 	Unpack *Unp;

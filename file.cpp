@@ -2,8 +2,7 @@
 
 static File *CreatedFiles[16];
 
-File::File()
-{
+File::File() {
 	hFile = BAD_HANDLE;
 	*FileName = 0;
 	*FileNameW = 0;
@@ -18,8 +17,7 @@ File::File()
 }
 
 
-File::~File()
-{
+File::~File() {
 	if (hFile != BAD_HANDLE && !SkipClose)
 		if (NewFile)
 			Delete();
@@ -28,8 +26,7 @@ File::~File()
 }
 
 
-void File::operator = (File &SrcFile)
-{
+void File::operator = (File &SrcFile) {
 	hFile = SrcFile.hFile;
 	strcpy(FileName, SrcFile.FileName);
 	NewFile = SrcFile.NewFile;
@@ -39,8 +36,7 @@ void File::operator = (File &SrcFile)
 }
 
 
-bool File::Open(const char *Name, const wchar *NameW, bool OpenShared, bool Update)
-{
+bool File::Open(const char *Name, const wchar *NameW, bool OpenShared, bool Update) {
 	ErrorType = FILE_SUCCESS;
 	FileHandle hNewFile;
 	int flags = Update ? O_RDWR : O_RDONLY;
@@ -56,8 +52,7 @@ bool File::Open(const char *Name, const wchar *NameW, bool OpenShared, bool Upda
 	HandleType = FILE_HANDLENORMAL;
 	SkipClose = false;
 	bool Success = hNewFile != BAD_HANDLE;
-	if (Success)
-	{
+	if (Success) {
 		hFile = hNewFile;
 		if (NameW != NULL)
 			strcpyw(FileNameW, NameW);
@@ -68,16 +63,14 @@ bool File::Open(const char *Name, const wchar *NameW, bool OpenShared, bool Upda
 
 
 #if !defined(SHELL_EXT) && !defined(SFX_MODULE)
-void File::TOpen(const char *Name, const wchar *NameW)
-{
+void File::TOpen(const char *Name, const wchar *NameW) {
 	if (!WOpen(Name, NameW))
 		ErrHandler.Exit(OPEN_ERROR);
 }
 #endif
 
 
-bool File::WOpen(const char *Name, const wchar *NameW)
-{
+bool File::WOpen(const char *Name, const wchar *NameW) {
 	if (Open(Name, NameW))
 		return (true);
 	ErrHandler.OpenErrorMsg(Name);
@@ -85,8 +78,7 @@ bool File::WOpen(const char *Name, const wchar *NameW)
 }
 
 
-bool File::Create(const char *Name, const wchar *NameW)
-{
+bool File::Create(const char *Name, const wchar *NameW) {
 	hFile = fopen(Name, CREATEBINARY);
 
 	NewFile = true;
@@ -97,8 +89,7 @@ bool File::Create(const char *Name, const wchar *NameW)
 	strcpy(FileName, Name);
 	if (hFile != BAD_HANDLE)
 		for (int I = 0; I < sizeof(CreatedFiles) / sizeof(CreatedFiles[0]); I++)
-			if (CreatedFiles[I] == NULL)
-			{
+			if (CreatedFiles[I] == NULL) {
 				CreatedFiles[I] = this;
 				break;
 			}
@@ -107,16 +98,14 @@ bool File::Create(const char *Name, const wchar *NameW)
 
 
 #if !defined(SHELL_EXT) && !defined(SFX_MODULE)
-void File::TCreate(const char *Name, const wchar *NameW)
-{
+void File::TCreate(const char *Name, const wchar *NameW) {
 	if (!WCreate(Name, NameW))
 		ErrHandler.Exit(FATAL_ERROR);
 }
 #endif
 
 
-bool File::WCreate(const char *Name, const wchar *NameW)
-{
+bool File::WCreate(const char *Name, const wchar *NameW) {
 	if (Create(Name, NameW))
 		return (true);
 	ErrHandler.CreateErrorMsg(Name);
@@ -124,19 +113,15 @@ bool File::WCreate(const char *Name, const wchar *NameW)
 }
 
 
-bool File::Close()
-{
+bool File::Close() {
 	bool Success = true;
 	if (HandleType != FILE_HANDLENORMAL)
 		HandleType = FILE_HANDLENORMAL;
-	else if (hFile != BAD_HANDLE)
-	{
-		if (!SkipClose)
-		{
+	else if (hFile != BAD_HANDLE) {
+		if (!SkipClose) {
 			Success = fclose(hFile) != EOF;
 			for (int I = 0; I < sizeof(CreatedFiles) / sizeof(CreatedFiles[0]); I++)
-				if (CreatedFiles[I] == this)
-				{
+				if (CreatedFiles[I] == this) {
 					CreatedFiles[I] = NULL;
 					break;
 				}
@@ -149,14 +134,12 @@ bool File::Close()
 }
 
 
-void File::Flush()
-{
+void File::Flush() {
 	fflush(hFile);
 }
 
 
-bool File::Delete()
-{
+bool File::Delete() {
 	if (HandleType != FILE_HANDLENORMAL || !AllowDelete)
 		return (false);
 	if (hFile != BAD_HANDLE)
@@ -167,11 +150,9 @@ bool File::Delete()
 }
 
 
-bool File::Rename(const char *NewName)
-{
+bool File::Rename(const char *NewName) {
 	bool Success = strcmp(FileName, NewName) == 0 || rename(FileName, NewName) == 0;
-	if (Success)
-	{
+	if (Success) {
 		strcpy(FileName, NewName);
 		*FileNameW = 0;
 	}
@@ -179,13 +160,11 @@ bool File::Rename(const char *NewName)
 }
 
 
-void File::Write(const void *Data, int Size)
-{
+void File::Write(const void *Data, int Size) {
 	if (Size == 0)
 		return;
 	if (HandleType != FILE_HANDLENORMAL)
-		switch (HandleType)
-		{
+		switch (HandleType) {
 		case FILE_HANDLESTD:
 			hFile = stdout;
 			break;
@@ -193,12 +172,10 @@ void File::Write(const void *Data, int Size)
 			hFile = stderr;
 			break;
 		}
-	while (1)
-	{
+	while (1) {
 		bool Success;
 		Success = (fwrite(Data, 1, Size, hFile) == Size && !ferror(hFile));
-		if (!Success && HandleType == FILE_HANDLENORMAL)
-		{
+		if (!Success && HandleType == FILE_HANDLENORMAL) {
 			if (ErrHandler.AskRepeatWrite(FileName))
 				continue;
 			ErrHandler.WriteError(FileName);
@@ -209,29 +186,23 @@ void File::Write(const void *Data, int Size)
 }
 
 
-int File::Read(void *Data, int Size)
-{
+int File::Read(void *Data, int Size) {
 	Int64 FilePos;
 	if (IgnoreReadErrors)
 		FilePos = Tell();
 	int ReadSize;
-	while (true)
-	{
+	while (true) {
 		ReadSize = DirectRead(Data, Size);
 		if (ReadSize == -1)
-			if (IgnoreReadErrors)
-			{
+			if (IgnoreReadErrors) {
 				ReadSize = 0;
-				for (int I = 0; I < Size; I += 512)
-				{
+				for (int I = 0; I < Size; I += 512) {
 					Seek(FilePos + I, SEEK_SET);
 					int SizeToRead = Min(Size - I, 512);
 					int ReadCode = DirectRead(Data, SizeToRead);
 					ReadSize += (ReadCode == -1) ? 512 : ReadCode;
 				}
-			}
-			else
-			{
+			} else {
 				if (HandleType == FILE_HANDLENORMAL && ErrHandler.AskRepeatRead(FileName))
 					continue;
 				ErrHandler.ReadError(FileName);
@@ -242,14 +213,11 @@ int File::Read(void *Data, int Size)
 }
 
 
-int File::DirectRead(void *Data, int Size)
-{
-	if (HandleType == FILE_HANDLESTD)
-	{
+int File::DirectRead(void *Data, int Size) {
+	if (HandleType == FILE_HANDLESTD) {
 		hFile = stdin;
 	}
-	if (LastWrite)
-	{
+	if (LastWrite) {
 		fflush(hFile);
 		LastWrite = false;
 	}
@@ -261,15 +229,13 @@ int File::DirectRead(void *Data, int Size)
 }
 
 
-void File::Seek(Int64 Offset, int Method)
-{
+void File::Seek(Int64 Offset, int Method) {
 	if (!RawSeek(Offset, Method))
 		ErrHandler.SeekError(FileName);
 }
 
 
-bool File::RawSeek(Int64 Offset, int Method)
-{
+bool File::RawSeek(Int64 Offset, int Method) {
 	if (hFile == BAD_HANDLE)
 		return (true);
 	LastWrite = false;
@@ -279,86 +245,73 @@ bool File::RawSeek(Int64 Offset, int Method)
 }
 
 
-Int64 File::Tell()
-{
+Int64 File::Tell() {
 	return (ftell(hFile));
 }
 
 
-void File::Prealloc(Int64 Size)
-{
+void File::Prealloc(Int64 Size) {
 }
 
 
-byte File::GetByte()
-{
+byte File::GetByte() {
 	byte Byte = 0;
 	Read(&Byte, 1);
 	return (Byte);
 }
 
 
-void File::PutByte(byte Byte)
-{
+void File::PutByte(byte Byte) {
 	Write(&Byte, 1);
 }
 
 
-bool File::Truncate()
-{
+bool File::Truncate() {
 	return (false);
 }
 
 
-void File::SetOpenFileTime(uint ft)
-{
+void File::SetOpenFileTime(uint ft) {
 }
 
 
-void File::SetCloseFileTime(uint ft)
-{
+void File::SetCloseFileTime(uint ft) {
 	struct utimbuf ut;
 	ut.actime = ut.modtime = DosTimeToUnix(ft);
 	utime(FileName, &ut);
 }
 
 
-uint File::GetOpenFileTime()
-{
+uint File::GetOpenFileTime() {
 	struct stat st;
 	fstat(fileno(hFile), &st);
 	return (UnixTimeToDos(st.st_mtime));
 }
 
 
-void File::SetOpenFileStat(uint FileTime)
-{
+void File::SetOpenFileStat(uint FileTime) {
 }
 
 
-void File::SetCloseFileStat(uint FileTime, uint FileAttr)
-{
+void File::SetCloseFileStat(uint FileTime, uint FileAttr) {
 	SetCloseFileTime(FileTime);
 	chmod(FileName, (mode_t)FileAttr);
 }
 
 
-Int64 File::FileLength()
-{
+Int64 File::FileLength() {
 	SaveFilePos SavePos(*this);
 	Seek(0, SEEK_END);
 	return (Tell());
 }
 
 
-void File::SetHandleType(FILE_HANDLETYPE Type)
-{
+void File::SetHandleType(FILE_HANDLETYPE Type) {
 	HandleType = Type;
 }
 
 
-bool File::IsDevice()
-{
+bool File::IsDevice() {
 	if (hFile == BAD_HANDLE)
 		return (false);
 	return (isatty(fileno(hFile)));
@@ -366,8 +319,7 @@ bool File::IsDevice()
 
 
 #ifndef SFX_MODULE
-void File::fprintf(const char *fmt, ...)
-{
+void File::fprintf(const char *fmt, ...) {
 	va_list argptr;
 	va_start(argptr, fmt);
 	char Msg[8192], OutMsg[8192];
@@ -379,8 +331,7 @@ void File::fprintf(const char *fmt, ...)
 #endif
 
 
-void File::RemoveCreated()
-{
+void File::RemoveCreated() {
 	for (int I = 0; I < sizeof(CreatedFiles) / sizeof(CreatedFiles[0]); I++)
 		if (CreatedFiles[I] != NULL)
 			CreatedFiles[I]->Delete();
@@ -388,14 +339,12 @@ void File::RemoveCreated()
 
 
 #ifndef SFX_MODULE
-long File::Copy(File &Dest, Int64 Length)
-{
+long File::Copy(File &Dest, Int64 Length) {
 	Array<char> Buffer(0x10000);
 	long CopySize = 0;
 	bool CopyAll = (Length == INT64ERR);
 
-	while (CopyAll || Length > 0)
-	{
+	while (CopyAll || Length > 0) {
 		Wait();
 		int SizeToRead = (!CopyAll && Length < Buffer.Size()) ? int64to32(Length) : Buffer.Size();
 		int ReadSize = Read(&Buffer[0], SizeToRead);

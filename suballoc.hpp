@@ -17,30 +17,25 @@ const int N_INDEXES = N1 + N2 + N3 + N4;
 #endif /* defined(__GNUC__) */
 
 #pragma pack(1)
-struct MEM_BLK
-{
+struct MEM_BLK {
 	ushort Stamp, NU;
 	MEM_BLK *next, * prev;
-	void insertAt(MEM_BLK *p)
-	{
+	void insertAt(MEM_BLK *p) {
 		next = (prev = p)->next;
 		p->next = next->prev = this;
 	}
-	void remove()
-	{
+	void remove() {
 		prev->next = next;
 		next->prev = prev;
 	}
 } _PACK_ATTR;
 #pragma pack()
 
-struct NODE
-{
+struct NODE {
 	NODE *next;
 };
 
-class SubAllocator
-{
+class SubAllocator {
 private:
 	inline void InsertNode(void *p, int indx);
 	inline void *RemoveNode(int indx);

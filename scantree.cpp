@@ -1,7 +1,6 @@
 #include "rar.hpp"
 
-ScanTree::ScanTree(StringList *FileMasks, int Recurse, bool GetLinks, int GetDirs)
-{
+ScanTree::ScanTree(StringList *FileMasks, int Recurse, bool GetLinks, int GetDirs) {
 	ScanTree::FileMasks = FileMasks;
 	ScanTree::Recurse = Recurse;
 	ScanTree::GetLinks = GetLinks;
@@ -16,27 +15,23 @@ ScanTree::ScanTree(StringList *FileMasks, int Recurse, bool GetLinks, int GetDir
 }
 
 
-ScanTree::~ScanTree()
-{
+ScanTree::~ScanTree() {
 	for (int I = Depth; I >= 0; I--)
 		if (FindStack[I] != NULL)
 			delete FindStack[I];
 }
 
 
-int ScanTree::GetNext(FindData *FindData)
-{
+int ScanTree::GetNext(FindData *FindData) {
 	if (Depth < 0)
 		return (SCAN_DONE);
 
 	int FindCode;
-	while (1)
-	{
+	while (1) {
 		if ((*CurMask == 0 || FastFindFile && Depth == 0) && !PrepareMasks())
 			return (SCAN_DONE);
 		FindCode = FindProc(FindData);
-		if (FindCode == SCAN_ERROR)
-		{
+		if (FindCode == SCAN_ERROR) {
 			Errors++;
 			continue;
 		}
@@ -52,15 +47,13 @@ int ScanTree::GetNext(FindData *FindData)
 }
 
 
-bool ScanTree::PrepareMasks()
-{
+bool ScanTree::PrepareMasks() {
 	if (!FileMasks->GetString(CurMask, CurMaskW, sizeof(CurMask)))
 		return (false);
 	char *Name = PointToName(CurMask);
 	if (*Name == 0)
 		strcat(CurMask, MASKALL);
-	if (Name[0] == '.' && (Name[1] == 0 || Name[1] == '.' && Name[2] == 0))
-	{
+	if (Name[0] == '.' && (Name[1] == 0 || Name[1] == '.' && Name[2] == 0)) {
 		AddEndSlash(CurMask);
 		strcat(CurMask, MASKALL);
 	}
@@ -70,22 +63,18 @@ bool ScanTree::PrepareMasks()
 
 	bool WideName = (*CurMaskW != 0);
 
-	if (WideName)
-	{
+	if (WideName) {
 		wchar *NameW = PointToName(CurMaskW);
 		if (*NameW == 0)
 			strcatw(CurMaskW, MASKALLW);
-		if (NameW[0] == '.' && (NameW[1] == 0 || NameW[1] == '.' && NameW[2] == 0))
-		{
+		if (NameW[0] == '.' && (NameW[1] == 0 || NameW[1] == '.' && NameW[2] == 0)) {
 			AddEndSlash(CurMaskW);
 			strcatw(CurMaskW, MASKALLW);
 		}
 		SpecPathLengthW = NameW - CurMaskW;
 //    if (SpecPathLengthW>1)
 //      SpecPathLengthW--;
-	}
-	else
-	{
+	} else {
 		wchar WideMask[NM];
 		CharToWide(CurMask, WideMask);
 		SpecPathLengthW = PointToName(WideMask) - WideMask;
@@ -95,13 +84,11 @@ bool ScanTree::PrepareMasks()
 }
 
 
-int ScanTree::FindProc(FindData *FindData)
-{
+int ScanTree::FindProc(FindData *FindData) {
 	if (*CurMask == 0)
 		return (SCAN_NEXT);
 	FastFindFile = false;
-	if (FindStack[Depth] == NULL)
-	{
+	if (FindStack[Depth] == NULL) {
 		bool Wildcards = IsWildcard(CurMask, CurMaskW);
 		bool FindCode = !Wildcards && FindFile::FastFind(CurMask, CurMaskW, FindData, GetLinks);
 		bool IsDir = FindCode && FindData->IsDir;
@@ -109,41 +96,34 @@ int ScanTree::FindProc(FindData *FindData)
 		                            Wildcards && Recurse == RECURSE_WILDCARDS);
 		if (Depth == 0)
 			SearchAllInRoot = SearchAll;
-		if (SearchAll || Wildcards)
-		{
+		if (SearchAll || Wildcards) {
 			FindStack[Depth] = new FindFile;
 			char SearchMask[NM];
 			strcpy(SearchMask, CurMask);
 			if (SearchAll)
 				strcpy(PointToName(SearchMask), MASKALL);
 			FindStack[Depth]->SetMask(SearchMask);
-			if (*CurMaskW)
-			{
+			if (*CurMaskW) {
 				wchar SearchMaskW[NM];
 				strcpyw(SearchMaskW, CurMaskW);
 				if (SearchAll)
 					strcpyw(PointToName(SearchMaskW), MASKALLW);
 				FindStack[Depth]->SetMaskW(SearchMaskW);
 			}
-		}
-		else
-		{
+		} else {
 			FastFindFile = true;
-			if (!FindCode)
-			{
+			if (!FindCode) {
 				ErrHandler.OpenErrorMsg(CurMask);
 				return (FindData->Error ? SCAN_ERROR : SCAN_NEXT);
 			}
 		}
 	}
 
-	if (!FastFindFile && !FindStack[Depth]->Next(FindData, GetLinks))
-	{
+	if (!FastFindFile && !FindStack[Depth]->Next(FindData, GetLinks)) {
 		bool Error = FindData->Error;
 
 #ifndef SILENT
-		if (Error)
-		{
+		if (Error) {
 			Log(NULL, St(MScanError), CurMask);
 		}
 #endif
@@ -160,8 +140,7 @@ int ScanTree::FindProc(FindData *FindData)
 		if (Depth < 0)
 			return (SCAN_DONE);
 		char *Slash = strrchrd(CurMask, CPATHDIVIDER);
-		if (Slash != NULL)
-		{
+		if (Slash != NULL) {
 			char Mask[NM];
 			strcpy(Mask, Slash);
 			*Slash = 0;
@@ -173,11 +152,9 @@ int ScanTree::FindProc(FindData *FindData)
 				strcpy(PrevSlash, Mask);
 		}
 
-		if (*CurMaskW != 0)
-		{
+		if (*CurMaskW != 0) {
 			wchar *Slash = strrchrw(CurMaskW, CPATHDIVIDER);
-			if (Slash != NULL)
-			{
+			if (Slash != NULL) {
 				wchar Mask[NM];
 				strcpyw(Mask, Slash);
 				*Slash = 0;
@@ -197,8 +174,7 @@ int ScanTree::FindProc(FindData *FindData)
 		return (Error ? SCAN_ERROR : SCAN_NEXT);
 	}
 
-	if (FindData->IsDir)
-	{
+	if (FindData->IsDir) {
 		if (!FastFindFile && Depth == 0 && !SearchAllInRoot)
 			return (GetDirs == SCAN_GETCURDIRS ? SCAN_SUCCESS : SCAN_NEXT);
 
@@ -206,8 +182,7 @@ int ScanTree::FindProc(FindData *FindData)
 		strcpy(Mask, FastFindFile ? MASKALL : PointToName(CurMask));
 		strcpy(CurMask, FindData->Name);
 
-		if (strlen(CurMask) + strlen(Mask) + 1 >= NM || Depth >= MAXSCANDEPTH - 1)
-		{
+		if (strlen(CurMask) + strlen(Mask) + 1 >= NM || Depth >= MAXSCANDEPTH - 1) {
 #ifndef SILENT
 			Log(NULL, "\n%s%c%s", CurMask, CPATHDIVIDER, Mask);
 			Log(NULL, St(MPathTooLong));
@@ -220,8 +195,7 @@ int ScanTree::FindProc(FindData *FindData)
 
 		if (*CurMaskW && *FindData->NameW == 0)
 			CharToWide(FindData->Name, FindData->NameW);
-		if (*FindData->NameW != 0)
-		{
+		if (*FindData->NameW != 0) {
 			wchar Mask[NM];
 			if (FastFindFile)
 				strcpyw(Mask, MASKALLW);

@@ -2,8 +2,7 @@
 
 #define Clean(D,S)  {for (int I=0;I<(S);I++) (D)[I]=0;}
 
-RSCoder::RSCoder(int ParSize)
-{
+RSCoder::RSCoder(int ParSize) {
 	RSCoder::ParSize = ParSize;
 	FirstBlockDone = false;
 	gfInit();
@@ -11,10 +10,8 @@ RSCoder::RSCoder(int ParSize)
 }
 
 
-void RSCoder::gfInit()
-{
-	for (int I = 0, J = 1; I < MAXPAR; I++)
-	{
+void RSCoder::gfInit() {
+	for (int I = 0, J = 1; I < MAXPAR; I++) {
 		gfLog[J] = I;
 		gfExp[I] = J;
 		if ((J <<= 1) & 256)
@@ -25,20 +22,17 @@ void RSCoder::gfInit()
 }
 
 
-inline int RSCoder::gfMult(int a, int b)
-{
+inline int RSCoder::gfMult(int a, int b) {
 	return (a == 0 || b == 0 ? 0 : gfExp[gfLog[a] + gfLog[b]]);
 }
 
 
-void RSCoder::pnInit()
-{
+void RSCoder::pnInit() {
 	int p1[MAXPAR + 1], p2[MAXPAR + 1];
 
 	Clean(p2, ParSize);
 	p2[0] = 1;
-	for (int I = 1; I <= ParSize; I++)
-	{
+	for (int I = 1; I <= ParSize; I++) {
 		Clean(p1, ParSize);
 		p1[0] = gfExp[I];
 		p1[1] = 1;
@@ -49,8 +43,7 @@ void RSCoder::pnInit()
 }
 
 
-void RSCoder::pnMult(int *p1, int *p2, int *r)
-{
+void RSCoder::pnMult(int *p1, int *p2, int *r) {
 	Clean(r, ParSize);
 	for (int I = 0; I < ParSize; I++)
 		if (p1[I] != 0)
@@ -59,13 +52,11 @@ void RSCoder::pnMult(int *p1, int *p2, int *r)
 }
 
 
-void RSCoder::Encode(byte *Data, int DataSize, byte *DestData)
-{
+void RSCoder::Encode(byte *Data, int DataSize, byte *DestData) {
 	int ShiftReg[MAXPAR + 1];
 
 	Clean(ShiftReg, ParSize + 1);
-	for (int I = 0; I < DataSize; I++)
-	{
+	for (int I = 0; I < DataSize; I++) {
 		int D = Data[I] ^ ShiftReg[ParSize - 1];
 		for (int J = ParSize - 1; J > 0; J--)
 			ShiftReg[J] = ShiftReg[J - 1] ^ gfMult(GXPol[J], D);
@@ -76,15 +67,12 @@ void RSCoder::Encode(byte *Data, int DataSize, byte *DestData)
 }
 
 
-bool RSCoder::Decode(byte *Data, int DataSize, int *EraLoc, int EraSize)
-{
+bool RSCoder::Decode(byte *Data, int DataSize, int *EraLoc, int EraSize) {
 	int SynData[MAXPOL];
 	bool AllZeroes = true;
-	for (int I = 0; I < ParSize; I++)
-	{
+	for (int I = 0; I < ParSize; I++) {
 		int Sum = Data[0], J = 1, Exp = gfExp[I + 1];
-		for (; J + 8 <= DataSize; J += 8)
-		{
+		for (; J + 8 <= DataSize; J += 8) {
 			Sum = Data[J] ^ gfMult(Exp, Sum);
 			Sum = Data[J + 1] ^ gfMult(Exp, Sum);
 			Sum = Data[J + 2] ^ gfMult(Exp, Sum);
@@ -102,8 +90,7 @@ bool RSCoder::Decode(byte *Data, int DataSize, int *EraLoc, int EraSize)
 	if (AllZeroes)
 		return (true);
 
-	if (!FirstBlockDone)
-	{
+	if (!FirstBlockDone) {
 		FirstBlockDone = true;
 		Clean(PolB, ParSize + 1);
 		PolB[0] = 1;
@@ -112,13 +99,11 @@ bool RSCoder::Decode(byte *Data, int DataSize, int *EraLoc, int EraSize)
 				PolB[I] ^= gfMult(M, PolB[I - 1]);
 
 		ErrCount = 0;
-		for (int Root = MAXPAR - DataSize; Root < MAXPAR + 1; Root++)
-		{
+		for (int Root = MAXPAR - DataSize; Root < MAXPAR + 1; Root++) {
 			int Sum = 0;
 			for (int B = 0; B < ParSize + 1; B++)
 				Sum ^= gfMult(gfExp[(B * Root) % MAXPAR], PolB[B]);
-			if (Sum == 0)
-			{
+			if (Sum == 0) {
 				Dn[ErrCount] = 0;
 				for (int I = 1; I < ParSize + 1; I += 2)
 					Dn[ErrCount] ^= gfMult(PolB[I], gfExp[Root * (I - 1) % MAXPAR]);
@@ -130,8 +115,7 @@ bool RSCoder::Decode(byte *Data, int DataSize, int *EraLoc, int EraSize)
 	int PolD[MAXPOL];
 	pnMult(PolB, SynData, PolD);
 	if ((ErrCount <= ParSize) && ErrCount > 0)
-		for (int I = 0; I < ErrCount; I++)
-		{
+		for (int I = 0; I < ErrCount; I++) {
 			int Loc = ErrorLocs[I], DLoc = MAXPAR - Loc, N = 0;
 			for (int J = 0; J < ParSize; J++)
 				N ^= gfMult(PolD[J], gfExp[DLoc * J % MAXPAR]);

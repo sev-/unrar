@@ -1,8 +1,7 @@
 #ifndef _RAR_ARRAY_
 #define _RAR_ARRAY_
 
-template <class T> class Array
-{
+template <class T> class Array {
 private:
 	T *Buffer;
 	int BufSize;
@@ -22,22 +21,19 @@ public:
 };
 
 
-template <class T> void Array<T>::CleanData()
-{
+template <class T> void Array<T>::CleanData() {
 	Buffer = NULL;
 	BufSize = 0;
 	AllocSize = 0;
 }
 
 
-template <class T> Array<T>::Array()
-{
+template <class T> Array<T>::Array() {
 	CleanData();
 }
 
 
-template <class T> Array<T>::Array(int Size)
-{
+template <class T> Array<T>::Array(int Size) {
 	Buffer = (T *)malloc(sizeof(T) * Size);
 	if (Buffer == NULL && Size != 0)
 		ErrHandler.MemoryError();
@@ -46,30 +42,25 @@ template <class T> Array<T>::Array(int Size)
 }
 
 
-template <class T> Array<T>::~Array()
-{
+template <class T> Array<T>::~Array() {
 	if (Buffer != NULL)
 		free(Buffer);
 }
 
 
-template <class T> inline T &Array<T>::operator [](int Item)
-{
+template <class T> inline T &Array<T>::operator [](int Item) {
 	return (Buffer[Item]);
 }
 
 
-template <class T> inline int Array<T>::Size()
-{
+template <class T> inline int Array<T>::Size() {
 	return (BufSize);
 }
 
 
-template <class T> void Array<T>::Add(int Items)
-{
+template <class T> void Array<T>::Add(int Items) {
 	BufSize += Items;
-	if (BufSize > AllocSize)
-	{
+	if (BufSize > AllocSize) {
 		int Suggested = AllocSize + AllocSize / 4 + 32;
 		int NewSize = Max(BufSize, Suggested);
 
@@ -82,8 +73,7 @@ template <class T> void Array<T>::Add(int Items)
 }
 
 
-template <class T> void Array<T>::Alloc(int Items)
-{
+template <class T> void Array<T>::Alloc(int Items) {
 	if (Items > AllocSize)
 		Add(Items - BufSize);
 	else
@@ -91,10 +81,8 @@ template <class T> void Array<T>::Alloc(int Items)
 }
 
 
-template <class T> void Array<T>::Reset()
-{
-	if (Buffer != NULL)
-	{
+template <class T> void Array<T>::Reset() {
+	if (Buffer != NULL) {
 		free(Buffer);
 		Buffer = NULL;
 	}
@@ -103,8 +91,7 @@ template <class T> void Array<T>::Reset()
 }
 
 
-template <class T> void Array<T>::operator =(Array<T> &Src)
-{
+template <class T> void Array<T>::operator =(Array<T> &Src) {
 	Reset();
 	Alloc(Src.BufSize);
 //  AllocSize=Src.AllocSize;
@@ -114,8 +101,7 @@ template <class T> void Array<T>::operator =(Array<T> &Src)
 }
 
 
-template <class T> void Array<T>::Push(T Item)
-{
+template <class T> void Array<T>::Push(T Item) {
 	Add(1);
 	(*this)[Size() - 1] = Item;
 }

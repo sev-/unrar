@@ -11,25 +11,21 @@ const int INT_BITS = 7, PERIOD_BITS = 7, TOT_BITS = INT_BITS + PERIOD_BITS,
 
 #pragma pack(1)
 
-struct SEE2_CONTEXT
-{	// SEE-contexts for PPM-contexts with masked symbols
+struct SEE2_CONTEXT {
+	// SEE-contexts for PPM-contexts with masked symbols
 	ushort Summ;
 	byte Shift, Count;
-	void init(int InitVal)
-	{
+	void init(int InitVal) {
 		Summ = InitVal << (Shift = PERIOD_BITS - 4);
 		Count = 4;
 	}
-	uint getMean()
-	{
+	uint getMean() {
 		uint RetVal = SHORT16(Summ) >> Shift;
 		Summ -= RetVal;
 		return RetVal + (RetVal == 0);
 	}
-	void update()
-	{
-		if (Shift < PERIOD_BITS && --Count == 0)
-		{
+	void update() {
+		if (Shift < PERIOD_BITS && --Count == 0) {
 			Summ += Summ;
 			Count = 3 << Shift++;
 		}
@@ -40,20 +36,16 @@ struct SEE2_CONTEXT
 class ModelPPM;
 struct PPM_CONTEXT;
 
-struct STATE
-{
+struct STATE {
 	byte Symbol;
 	byte Freq;
 	PPM_CONTEXT *Successor;
 };
 
-struct PPM_CONTEXT
-{
+struct PPM_CONTEXT {
 	ushort NumStats;
-	union
-	{
-		struct
-		{
+	union {
+		struct {
 			ushort SummFreq;
 			STATE _PACK_ATTR *Stats;
 		} U;
@@ -92,8 +84,7 @@ inline void _PPMD_SWAP(T &t1, T &t2) {
 }
 
 
-class ModelPPM
-{
+class ModelPPM {
 private:
 	friend struct PPM_CONTEXT;
 

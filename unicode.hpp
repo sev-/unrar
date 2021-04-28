@@ -30,8 +30,7 @@ int toupperw(int ch);
 int atoiw(const wchar *s);
 
 #ifdef DBCS_SUPPORTED
-class SupportDBCS
-{
+class SupportDBCS {
 public:
 	SupportDBCS();
 

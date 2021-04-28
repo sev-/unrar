@@ -1,8 +1,7 @@
 #ifndef _RAR_SAVEPOS_
 #define _RAR_SAVEPOS_
 
-class SaveFilePos
-{
+class SaveFilePos {
 private:
 	File *SaveFile;
 	Int64 SavePos;

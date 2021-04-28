@@ -5,8 +5,7 @@ class Pack;
 
 enum { EN_LOCK = 1, EN_VOL = 2, EN_FIRSTVOL = 4 };
 
-class Archive: public File
-{
+class Archive: public File {
 private:
 	bool IsSignature(byte *D);
 	void UpdateLatestTime(FileHeader *CurBlock);

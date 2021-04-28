@@ -10,15 +10,13 @@ static MESSAGE_TYPE MsgStream = MSG_STDOUT;
 static bool Sound = false;
 const int MaxMsgSize = 4096;
 
-void InitConsoleOptions(MESSAGE_TYPE MsgStream, bool Sound)
-{
+void InitConsoleOptions(MESSAGE_TYPE MsgStream, bool Sound) {
 	::MsgStream = MsgStream;
 	::Sound = Sound;
 }
 
 #if !defined(GUI) && !defined(SILENT)
-void mprintf(const char *fmt, ...)
-{
+void mprintf(const char *fmt, ...) {
 	if (MsgStream == MSG_NULL)
 		return;
 	char Msg[MaxMsgSize];
@@ -32,8 +30,7 @@ void mprintf(const char *fmt, ...)
 
 
 #if !defined(GUI) && !defined(SILENT)
-void eprintf(const char *fmt, ...)
-{
+void eprintf(const char *fmt, ...) {
 	if (MsgStream == MSG_NULL)
 		return;
 	char Msg[MaxMsgSize];
@@ -47,11 +44,9 @@ void eprintf(const char *fmt, ...)
 
 
 #if !defined(GUI) && !defined(SILENT)
-void RawPrint(char *Msg, MESSAGE_TYPE MessageType)
-{
+void RawPrint(char *Msg, MESSAGE_TYPE MessageType) {
 	File OutFile;
-	switch (MessageType)
-	{
+	switch (MessageType) {
 	case MSG_STDOUT:
 		OutFile.SetHandleType(FILE_HANDLESTD);
 		break;
@@ -76,8 +71,7 @@ void RawPrint(char *Msg, MESSAGE_TYPE MessageType)
 
 
 #ifndef SILENT
-void Alarm()
-{
+void Alarm() {
 #ifndef SFX_MODULE
 	if (Sound)
 		putchar('\007');
@@ -88,8 +82,7 @@ void Alarm()
 
 #ifndef SILENT
 #ifndef GUI
-void GetPasswordText(char *Str, int MaxLength)
-{
+void GetPasswordText(char *Str, int MaxLength) {
 	strncpy(Str, getpass(""), MaxLength - 1);
 	RemoveLF(Str);
 }
@@ -98,8 +91,7 @@ void GetPasswordText(char *Str, int MaxLength)
 
 
 #if !defined(GUI) && !defined(SILENT)
-unsigned int GetKey()
-{
+unsigned int GetKey() {
 #ifdef SILENT
 	return (0);
 #else
@@ -119,15 +111,12 @@ unsigned int GetKey()
 
 
 #ifndef SILENT
-bool GetPassword(PASSWORD_TYPE Type, const char *FileName, char *Password, int MaxLength)
-{
+bool GetPassword(PASSWORD_TYPE Type, const char *FileName, char *Password, int MaxLength) {
 	Alarm();
-	while (true)
-	{
+	while (true) {
 		char PromptStr[256];
 		strcpy(PromptStr, St(MAskPsw));
-		if (Type != PASSWORD_GLOBAL)
-		{
+		if (Type != PASSWORD_GLOBAL) {
 			strcat(PromptStr, St(MFor));
 			strcat(PromptStr, PointToName(FileName));
 		}
@@ -135,14 +124,12 @@ bool GetPassword(PASSWORD_TYPE Type, const char *FileName, char *Password, int M
 		GetPasswordText(Password, MaxLength);
 		if (*Password == 0 && Type == PASSWORD_GLOBAL)
 			return (false);
-		if (Type == PASSWORD_GLOBAL)
-		{
+		if (Type == PASSWORD_GLOBAL) {
 			strcpy(PromptStr, St(MReAskPsw));
 			eprintf(PromptStr);
 			char CmpStr[256];
 			GetPasswordText(CmpStr, sizeof(CmpStr));
-			if (*CmpStr == 0 || strcmp(Password, CmpStr) != 0)
-			{
+			if (*CmpStr == 0 || strcmp(Password, CmpStr) != 0) {
 				strcpy(PromptStr, St(MNotMatchPsw));
 				eprintf(PromptStr);
 				memset(Password, 0, MaxLength);
@@ -159,22 +146,19 @@ bool GetPassword(PASSWORD_TYPE Type, const char *FileName, char *Password, int M
 
 
 #if !defined(GUI) && !defined(SILENT)
-int Ask(const char *AskStr)
-{
+int Ask(const char *AskStr) {
 	const int MaxItems = 10;
 	char Item[MaxItems][40];
 	int ItemKeyPos[MaxItems], NumItems = 0;
 
-	for (const char *NextItem = AskStr; NextItem != NULL; NextItem = strchr(NextItem + 1, '_'))
-	{
+	for (const char *NextItem = AskStr; NextItem != NULL; NextItem = strchr(NextItem + 1, '_')) {
 		char *CurItem = Item[NumItems];
 		strncpy(CurItem, NextItem + 1, sizeof(Item[0]));
 		char *EndItem = strchr(CurItem, '_');
 		if (EndItem != NULL)
 			*EndItem = 0;
 		int KeyPos = 0, CurKey;
-		while ((CurKey = CurItem[KeyPos]) != 0)
-		{
+		while ((CurKey = CurItem[KeyPos]) != 0) {
 			bool Found = false;
 			for (int I = 0; I < NumItems && !Found; I++)
 				if (loctoupper(Item[I][ItemKeyPos[I]]) == loctoupper(CurKey))
@@ -187,8 +171,7 @@ int Ask(const char *AskStr)
 		NumItems++;
 	}
 
-	for (int I = 0; I < NumItems; I++)
-	{
+	for (int I = 0; I < NumItems; I++) {
 		eprintf(I == 0 ? (NumItems > 4 ? "\n" : " ") : ", ");
 		int KeyPos = ItemKeyPos[I];
 		for (int J = 0; J < KeyPos; J++)
@@ -206,15 +189,12 @@ int Ask(const char *AskStr)
 #endif
 
 
-int KbdAnsi(char *Addr, int Size)
-{
+int KbdAnsi(char *Addr, int Size) {
 	int RetCode = 0;
 #ifndef GUI
 	for (int I = 0; I < Size; I++)
-		if (Addr[I] == 27 && Addr[I + 1] == '[')
-		{
-			for (int J = I + 2; J < Size; J++)
-			{
+		if (Addr[I] == 27 && Addr[I + 1] == '[') {
+			for (int J = I + 2; J < Size; J++) {
 				if (Addr[J] == '\"')
 					return (2);
 				if (!isdigit(Addr[J]) && Addr[J] != ';')
@@ -227,14 +207,12 @@ int KbdAnsi(char *Addr, int Size)
 }
 
 
-void OutComment(char *Comment, int Size)
-{
+void OutComment(char *Comment, int Size) {
 #ifndef GUI
 	if (KbdAnsi(Comment, Size) == 2)
 		return;
 	const int MaxOutSize = 0x400;
-	for (int I = 0; I < Size; I += MaxOutSize)
-	{
+	for (int I = 0; I < Size; I += MaxOutSize) {
 		char Msg[MaxOutSize + 1];
 		strncpy(Msg, Comment + I, MaxOutSize);
 		Msg[Min(MaxOutSize, Size - I)] = 0;

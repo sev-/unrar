@@ -1,8 +1,7 @@
 #ifndef _RAR_STRLIST_
 #define _RAR_STRLIST_
 
-class StringList
-{
+class StringList {
 private:
 	Array<char> StringData;
 	unsigned int CurPos;

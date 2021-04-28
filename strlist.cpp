@@ -1,18 +1,15 @@
 #include "rar.hpp"
 
-StringList::StringList()
-{
+StringList::StringList() {
 	Reset();
 }
 
 
-StringList::~StringList()
-{
+StringList::~StringList() {
 }
 
 
-void StringList::Reset()
-{
+void StringList::Reset() {
 	Rewind();
 	StringData.Reset();
 	StringDataW.Reset();
@@ -22,19 +19,16 @@ void StringList::Reset()
 }
 
 
-unsigned int StringList::AddString(const char *Str)
-{
+unsigned int StringList::AddString(const char *Str) {
 	return (AddString(Str, NULL));
 }
 
 
-unsigned int StringList::AddString(const char *Str, const wchar *StrW)
-{
+unsigned int StringList::AddString(const char *Str, const wchar *StrW) {
 	int PrevSize = StringData.Size();
 	StringData.Add(strlen(Str) + 1);
 	strcpy(&StringData[PrevSize], Str);
-	if (StrW != NULL && *StrW != 0)
-	{
+	if (StrW != NULL && *StrW != 0) {
 		int PrevPos = PosDataW.Size();
 		PosDataW.Add(1);
 		PosDataW[PrevPos] = PrevSize;
@@ -48,14 +42,12 @@ unsigned int StringList::AddString(const char *Str, const wchar *StrW)
 }
 
 
-bool StringList::GetString(char *Str, int MaxLength)
-{
+bool StringList::GetString(char *Str, int MaxLength) {
 	return (GetString(Str, NULL, MaxLength));
 }
 
 
-bool StringList::GetString(char *Str, wchar *StrW, int MaxLength)
-{
+bool StringList::GetString(char *Str, wchar *StrW, int MaxLength) {
 	char *StrPtr;
 	wchar *StrPtrW;
 	if (Str == NULL || !GetString(&StrPtr, &StrPtrW))
@@ -68,14 +60,12 @@ bool StringList::GetString(char *Str, wchar *StrW, int MaxLength)
 
 
 #ifndef SFX_MODULE
-bool StringList::GetString(char *Str, wchar *StrW, int MaxLength, int StringNum)
-{
+bool StringList::GetString(char *Str, wchar *StrW, int MaxLength, int StringNum) {
 	SavePosition();
 	Rewind();
 	bool RetCode = true;
 	while (StringNum-- >= 0)
-		if (!GetString(Str, StrW, MaxLength))
-		{
+		if (!GetString(Str, StrW, MaxLength)) {
 			RetCode = false;
 			break;
 		}
@@ -85,8 +75,7 @@ bool StringList::GetString(char *Str, wchar *StrW, int MaxLength, int StringNum)
 #endif
 
 
-char *StringList::GetString()
-{
+char *StringList::GetString() {
 	char *Str;
 	GetString(&Str, NULL);
 	return (Str);
@@ -94,60 +83,51 @@ char *StringList::GetString()
 
 
 
-bool StringList::GetString(char **Str, wchar **StrW)
-{
-	if (CurPos >= StringData.Size())
-	{
+bool StringList::GetString(char **Str, wchar **StrW) {
+	if (CurPos >= StringData.Size()) {
 		*Str = NULL;
 		return (false);
 	}
 	*Str = &StringData[CurPos];
-	if (PosDataItem < PosDataW.Size() && PosDataW[PosDataItem] == CurPos)
-	{
+	if (PosDataItem < PosDataW.Size() && PosDataW[PosDataItem] == CurPos) {
 		PosDataItem++;
 		if (StrW != NULL)
 			*StrW = &StringDataW[CurPosW];
 		CurPosW += strlenw(&StringDataW[CurPosW]) + 1;
-	}
-	else if (StrW != NULL)
+	} else if (StrW != NULL)
 		*StrW = NULL;
 	CurPos += strlen(*Str) + 1;
 	return (true);
 }
 
 
-char *StringList::GetString(unsigned int StringPos)
-{
+char *StringList::GetString(unsigned int StringPos) {
 	if (StringPos >= StringData.Size())
 		return (NULL);
 	return (&StringData[StringPos]);
 }
 
 
-void StringList::Rewind()
-{
+void StringList::Rewind() {
 	CurPos = 0;
 	CurPosW = 0;
 	PosDataItem = 0;
 }
 
 
-int StringList::GetBufferSize()
-{
+int StringList::GetBufferSize() {
 	return (StringData.Size() + StringDataW.Size());
 }
 
 
 #ifndef SFX_MODULE
-bool StringList::Search(char *Str, wchar *StrW, bool CaseSensitive)
-{
+bool StringList::Search(char *Str, wchar *StrW, bool CaseSensitive) {
 	SavePosition();
 	Rewind();
 	bool Found = false;
 	char *CurStr;
 	wchar *CurStrW;
-	while (GetString(&CurStr, &CurStrW))
-	{
+	while (GetString(&CurStr, &CurStrW)) {
 		if ((CaseSensitive ? strcmp(Str, CurStr) : stricomp(Str, CurStr)) != 0)
 			continue;
 		if (StrW != NULL && CurStrW != NULL)
@@ -163,10 +143,8 @@ bool StringList::Search(char *Str, wchar *StrW, bool CaseSensitive)
 
 
 #ifndef SFX_MODULE
-void StringList::SavePosition()
-{
-	if (SavePosNumber < sizeof(SaveCurPos) / sizeof(SaveCurPos[0]))
-	{
+void StringList::SavePosition() {
+	if (SavePosNumber < sizeof(SaveCurPos) / sizeof(SaveCurPos[0])) {
 		SaveCurPos[SavePosNumber] = CurPos;
 		SaveCurPosW[SavePosNumber] = CurPosW;
 		SavePosDataItem[SavePosNumber] = PosDataItem;
@@ -177,10 +155,8 @@ void StringList::SavePosition()
 
 
 #ifndef SFX_MODULE
-void StringList::RestorePosition()
-{
-	if (SavePosNumber > 0)
-	{
+void StringList::RestorePosition() {
+	if (SavePosNumber > 0) {
 		SavePosNumber--;
 		CurPos = SaveCurPos[SavePosNumber];
 		CurPosW = SaveCurPosW[SavePosNumber];

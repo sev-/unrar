@@ -10,8 +10,7 @@
 #define VMCF_USEFLAGS       32
 #define VMCF_CHFLAGS        64
 
-static byte VM_CmdFlags[] =
-{
+static byte VM_CmdFlags[] = {
 	/* VM_MOV   */ VMCF_OP2 | VMCF_BYTEMODE,
 	/* VM_CMP   */ VMCF_OP2 | VMCF_BYTEMODE | VMCF_CHFLAGS,
 	/* VM_ADD   */ VMCF_OP2 | VMCF_BYTEMODE | VMCF_CHFLAGS,
@@ -54,31 +53,26 @@ static byte VM_CmdFlags[] =
 	/* VM_PRINT */ VMCF_OP0
 };
 
-RarVM::RarVM()
-{
+RarVM::RarVM() {
 	Mem = NULL;
 }
 
 
-RarVM::~RarVM()
-{
+RarVM::~RarVM() {
 	delete Mem;
 }
 
 
-void RarVM::Init()
-{
+void RarVM::Init() {
 	if (Mem == NULL)
 		Mem = new byte[VM_MEMSIZE + 4];
 }
 
 
-inline uint RarVM::GetValue(bool ByteMode, uint *Addr)
-{
+inline uint RarVM::GetValue(bool ByteMode, uint *Addr) {
 	if (ByteMode)
 		return (*(byte *)Addr);
-	else
-	{
+	else {
 #ifdef BIG_ENDIAN
 		byte *B = (byte *)Addr;
 		return ((uint)B[0] | ((uint)B[1] << 8) | ((uint)B[2] << 16) | ((uint)B[3] << 24));
@@ -95,12 +89,10 @@ inline uint RarVM::GetValue(bool ByteMode, uint *Addr)
 #endif
 
 
-inline void RarVM::SetValue(bool ByteMode, uint *Addr, uint Value)
-{
+inline void RarVM::SetValue(bool ByteMode, uint *Addr, uint Value) {
 	if (ByteMode)
 		*(byte *)Addr = Value;
-	else
-	{
+	else {
 #ifdef BIG_ENDIAN
 		((byte *)Addr)[0] = (byte)Value;
 		((byte *)Addr)[1] = (byte)(Value >> 8);
@@ -119,14 +111,12 @@ inline void RarVM::SetValue(bool ByteMode, uint *Addr, uint Value)
 #endif
 
 
-void RarVM::SetValue(uint *Addr, uint Value)
-{
+void RarVM::SetValue(uint *Addr, uint Value) {
 	SetValue(false, Addr, Value);
 }
 
 
-inline uint *RarVM::GetOperand(VM_PreparedOperand *CmdOp)
-{
+inline uint *RarVM::GetOperand(VM_PreparedOperand *CmdOp) {
 	if (CmdOp->Type == VM_OPREGMEM)
 		return ((uint *)&Mem[(*CmdOp->Addr + CmdOp->Base)&VM_MEMMASK]);
 	else
@@ -134,8 +124,7 @@ inline uint *RarVM::GetOperand(VM_PreparedOperand *CmdOp)
 }
 
 
-void RarVM::Execute(VM_PreparedProgram *Prg)
-{
+void RarVM::Execute(VM_PreparedProgram *Prg) {
 	memcpy(R, Prg->InitR, sizeof(Prg->InitR));
 	unsigned int GlobalSize = Min(Prg->GlobalData.Size(), VM_GLOBALMEMSIZE);
 	if (GlobalSize)
@@ -159,8 +148,7 @@ void RarVM::Execute(VM_PreparedProgram *Prg)
 
 	Prg->GlobalData.Reset();
 	uint DataSize = Min(GET_VALUE(false, (uint *)&Mem[VM_GLOBALMEMADDR + 0x30]), VM_GLOBALMEMSIZE);
-	if (DataSize != 0)
-	{
+	if (DataSize != 0) {
 		Prg->GlobalData.Add(DataSize + VM_FIXEDGLOBALSIZE);
 		memcpy(&Prg->GlobalData[0], &Mem[VM_GLOBALMEMADDR], DataSize + VM_FIXEDGLOBALSIZE);
 	}
@@ -174,16 +162,13 @@ void RarVM::Execute(VM_PreparedProgram *Prg)
 		return(false);                      \
 	Cmd=PreparedCode+(IP);
 
-bool RarVM::ExecuteCode(VM_PreparedCommand *PreparedCode, int CodeSize)
-{
+bool RarVM::ExecuteCode(VM_PreparedCommand *PreparedCode, int CodeSize) {
 	int MaxOpCount = 25000000;
 	VM_PreparedCommand *Cmd = PreparedCode;
-	while (1)
-	{
+	while (1) {
 		uint *Op1 = GetOperand(&Cmd->Op1);
 		uint *Op2 = GetOperand(&Cmd->Op2);
-		switch (Cmd->OpCode)
-		{
+		switch (Cmd->OpCode) {
 #ifndef NORARVM
 		case VM_MOV:
 			SET_VALUE(Cmd->ByteMode, Op1, GET_VALUE(Cmd->ByteMode, Op2));
@@ -196,31 +181,27 @@ bool RarVM::ExecuteCode(VM_PreparedCommand *PreparedCode, int CodeSize)
 			SET_VALUE(false, Op1, GET_VALUE(false, Op2));
 			break;
 #endif
-		case VM_CMP:
-		{
+		case VM_CMP: {
 			uint Value1 = GET_VALUE(Cmd->ByteMode, Op1);
 			uint Result = Value1 - GET_VALUE(Cmd->ByteMode, Op2);
 			Flags = Result == 0 ? VM_FZ : (Result > Value1) | (Result & VM_FS);
 		}
 		break;
 #ifdef VM_OPTIMIZE
-		case VM_CMPB:
-		{
+		case VM_CMPB: {
 			uint Value1 = GET_VALUE(true, Op1);
 			uint Result = Value1 - GET_VALUE(true, Op2);
 			Flags = Result == 0 ? VM_FZ : (Result > Value1) | (Result & VM_FS);
 		}
 		break;
-		case VM_CMPD:
-		{
+		case VM_CMPD: {
 			uint Value1 = GET_VALUE(false, Op1);
 			uint Result = Value1 - GET_VALUE(false, Op2);
 			Flags = Result == 0 ? VM_FZ : (Result > Value1) | (Result & VM_FS);
 		}
 		break;
 #endif
-		case VM_ADD:
-		{
+		case VM_ADD: {
 			uint Value1 = GET_VALUE(Cmd->ByteMode, Op1);
 			uint Result = Value1 + GET_VALUE(Cmd->ByteMode, Op2);
 			Flags = Result == 0 ? VM_FZ : (Result < Value1) | (Result & VM_FS);
@@ -235,8 +216,7 @@ bool RarVM::ExecuteCode(VM_PreparedCommand *PreparedCode, int CodeSize)
 			SET_VALUE(false, Op1, GET_VALUE(false, Op1) + GET_VALUE(false, Op2));
 			break;
 #endif
-		case VM_SUB:
-		{
+		case VM_SUB: {
 			uint Value1 = GET_VALUE(Cmd->ByteMode, Op1);
 			uint Result = Value1 - GET_VALUE(Cmd->ByteMode, Op2);
 			Flags = Result == 0 ? VM_FZ : (Result > Value1) | (Result & VM_FS);
@@ -252,21 +232,18 @@ bool RarVM::ExecuteCode(VM_PreparedCommand *PreparedCode, int CodeSize)
 			break;
 #endif
 		case VM_JZ:
-			if ((Flags & VM_FZ) != 0)
-			{
+			if ((Flags & VM_FZ) != 0) {
 				SET_IP(GET_VALUE(false, Op1));
 				continue;
 			}
 			break;
 		case VM_JNZ:
-			if ((Flags & VM_FZ) == 0)
-			{
+			if ((Flags & VM_FZ) == 0) {
 				SET_IP(GET_VALUE(false, Op1));
 				continue;
 			}
 			break;
-		case VM_INC:
-		{
+		case VM_INC: {
 			uint Result = GET_VALUE(Cmd->ByteMode, Op1) + 1;
 			SET_VALUE(Cmd->ByteMode, Op1, Result);
 			Flags = Result == 0 ? VM_FZ : Result & VM_FS;
@@ -280,8 +257,7 @@ bool RarVM::ExecuteCode(VM_PreparedCommand *PreparedCode, int CodeSize)
 			SET_VALUE(false, Op1, GET_VALUE(false, Op1) + 1);
 			break;
 #endif
-		case VM_DEC:
-		{
+		case VM_DEC: {
 			uint Result = GET_VALUE(Cmd->ByteMode, Op1) - 1;
 			SET_VALUE(Cmd->ByteMode, Op1, Result);
 			Flags = Result == 0 ? VM_FZ : Result & VM_FS;
@@ -298,71 +274,61 @@ bool RarVM::ExecuteCode(VM_PreparedCommand *PreparedCode, int CodeSize)
 		case VM_JMP:
 			SET_IP(GET_VALUE(false, Op1));
 			continue;
-		case VM_XOR:
-		{
+		case VM_XOR: {
 			uint Result = GET_VALUE(Cmd->ByteMode, Op1)^GET_VALUE(Cmd->ByteMode, Op2);
 			Flags = Result == 0 ? VM_FZ : Result & VM_FS;
 			SET_VALUE(Cmd->ByteMode, Op1, Result);
 		}
 		break;
-		case VM_AND:
-		{
+		case VM_AND: {
 			uint Result = GET_VALUE(Cmd->ByteMode, Op1)&GET_VALUE(Cmd->ByteMode, Op2);
 			Flags = Result == 0 ? VM_FZ : Result & VM_FS;
 			SET_VALUE(Cmd->ByteMode, Op1, Result);
 		}
 		break;
-		case VM_OR:
-		{
+		case VM_OR: {
 			uint Result = GET_VALUE(Cmd->ByteMode, Op1) | GET_VALUE(Cmd->ByteMode, Op2);
 			Flags = Result == 0 ? VM_FZ : Result & VM_FS;
 			SET_VALUE(Cmd->ByteMode, Op1, Result);
 		}
 		break;
-		case VM_TEST:
-		{
+		case VM_TEST: {
 			uint Result = GET_VALUE(Cmd->ByteMode, Op1)&GET_VALUE(Cmd->ByteMode, Op2);
 			Flags = Result == 0 ? VM_FZ : Result & VM_FS;
 		}
 		break;
 		case VM_JS:
-			if ((Flags & VM_FS) != 0)
-			{
+			if ((Flags & VM_FS) != 0) {
 				SET_IP(GET_VALUE(false, Op1));
 				continue;
 			}
 			break;
 		case VM_JNS:
-			if ((Flags & VM_FS) == 0)
-			{
+			if ((Flags & VM_FS) == 0) {
 				SET_IP(GET_VALUE(false, Op1));
 				continue;
 			}
 			break;
 		case VM_JB:
-			if ((Flags & VM_FC) != 0)
-			{
+			if ((Flags & VM_FC) != 0) {
 				SET_IP(GET_VALUE(false, Op1));
 				continue;
 			}
 			break;
 		case VM_JBE:
-			if ((Flags & (VM_FC | VM_FZ)) != 0)
-			{
+			if ((Flags & (VM_FC | VM_FZ)) != 0) {
 				SET_IP(GET_VALUE(false, Op1));
 				continue;
 			}
 			break;
 		case VM_JA:
-			if ((Flags & (VM_FC | VM_FZ)) == 0)
-			{
+			if ((Flags & (VM_FC | VM_FZ)) == 0) {
 				SET_IP(GET_VALUE(false, Op1));
 				continue;
 			}
 			break;
 		case VM_JAE:
-			if ((Flags & VM_FC) == 0)
-			{
+			if ((Flags & VM_FC) == 0) {
 				SET_IP(GET_VALUE(false, Op1));
 				continue;
 			}
@@ -383,8 +349,7 @@ bool RarVM::ExecuteCode(VM_PreparedCommand *PreparedCode, int CodeSize)
 		case VM_NOT:
 			SET_VALUE(Cmd->ByteMode, Op1, ~GET_VALUE(Cmd->ByteMode, Op1));
 			break;
-		case VM_SHL:
-		{
+		case VM_SHL: {
 			uint Value1 = GET_VALUE(Cmd->ByteMode, Op1);
 			uint Value2 = GET_VALUE(Cmd->ByteMode, Op2);
 			uint Result = Value1 << Value2;
@@ -392,8 +357,7 @@ bool RarVM::ExecuteCode(VM_PreparedCommand *PreparedCode, int CodeSize)
 			SET_VALUE(Cmd->ByteMode, Op1, Result);
 		}
 		break;
-		case VM_SHR:
-		{
+		case VM_SHR: {
 			uint Value1 = GET_VALUE(Cmd->ByteMode, Op1);
 			uint Value2 = GET_VALUE(Cmd->ByteMode, Op2);
 			uint Result = Value1 >> Value2;
@@ -401,8 +365,7 @@ bool RarVM::ExecuteCode(VM_PreparedCommand *PreparedCode, int CodeSize)
 			SET_VALUE(Cmd->ByteMode, Op1, Result);
 		}
 		break;
-		case VM_SAR:
-		{
+		case VM_SAR: {
 			uint Value1 = GET_VALUE(Cmd->ByteMode, Op1);
 			uint Value2 = GET_VALUE(Cmd->ByteMode, Op2);
 			uint Result = ((int)Value1) >> Value2;
@@ -410,8 +373,7 @@ bool RarVM::ExecuteCode(VM_PreparedCommand *PreparedCode, int CodeSize)
 			SET_VALUE(Cmd->ByteMode, Op1, Result);
 		}
 		break;
-		case VM_NEG:
-		{
+		case VM_NEG: {
 			uint Result = -GET_VALUE(Cmd->ByteMode, Op1);
 			Flags = Result == 0 ? VM_FZ : VM_FC | (Result & VM_FS);
 			SET_VALUE(Cmd->ByteMode, Op1, Result);
@@ -425,16 +387,14 @@ bool RarVM::ExecuteCode(VM_PreparedCommand *PreparedCode, int CodeSize)
 			SET_VALUE(false, Op1, -GET_VALUE(false, Op1));
 			break;
 #endif
-		case VM_PUSHA:
-		{
+		case VM_PUSHA: {
 			const int RegCount = sizeof(R) / sizeof(R[0]);
 			for (int I = 0, SP = R[7] - 4; I < RegCount; I++, SP -= 4)
 				SET_VALUE(false, (uint *)&Mem[SP & VM_MEMMASK], R[I]);
 			R[7] -= RegCount * 4;
 		}
 		break;
-		case VM_POPA:
-		{
+		case VM_POPA: {
 			const int RegCount = sizeof(R) / sizeof(R[0]);
 			for (uint I = 0, SP = R[7]; I < RegCount; I++, SP += 4)
 				R[7 - I] = GET_VALUE(false, (uint *)&Mem[SP & VM_MEMMASK]);
@@ -454,31 +414,26 @@ bool RarVM::ExecuteCode(VM_PreparedCommand *PreparedCode, int CodeSize)
 		case VM_MOVSX:
 			SET_VALUE(false, Op1, (signed char)GET_VALUE(true, Op2));
 			break;
-		case VM_XCHG:
-		{
+		case VM_XCHG: {
 			uint Value1 = GET_VALUE(Cmd->ByteMode, Op1);
 			SET_VALUE(Cmd->ByteMode, Op1, GET_VALUE(Cmd->ByteMode, Op2));
 			SET_VALUE(Cmd->ByteMode, Op2, Value1);
 		}
 		break;
-		case VM_MUL:
-		{
+		case VM_MUL: {
 			uint Result = GET_VALUE(Cmd->ByteMode, Op1) * GET_VALUE(Cmd->ByteMode, Op2);
 			SET_VALUE(Cmd->ByteMode, Op1, Result);
 		}
 		break;
-		case VM_DIV:
-		{
+		case VM_DIV: {
 			uint Divider = GET_VALUE(Cmd->ByteMode, Op2);
-			if (Divider != 0)
-			{
+			if (Divider != 0) {
 				uint Result = GET_VALUE(Cmd->ByteMode, Op1) / Divider;
 				SET_VALUE(Cmd->ByteMode, Op1, Result);
 			}
 		}
 		break;
-		case VM_ADC:
-		{
+		case VM_ADC: {
 			uint Value1 = GET_VALUE(Cmd->ByteMode, Op1);
 			uint FC = (Flags & VM_FC);
 			uint Result = Value1 + GET_VALUE(Cmd->ByteMode, Op2) + FC;
@@ -486,8 +441,7 @@ bool RarVM::ExecuteCode(VM_PreparedCommand *PreparedCode, int CodeSize)
 			SET_VALUE(Cmd->ByteMode, Op1, Result);
 		}
 		break;
-		case VM_SBB:
-		{
+		case VM_SBB: {
 			uint Value1 = GET_VALUE(Cmd->ByteMode, Op1);
 			uint FC = (Flags & VM_FC);
 			uint Result = Value1 - GET_VALUE(Cmd->ByteMode, Op2) - FC;
@@ -519,8 +473,7 @@ bool RarVM::ExecuteCode(VM_PreparedCommand *PreparedCode, int CodeSize)
 }
 
 
-void RarVM::PrintState(uint IP)
-{
+void RarVM::PrintState(uint IP) {
 #if defined(DEBUG) && !defined(GUI) && !defined(SILENT)
 	mprintf("\n");
 	for (int I = 0; I < sizeof(R) / sizeof(R[0]); I++)
@@ -531,8 +484,7 @@ void RarVM::PrintState(uint IP)
 }
 
 
-void RarVM::Prepare(byte *Code, int CodeSize, VM_PreparedProgram *Prg)
-{
+void RarVM::Prepare(byte *Code, int CodeSize, VM_PreparedProgram *Prg) {
 	InitBitInput();
 	memcpy(InBuf, Code, Min(CodeSize, BitInput::MAX_SIZE));
 
@@ -543,12 +495,10 @@ void RarVM::Prepare(byte *Code, int CodeSize, VM_PreparedProgram *Prg)
 	faddbits(8);
 
 	Prg->CmdCount = 0;
-	if (XorSum == Code[0])
-	{
+	if (XorSum == Code[0]) {
 #ifdef VM_STANDARDFILTERS
 		VM_StandardFilters FilterType = IsStandardFilter(Code, CodeSize);
-		if (FilterType != VMSF_NONE)
-		{
+		if (FilterType != VMSF_NONE) {
 			Prg->Cmd.Add(1);
 			VM_PreparedCommand *CurCmd = &Prg->Cmd[Prg->CmdCount++];
 			CurCmd->OpCode = VM_STANDARD;
@@ -560,56 +510,44 @@ void RarVM::Prepare(byte *Code, int CodeSize, VM_PreparedProgram *Prg)
 #endif
 		uint DataFlag = fgetbits();
 		faddbits(1);
-		if (DataFlag & 0x8000)
-		{
+		if (DataFlag & 0x8000) {
 			int DataSize = ReadData(*this) + 1;
-			for (int I = 0; InAddr < CodeSize && I < DataSize; I++)
-			{
+			for (int I = 0; InAddr < CodeSize && I < DataSize; I++) {
 				Prg->StaticData.Add(1);
 				Prg->StaticData[I] = fgetbits() >> 8;
 				faddbits(8);
 			}
 		}
-		while (InAddr < CodeSize)
-		{
+		while (InAddr < CodeSize) {
 			Prg->Cmd.Add(1);
 			VM_PreparedCommand *CurCmd = &Prg->Cmd[Prg->CmdCount];
 			uint Data = fgetbits();
-			if ((Data & 0x8000) == 0)
-			{
+			if ((Data & 0x8000) == 0) {
 				CurCmd->OpCode = (VM_Commands)(Data >> 12);
 				faddbits(4);
-			}
-			else
-			{
+			} else {
 				CurCmd->OpCode = (VM_Commands)((Data >> 10) - 24);
 				faddbits(6);
 			}
-			if (VM_CmdFlags[CurCmd->OpCode] & VMCF_BYTEMODE)
-			{
+			if (VM_CmdFlags[CurCmd->OpCode] & VMCF_BYTEMODE) {
 				CurCmd->ByteMode = fgetbits() >> 15;
 				faddbits(1);
-			}
-			else
+			} else
 				CurCmd->ByteMode = 0;
 			CurCmd->Op1.Type = CurCmd->Op2.Type = VM_OPNONE;
 			int OpNum = (VM_CmdFlags[CurCmd->OpCode] & VMCF_OPMASK);
 			CurCmd->Op1.Addr = &CurCmd->Op1.Data;
 			CurCmd->Op2.Addr = &CurCmd->Op2.Data;
-			if (OpNum > 0)
-			{
+			if (OpNum > 0) {
 				DecodeArg(CurCmd->Op1, CurCmd->ByteMode);
 				if (OpNum == 2)
 					DecodeArg(CurCmd->Op2, CurCmd->ByteMode);
-				else
-				{
-					if (CurCmd->Op1.Type == VM_OPINT && (VM_CmdFlags[CurCmd->OpCode] & (VMCF_JUMP | VMCF_PROC)))
-					{
+				else {
+					if (CurCmd->Op1.Type == VM_OPINT && (VM_CmdFlags[CurCmd->OpCode] & (VMCF_JUMP | VMCF_PROC))) {
 						int Distance = CurCmd->Op1.Data;
 						if (Distance >= 256)
 							Distance -= 256;
-						else
-						{
+						else {
 							if (Distance >= 136)
 								Distance -= 264;
 							else if (Distance >= 16)
@@ -638,51 +576,36 @@ void RarVM::Prepare(byte *Code, int CodeSize, VM_PreparedProgram *Prg)
 }
 
 
-void RarVM::DecodeArg(VM_PreparedOperand &Op, bool ByteMode)
-{
+void RarVM::DecodeArg(VM_PreparedOperand &Op, bool ByteMode) {
 	uint Data = fgetbits();
-	if (Data & 0x8000)
-	{
+	if (Data & 0x8000) {
 		Op.Type = VM_OPREG;
 		Op.Data = (Data >> 12) & 7;
 		Op.Addr = &R[Op.Data];
 		faddbits(4);
-	}
-	else if ((Data & 0xc000) == 0)
-	{
+	} else if ((Data & 0xc000) == 0) {
 		Op.Type = VM_OPINT;
-		if (ByteMode)
-		{
+		if (ByteMode) {
 			Op.Data = (Data >> 6) & 0xff;
 			faddbits(10);
-		}
-		else
-		{
+		} else {
 			faddbits(2);
 			Op.Data = ReadData(*this);
 		}
 		Op.Addr = &Op.Data;
-	}
-	else
-	{
+	} else {
 		Op.Type = VM_OPREGMEM;
-		if ((Data & 0x2000) == 0)
-		{
+		if ((Data & 0x2000) == 0) {
 			Op.Data = (Data >> 10) & 7;
 			Op.Addr = &R[Op.Data];
 			Op.Base = 0;
 			faddbits(6);
-		}
-		else
-		{
-			if ((Data & 0x1000) == 0)
-			{
+		} else {
+			if ((Data & 0x1000) == 0) {
 				Op.Data = (Data >> 9) & 7;
 				Op.Addr = &R[Op.Data];
 				faddbits(7);
-			}
-			else
-			{
+			} else {
 				Op.Data = 0;
 				Op.Addr = &Op.Data;
 				faddbits(4);
@@ -693,22 +616,17 @@ void RarVM::DecodeArg(VM_PreparedOperand &Op, bool ByteMode)
 }
 
 
-uint RarVM::ReadData(BitInput &Inp)
-{
+uint RarVM::ReadData(BitInput &Inp) {
 	uint Data = Inp.fgetbits();
-	switch (Data & 0xc000)
-	{
+	switch (Data & 0xc000) {
 	case 0:
 		Inp.faddbits(6);
 		return ((Data >> 10) & 0xf);
 	case 0x4000:
-		if ((Data & 0x3c00) == 0)
-		{
+		if ((Data & 0x3c00) == 0) {
 			Data = 0xffffff00 | ((Data >> 2) & 0xff);
 			Inp.faddbits(14);
-		}
-		else
-		{
+		} else {
 			Data = (Data >> 6) & 0xff;
 			Inp.faddbits(10);
 		}
@@ -729,24 +647,20 @@ uint RarVM::ReadData(BitInput &Inp)
 }
 
 
-void RarVM::SetMemory(unsigned int Pos, byte *Data, unsigned int DataSize)
-{
+void RarVM::SetMemory(unsigned int Pos, byte *Data, unsigned int DataSize) {
 	if (Pos < VM_MEMSIZE && Data != Mem + Pos)
 		memmove(Mem + Pos, Data, Min(DataSize, VM_MEMSIZE - Pos));
 }
 
 
 #ifdef VM_OPTIMIZE
-void RarVM::Optimize(VM_PreparedProgram *Prg)
-{
+void RarVM::Optimize(VM_PreparedProgram *Prg) {
 	VM_PreparedCommand *Code = &Prg->Cmd[0];
 	int CodeSize = Prg->CmdCount;
 
-	for (int I = 0; I < CodeSize; I++)
-	{
+	for (int I = 0; I < CodeSize; I++) {
 		VM_PreparedCommand *Cmd = Code + I;
-		switch (Cmd->OpCode)
-		{
+		switch (Cmd->OpCode) {
 		case VM_MOV:
 			Cmd->OpCode = Cmd->ByteMode ? VM_MOVB : VM_MOVD;
 			continue;
@@ -757,11 +671,9 @@ void RarVM::Optimize(VM_PreparedProgram *Prg)
 		if ((VM_CmdFlags[Cmd->OpCode] & VMCF_CHFLAGS) == 0)
 			continue;
 		bool FlagsRequired = false;
-		for (int J = I + 1; J < CodeSize; J++)
-		{
+		for (int J = I + 1; J < CodeSize; J++) {
 			int Flags = VM_CmdFlags[Code[J].OpCode];
-			if (Flags & (VMCF_JUMP | VMCF_PROC | VMCF_USEFLAGS))
-			{
+			if (Flags & (VMCF_JUMP | VMCF_PROC | VMCF_USEFLAGS)) {
 				FlagsRequired = true;
 				break;
 			}
@@ -770,8 +682,7 @@ void RarVM::Optimize(VM_PreparedProgram *Prg)
 		}
 		if (FlagsRequired)
 			continue;
-		switch (Cmd->OpCode)
-		{
+		switch (Cmd->OpCode) {
 		case VM_ADD:
 			Cmd->OpCode = Cmd->ByteMode ? VM_ADDB : VM_ADDD;
 			continue;
@@ -794,10 +705,8 @@ void RarVM::Optimize(VM_PreparedProgram *Prg)
 
 
 #ifdef VM_STANDARDFILTERS
-VM_StandardFilters RarVM::IsStandardFilter(byte *Code, int CodeSize)
-{
-	struct StandardFilterSignature
-	{
+VM_StandardFilters RarVM::IsStandardFilter(byte *Code, int CodeSize) {
+	struct StandardFilterSignature {
 		int Length;
 		uint CRC;
 		VM_StandardFilters Type;
@@ -818,13 +727,10 @@ VM_StandardFilters RarVM::IsStandardFilter(byte *Code, int CodeSize)
 }
 
 
-void RarVM::ExecuteStandardFilter(VM_StandardFilters FilterType)
-{
-	switch (FilterType)
-	{
+void RarVM::ExecuteStandardFilter(VM_StandardFilters FilterType) {
+	switch (FilterType) {
 	case VMSF_E8:
-	case VMSF_E8E9:
-	{
+	case VMSF_E8E9: {
 		byte *Data = Mem;
 		int DataSize = R[4];
 		uint FileOffset = R[6];
@@ -834,20 +740,16 @@ void RarVM::ExecuteStandardFilter(VM_StandardFilters FilterType)
 
 		const int FileSize = 0x1000000;
 		byte CmpByte2 = FilterType == VMSF_E8E9 ? 0xe9 : 0xe8;
-		for (uint CurPos = 0; CurPos < DataSize - 4;)
-		{
+		for (uint CurPos = 0; CurPos < DataSize - 4;) {
 			byte CurByte = *(Data++);
 			CurPos++;
-			if (CurByte == 0xe8 || CurByte == CmpByte2)
-			{
+			if (CurByte == 0xe8 || CurByte == CmpByte2) {
 				long Offset = CurPos + FileOffset;
 				long Addr = GET_VALUE(false, Data);
-				if (Addr < 0)
-				{
+				if (Addr < 0) {
 					if (Addr + Offset >= 0)
 						SET_VALUE(false, Data, Addr + FileSize);
-				}
-				else if (Addr < FileSize)
+				} else if (Addr < FileSize)
 					SET_VALUE(false, Data, Addr - Offset);
 				Data += 4;
 				CurPos += 4;
@@ -855,8 +757,7 @@ void RarVM::ExecuteStandardFilter(VM_StandardFilters FilterType)
 		}
 	}
 	break;
-	case VMSF_ITANIUM:
-	{
+	case VMSF_ITANIUM: {
 		byte *Data = Mem;
 		int DataSize = R[4];
 		uint FileOffset = R[6];
@@ -868,21 +769,17 @@ void RarVM::ExecuteStandardFilter(VM_StandardFilters FilterType)
 
 		FileOffset >>= 4;
 
-		while (CurPos < DataSize - 21)
-		{
+		while (CurPos < DataSize - 21) {
 			int Byte = (Data[0] & 0x1f) - 0x10;
-			if (Byte >= 0)
-			{
+			if (Byte >= 0) {
 				static byte Masks[16] = {4, 4, 6, 6, 0, 0, 7, 7, 4, 4, 0, 0, 4, 4, 0, 0};
 				byte CmdMask = Masks[Byte];
 				if (CmdMask != 0)
 					for (int I = 0; I <= 2; I++)
-						if (CmdMask & (1 << I))
-						{
+						if (CmdMask & (1 << I)) {
 							int StartPos = I * 41 + 5;
 							int OpType = FilterItanium_GetBits(Data, StartPos + 37, 4);
-							if (OpType == 5)
-							{
+							if (OpType == 5) {
 								int Offset = FilterItanium_GetBits(Data, StartPos + 13, 20);
 								FilterItanium_SetBits(Data, (Offset - FileOffset) & 0xfffff, StartPos + 13, 20);
 							}
@@ -894,38 +791,32 @@ void RarVM::ExecuteStandardFilter(VM_StandardFilters FilterType)
 		}
 	}
 	break;
-	case VMSF_DELTA:
-	{
+	case VMSF_DELTA: {
 		int DataSize = R[4], Channels = R[0], SrcPos = 0, Border = DataSize * 2;
 		SET_VALUE(false, &Mem[VM_GLOBALMEMADDR + 0x20], DataSize);
 		if (DataSize >= VM_GLOBALMEMADDR / 2)
 			break;
-		for (int CurChannel = 0; CurChannel < Channels; CurChannel++)
-		{
+		for (int CurChannel = 0; CurChannel < Channels; CurChannel++) {
 			byte PrevByte = 0;
 			for (int DestPos = DataSize + CurChannel; DestPos < Border; DestPos += Channels)
 				Mem[DestPos] = (PrevByte -= Mem[SrcPos++]);
 		}
 	}
 	break;
-	case VMSF_RGB:
-	{
+	case VMSF_RGB: {
 		int DataSize = R[4], Width = R[0] - 3, PosR = R[1];
 		byte *SrcData = Mem, *DestData = SrcData + DataSize;
 		const int Channels = 3;
 		SET_VALUE(false, &Mem[VM_GLOBALMEMADDR + 0x20], DataSize);
 		if (DataSize >= VM_GLOBALMEMADDR / 2)
 			break;
-		for (int CurChannel = 0; CurChannel < Channels; CurChannel++)
-		{
+		for (int CurChannel = 0; CurChannel < Channels; CurChannel++) {
 			unsigned int PrevByte = 0;
 
-			for (int I = CurChannel; I < DataSize; I += Channels)
-			{
+			for (int I = CurChannel; I < DataSize; I += Channels) {
 				unsigned int Predicted;
 				int UpperPos = I - Width;
-				if (UpperPos >= 3)
-				{
+				if (UpperPos >= 3) {
 					byte *UpperData = DestData + UpperPos;
 					unsigned int UpperByte = *UpperData;
 					unsigned int UpperLeftByte = *(UpperData - 3);
@@ -939,36 +830,31 @@ void RarVM::ExecuteStandardFilter(VM_StandardFilters FilterType)
 						Predicted = UpperByte;
 					else
 						Predicted = UpperLeftByte;
-				}
-				else
+				} else
 					Predicted = PrevByte;
 				DestData[I] = PrevByte = (byte)(Predicted - * (SrcData++));
 			}
 		}
-		for (int I = PosR, Border = DataSize - 2; I < Border; I += 3)
-		{
+		for (int I = PosR, Border = DataSize - 2; I < Border; I += 3) {
 			byte G = DestData[I + 1];
 			DestData[I] += G;
 			DestData[I + 2] += G;
 		}
 	}
 	break;
-	case VMSF_AUDIO:
-	{
+	case VMSF_AUDIO: {
 		int DataSize = R[4], Channels = R[0];
 		byte *SrcData = Mem, *DestData = SrcData + DataSize;
 		SET_VALUE(false, &Mem[VM_GLOBALMEMADDR + 0x20], DataSize);
 		if (DataSize >= VM_GLOBALMEMADDR / 2)
 			break;
-		for (int CurChannel = 0; CurChannel < Channels; CurChannel++)
-		{
+		for (int CurChannel = 0; CurChannel < Channels; CurChannel++) {
 			unsigned int PrevByte = 0, PrevDelta = 0, Dif[7];
 			int D1 = 0, D2 = 0, D3;
 			int K1 = 0, K2 = 0, K3 = 0;
 			memset(Dif, 0, sizeof(Dif));
 
-			for (int I = CurChannel, ByteCount = 0; I < DataSize; I += Channels, ByteCount++)
-			{
+			for (int I = CurChannel, ByteCount = 0; I < DataSize; I += Channels, ByteCount++) {
 				D3 = D2;
 				D2 = PrevDelta - D1;
 				D1 = PrevDelta;
@@ -993,21 +879,17 @@ void RarVM::ExecuteStandardFilter(VM_StandardFilters FilterType)
 				Dif[5] += abs(D - D3);
 				Dif[6] += abs(D + D3);
 
-				if ((ByteCount & 0x1f) == 0)
-				{
+				if ((ByteCount & 0x1f) == 0) {
 					unsigned int MinDif = Dif[0], NumMinDif = 0;
 					Dif[0] = 0;
-					for (int J = 1; J < sizeof(Dif) / sizeof(Dif[0]); J++)
-					{
-						if (Dif[J] < MinDif)
-						{
+					for (int J = 1; J < sizeof(Dif) / sizeof(Dif[0]); J++) {
+						if (Dif[J] < MinDif) {
 							MinDif = Dif[J];
 							NumMinDif = J;
 						}
 						Dif[J] = 0;
 					}
-					switch (NumMinDif)
-					{
+					switch (NumMinDif) {
 					case 1:
 						if (K1 >= -16) K1--;
 						break;
@@ -1032,13 +914,11 @@ void RarVM::ExecuteStandardFilter(VM_StandardFilters FilterType)
 		}
 	}
 	break;
-	case VMSF_UPCASE:
-	{
+	case VMSF_UPCASE: {
 		int DataSize = R[4], SrcPos = 0, DestPos = DataSize;
 		if (DataSize >= VM_GLOBALMEMADDR / 2)
 			break;
-		while (SrcPos < DataSize)
-		{
+		while (SrcPos < DataSize) {
 			byte CurByte = Mem[SrcPos++];
 			if (CurByte == 2 && (CurByte = Mem[SrcPos++]) != 2)
 				CurByte -= 32;
@@ -1052,8 +932,7 @@ void RarVM::ExecuteStandardFilter(VM_StandardFilters FilterType)
 }
 
 
-unsigned int RarVM::FilterItanium_GetBits(byte *Data, int BitPos, int BitCount)
-{
+unsigned int RarVM::FilterItanium_GetBits(byte *Data, int BitPos, int BitCount) {
 	int InAddr = BitPos / 8;
 	int InBit = BitPos & 7;
 	unsigned int BitField = (uint)Data[InAddr++];
@@ -1066,8 +945,7 @@ unsigned int RarVM::FilterItanium_GetBits(byte *Data, int BitPos, int BitCount)
 
 
 void RarVM::FilterItanium_SetBits(byte *Data, unsigned int BitField, int BitPos,
-                                  int BitCount)
-{
+                                  int BitCount) {
 	int InAddr = BitPos / 8;
 	int InBit = BitPos & 7;
 	unsigned int AndMask = 0xffffffff >> (32 - BitCount);
@@ -1075,8 +953,7 @@ void RarVM::FilterItanium_SetBits(byte *Data, unsigned int BitField, int BitPos,
 
 	BitField <<= InBit;
 
-	for (int I = 0; I < 4; I++)
-	{
+	for (int I = 0; I < 4; I++) {
 		Data[InAddr + I] &= AndMask;
 		Data[InAddr + I] |= BitField;
 		AndMask = (AndMask >> 8) | 0xff000000;

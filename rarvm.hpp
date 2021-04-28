@@ -14,8 +14,7 @@
 #define VM_GLOBALMEMSIZE             0x2000
 #define VM_FIXEDGLOBALSIZE               64
 
-enum VM_Commands
-{
+enum VM_Commands {
 	VM_MOV,  VM_CMP,  VM_ADD,  VM_SUB,  VM_JZ,   VM_JNZ,  VM_INC,  VM_DEC,
 	VM_JMP,  VM_XOR,  VM_AND,  VM_OR,   VM_TEST, VM_JS,   VM_JNS,  VM_JB,
 	VM_JBE,  VM_JA,   VM_JAE,  VM_PUSH, VM_POP,  VM_CALL, VM_RET,  VM_NOT,
@@ -41,24 +40,21 @@ enum VM_Flags {VM_FC = 1, VM_FZ = 2, VM_FS = 0x80000000};
 
 enum VM_OpType {VM_OPREG, VM_OPINT, VM_OPREGMEM, VM_OPNONE};
 
-struct VM_PreparedOperand
-{
+struct VM_PreparedOperand {
 	VM_OpType Type;
 	uint Data;
 	uint Base;
 	uint *Addr;
 };
 
-struct VM_PreparedCommand
-{
+struct VM_PreparedCommand {
 	VM_Commands OpCode;
 	bool ByteMode;
 	VM_PreparedOperand Op1, Op2;
 };
 
 
-struct VM_PreparedProgram
-{
+struct VM_PreparedProgram {
 	VM_PreparedProgram() {
 		AltCmd = NULL;
 	}
@@ -75,8 +71,7 @@ struct VM_PreparedProgram
 	unsigned int FilteredDataSize;
 };
 
-class RarVM: BitInput
-{
+class RarVM: BitInput {
 private:
 	inline uint GetValue(bool ByteMode, uint *Addr);
 	inline void SetValue(bool ByteMode, uint *Addr, uint Value);

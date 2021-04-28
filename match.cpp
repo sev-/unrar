@@ -3,29 +3,24 @@
 static bool match(char *pattern, char *string);
 static bool match(wchar *pattern, wchar *string);
 
-inline uint toupperc(uint ch)
-{
+inline uint toupperc(uint ch) {
 	/*
 	*/
 	return (ch);
 }
 
 
-inline uint touppercw(uint ch)
-{
+inline uint touppercw(uint ch) {
 	/*
 	*/
 	return (ch);
 }
 
 
-bool CmpName(char *Wildcard, char *Name, int CmpPath)
-{
-	if (CmpPath != MATCH_NAMES)
-	{
+bool CmpName(char *Wildcard, char *Name, int CmpPath) {
+	if (CmpPath != MATCH_NAMES) {
 		int WildLength = strlen(Wildcard);
-		if (strnicompc(Wildcard, Name, WildLength) == 0)
-		{
+		if (strnicompc(Wildcard, Name, WildLength) == 0) {
 			char NextCh = Name[WildLength];
 			if (NextCh == '\\' || NextCh == '/' || NextCh == 0)
 				return (true);
@@ -40,12 +35,10 @@ bool CmpName(char *Wildcard, char *Name, int CmpPath)
 		if (CmpPath == MATCH_SUBPATH || CmpPath == MATCH_WILDSUBPATH)
 			if (IsWildcard(Path1))
 				return (match(Wildcard, Name));
-			else if (CmpPath == MATCH_SUBPATH || IsWildcard(Wildcard))
-			{
+			else if (CmpPath == MATCH_SUBPATH || IsWildcard(Wildcard)) {
 				if (strnicompc(Path1, Path2, strlen(Path1)) != 0)
 					return (false);
-			}
-			else if (stricompc(Path1, Path2) != 0)
+			} else if (stricompc(Path1, Path2) != 0)
 				return (false);
 	}
 	char *Name1 = PointToName(Wildcard);
@@ -57,13 +50,10 @@ bool CmpName(char *Wildcard, char *Name, int CmpPath)
 
 
 #ifndef SFX_MODULE
-bool CmpName(wchar *Wildcard, wchar *Name, int CmpPath)
-{
-	if (CmpPath != MATCH_NAMES)
-	{
+bool CmpName(wchar *Wildcard, wchar *Name, int CmpPath) {
+	if (CmpPath != MATCH_NAMES) {
 		int WildLength = strlenw(Wildcard);
-		if (strnicompcw(Wildcard, Name, WildLength) == 0)
-		{
+		if (strnicompcw(Wildcard, Name, WildLength) == 0) {
 			wchar NextCh = Name[WildLength];
 			if (NextCh == L'\\' || NextCh == L'/' || NextCh == 0)
 				return (true);
@@ -76,12 +66,10 @@ bool CmpName(wchar *Wildcard, wchar *Name, int CmpPath)
 		if (CmpPath == MATCH_SUBPATH || CmpPath == MATCH_WILDSUBPATH)
 			if (IsWildcard(NULL, Path1))
 				return (match(Wildcard, Name));
-			else if (CmpPath == MATCH_SUBPATH || IsWildcard(NULL, Wildcard))
-			{
+			else if (CmpPath == MATCH_SUBPATH || IsWildcard(NULL, Wildcard)) {
 				if (strnicompcw(Path1, Path2, strlenw(Path1)) != 0)
 					return (false);
-			}
-			else if (stricompcw(Path1, Path2) != 0)
+			} else if (stricompcw(Path1, Path2) != 0)
 				return (false);
 	}
 	wchar *Name1 = PointToName(Wildcard);
@@ -93,14 +81,11 @@ bool CmpName(wchar *Wildcard, wchar *Name, int CmpPath)
 #endif
 
 
-bool match(char *pattern, char *string)
-{
-	for (;; ++string)
-	{
+bool match(char *pattern, char *string) {
+	for (;; ++string) {
 		char stringc = toupperc(*string);
 		char patternc = toupperc(*pattern++);
-		switch (patternc)
-		{
+		switch (patternc) {
 		case 0:
 			return (stringc == 0);
 		case '?':
@@ -110,15 +95,13 @@ bool match(char *pattern, char *string)
 		case '*':
 			if (*pattern == 0)
 				return (true);
-			if (*pattern == '.')
-			{
+			if (*pattern == '.') {
 				if (pattern[1] == '*' && pattern[2] == 0)
 					return (true);
 				char *dot = strchr(string, '.');
 				if (pattern[1] == 0)
 					return (dot == NULL || dot[1] == 0);
-				if (dot != NULL)
-				{
+				if (dot != NULL) {
 					string = dot;
 					if (strpbrk(pattern, "*?") == NULL && strchr(string + 1, '.') == NULL)
 						return (stricompc(pattern + 1, string + 1) == 0);
@@ -142,14 +125,11 @@ bool match(char *pattern, char *string)
 
 
 #ifndef SFX_MODULE
-bool match(wchar *pattern, wchar *string)
-{
-	for (;; ++string)
-	{
+bool match(wchar *pattern, wchar *string) {
+	for (;; ++string) {
 		wchar stringc = touppercw(*string);
 		wchar patternc = touppercw(*pattern++);
-		switch (patternc)
-		{
+		switch (patternc) {
 		case 0:
 			return (stringc == 0);
 		case '?':
@@ -159,15 +139,13 @@ bool match(wchar *pattern, wchar *string)
 		case '*':
 			if (*pattern == 0)
 				return (true);
-			if (*pattern == '.')
-			{
+			if (*pattern == '.') {
 				if (pattern[1] == '*' && pattern[2] == 0)
 					return (true);
 				wchar *dot = strchrw(string, '.');
 				if (pattern[1] == 0)
 					return (dot == NULL || dot[1] == 0);
-				if (dot != NULL)
-				{
+				if (dot != NULL) {
 					string = dot;
 					if (strpbrkw(pattern, L"*?") == NULL && strchrw(string + 1, '.') == NULL)
 						return (stricompcw(pattern + 1, string + 1) == 0);
@@ -191,8 +169,7 @@ bool match(wchar *pattern, wchar *string)
 #endif
 
 
-int stricompc(const char *Str1, const char *Str2)
-{
+int stricompc(const char *Str1, const char *Str2) {
 	/*
 	*/
 	return (strcmp(Str1, Str2));
@@ -200,8 +177,7 @@ int stricompc(const char *Str1, const char *Str2)
 
 
 #ifndef SFX_MODULE
-int stricompcw(const wchar *Str1, const wchar *Str2)
-{
+int stricompcw(const wchar *Str1, const wchar *Str2) {
 	/*
 	*/
 	return (strcmpw(Str1, Str2));
@@ -209,8 +185,7 @@ int stricompcw(const wchar *Str1, const wchar *Str2)
 #endif
 
 
-int strnicompc(const char *Str1, const char *Str2, int N)
-{
+int strnicompc(const char *Str1, const char *Str2, int N) {
 	/*
 	*/
 	return (strncmp(Str1, Str2, N));
@@ -218,8 +193,7 @@ int strnicompc(const char *Str1, const char *Str2, int N)
 
 
 #ifndef SFX_MODULE
-int strnicompcw(const wchar *Str1, const wchar *Str2, int N)
-{
+int strnicompcw(const wchar *Str1, const wchar *Str2, int N) {
 	/*
 	*/
 	return (strncmpw(Str1, Str2, N));

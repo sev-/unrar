@@ -5,8 +5,7 @@ static void GetFirstNewVolName(const char *ArcName, char *VolName,
 
 
 
-bool MergeArchive(Archive &Arc, ComprDataIO *DataIO, bool ShowFileName, char Command)
-{
+bool MergeArchive(Archive &Arc, ComprDataIO *DataIO, bool ShowFileName, char Command) {
 	RAROptions *Cmd = Arc.GetRAROptions();
 
 	int HeaderType = Arc.GetHeaderType();
@@ -15,8 +14,7 @@ bool MergeArchive(Archive &Arc, ComprDataIO *DataIO, bool ShowFileName, char Com
 	                   (hd->Flags & LHD_SPLIT_AFTER) != 0;
 
 	if (DataIO != NULL && SplitHeader && hd->UnpVer >= 20 &&
-	        hd->FileCRC != 0xffffffff && DataIO->PackedCRC != ~hd->FileCRC)
-	{
+	        hd->FileCRC != 0xffffffff && DataIO->PackedCRC != ~hd->FileCRC) {
 		Log(Arc.FileName, St(MDataBadCRC), hd->FileName, Arc.FileName);
 	}
 
@@ -30,11 +28,9 @@ bool MergeArchive(Archive &Arc, ComprDataIO *DataIO, bool ShowFileName, char Com
 	bool RecoveryDone = false;
 #endif
 
-	while (!Arc.Open(NextName))
-	{
+	while (!Arc.Open(NextName)) {
 #ifndef SFX_MODULE
-		if (!RecoveryDone)
-		{
+		if (!RecoveryDone) {
 			RecVolumes RecVol;
 			RecVol.Restore(Cmd, Arc.FileName, Arc.FileNameW, true);
 			RecoveryDone = true;
@@ -43,8 +39,7 @@ bool MergeArchive(Archive &Arc, ComprDataIO *DataIO, bool ShowFileName, char Com
 #endif
 
 #ifndef GUI
-		if (!Cmd->VolumePause && !IsRemovable(NextName))
-		{
+		if (!Cmd->VolumePause && !IsRemovable(NextName)) {
 			Log(Arc.FileName, St(MAbsNextVol), NextName);
 			return (false);
 		}
@@ -62,25 +57,21 @@ bool MergeArchive(Archive &Arc, ComprDataIO *DataIO, bool ShowFileName, char Com
 		Arc.SearchBlock(HeaderType);
 	else
 		Arc.ReadHeader();
-	if (Arc.GetHeaderType() == FILE_HEAD)
-	{
+	if (Arc.GetHeaderType() == FILE_HEAD) {
 		Arc.ConvertAttributes();
 		Arc.Seek(Arc.NextBlockPos - Arc.NewLhd.FullPackSize, SEEK_SET);
 	}
 #ifndef GUI
-	if (ShowFileName)
-	{
+	if (ShowFileName) {
 		mprintf(St(MExtrPoints), IntNameToExt(Arc.NewLhd.FileName));
 		if (!Cmd->DisablePercentage)
 			mprintf("     ");
 	}
 #endif
-	if (DataIO != NULL)
-	{
+	if (DataIO != NULL) {
 		if (HeaderType == ENDARC_HEAD)
 			DataIO->UnpVolume = false;
-		else
-		{
+		else {
 			DataIO->UnpVolume = (hd->Flags & LHD_SPLIT_AFTER);
 			DataIO->SetPackedSizeToRead(hd->FullPackSize);
 		}
@@ -96,8 +87,7 @@ bool MergeArchive(Archive &Arc, ComprDataIO *DataIO, bool ShowFileName, char Com
 
 
 #ifndef SILENT
-bool AskNextVol(char *ArcName)
-{
+bool AskNextVol(char *ArcName) {
 	eprintf(St(MAskNextVol), ArcName);
 	if (Ask(St(MContinueQuit)) == 2)
 		return (false);

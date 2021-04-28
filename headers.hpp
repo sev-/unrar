@@ -92,16 +92,14 @@ enum { MS_DOS = 0, OS2 = 1, WIN_32 = 2, UNIX = 3, MAC_OS = 4, BEOS = 5 };
 
 #define SUBHEAD_FLAGS_CMT_UNICODE  0x00000001
 
-struct OldMainHeader
-{
+struct OldMainHeader {
 	byte Mark[4];
 	ushort HeadSize;
 	byte Flags;
 };
 
 
-struct OldFileHeader
-{
+struct OldFileHeader {
 	uint PackSize;
 	uint UnpSize;
 	ushort FileCRC;
@@ -115,21 +113,18 @@ struct OldFileHeader
 };
 
 
-struct MarkHeader
-{
+struct MarkHeader {
 	byte Mark[7];
 };
 
 
-struct BaseBlock
-{
+struct BaseBlock {
 	ushort HeadCRC;
 	HEADER_TYPE HeadType;//byte
 	ushort Flags;
 	ushort HeadSize;
 
-	bool IsSubBlock()
-	{
+	bool IsSubBlock() {
 		if (HeadType == SUB_HEAD)
 			return (true);
 		if (HeadType == NEWSUB_HEAD && (Flags & LHD_SOLID) != 0)
@@ -138,8 +133,7 @@ struct BaseBlock
 	}
 };
 
-struct BlockHeader: BaseBlock
-{
+struct BlockHeader: BaseBlock {
 	union {
 		uint DataSize;
 		uint PackSize;
@@ -147,8 +141,7 @@ struct BlockHeader: BaseBlock
 };
 
 
-struct MainHeader: BlockHeader
-{
+struct MainHeader: BlockHeader {
 	ushort HighPosAV;
 	uint PosAV;
 };
@@ -156,8 +149,7 @@ struct MainHeader: BlockHeader
 
 #define SALT_SIZE     8
 
-struct FileHeader: BlockHeader
-{
+struct FileHeader: BlockHeader {
 	uint UnpSize;
 	byte HostOS;
 	uint FileCRC;
@@ -182,20 +174,17 @@ struct FileHeader: BlockHeader
 	Int64 FullPackSize;
 	Int64 FullUnpSize;
 
-	void Clear(int SubDataSize)
-	{
+	void Clear(int SubDataSize) {
 		SubData.Alloc(SubDataSize);
 		Flags = LONG_BLOCK;
 		SubFlags = 0;
 	}
 
-	bool CmpName(const char *Name)
-	{
+	bool CmpName(const char *Name) {
 		return (strcmp(FileName, Name) == 0);
 	}
 
-	FileHeader &operator = (FileHeader &hd)
-	{
+	FileHeader &operator = (FileHeader &hd) {
 		SubData.Reset();
 		memcpy(this, &hd, sizeof(*this));
 		SubData.CleanData();
@@ -205,21 +194,18 @@ struct FileHeader: BlockHeader
 };
 
 
-struct EndArcHeader: BaseBlock
-{
+struct EndArcHeader: BaseBlock {
 	uint ArcDataCRC;
 };
 
 
-struct SubBlockHeader: BlockHeader
-{
+struct SubBlockHeader: BlockHeader {
 	ushort SubType;
 	byte Level;
 };
 
 
-struct CommentHeader: BaseBlock
-{
+struct CommentHeader: BaseBlock {
 	ushort UnpSize;
 	byte UnpVer;
 	byte Method;
@@ -227,8 +213,7 @@ struct CommentHeader: BaseBlock
 };
 
 
-struct ProtectHeader: BlockHeader
-{
+struct ProtectHeader: BlockHeader {
 	byte Version;
 	ushort RecSectors;
 	uint TotalBlocks;
@@ -236,8 +221,7 @@ struct ProtectHeader: BlockHeader
 };
 
 
-struct AVHeader: BaseBlock
-{
+struct AVHeader: BaseBlock {
 	byte UnpVer;
 	byte Method;
 	byte AVVer;
@@ -245,16 +229,14 @@ struct AVHeader: BaseBlock
 };
 
 
-struct SignHeader: BaseBlock
-{
+struct SignHeader: BaseBlock {
 	uint CreationTime;
 	ushort ArcNameSize;
 	ushort UserNameSize;
 };
 
 
-struct UnixOwnersHeader: SubBlockHeader
-{
+struct UnixOwnersHeader: SubBlockHeader {
 	ushort OwnerNameSize;
 	ushort GroupNameSize;
 	/* dummy */
@@ -263,8 +245,7 @@ struct UnixOwnersHeader: SubBlockHeader
 };
 
 
-struct EAHeader: SubBlockHeader
-{
+struct EAHeader: SubBlockHeader {
 	uint UnpSize;
 	byte UnpVer;
 	byte Method;
@@ -272,8 +253,7 @@ struct EAHeader: SubBlockHeader
 };
 
 
-struct StreamHeader: SubBlockHeader
-{
+struct StreamHeader: SubBlockHeader {
 	uint UnpSize;
 	byte UnpVer;
 	byte Method;
@@ -284,8 +264,7 @@ struct StreamHeader: SubBlockHeader
 };
 
 
-struct MacFInfoHeader: SubBlockHeader
-{
+struct MacFInfoHeader: SubBlockHeader {
 	uint fileType;
 	uint fileCreator;
 };

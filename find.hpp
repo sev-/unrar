@@ -1,8 +1,7 @@
 #ifndef _RAR_FINDDATA_
 #define _RAR_FINDDATA_
 
-struct FindData
-{
+struct FindData {
 	char Name[NM];
 	wchar NameW[NM];
 	Int64 Size;
@@ -12,8 +11,7 @@ struct FindData
 	bool Error;
 };
 
-class FindFile
-{
+class FindFile {
 private:
 
 	char FindMask[NM];

@@ -1,8 +1,7 @@
 #ifndef _RAR_GETBITS_
 #define _RAR_GETBITS_
 
-class BitInput
-{
+class BitInput {
 public:
 	enum BufferSize {MAX_SIZE = 0x8000};
 protected:
@@ -13,18 +12,15 @@ public:
 
 	byte *InBuf;
 
-	void InitBitInput()
-	{
+	void InitBitInput() {
 		InAddr = InBit = 0;
 	}
-	void addbits(int Bits)
-	{
+	void addbits(int Bits) {
 		Bits += InBit;
 		InAddr += Bits >> 3;
 		InBit = Bits & 7;
 	}
-	unsigned int getbits()
-	{
+	unsigned int getbits() {
 		unsigned int BitField = (uint)InBuf[InAddr] << 16;
 		BitField |= (uint)InBuf[InAddr + 1] << 8;
 		BitField |= (uint)InBuf[InAddr + 2];

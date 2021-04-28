@@ -1,19 +1,16 @@
 #include "rar.hpp"
 
-RAROptions::RAROptions()
-{
+RAROptions::RAROptions() {
 	Init();
 }
 
 
-RAROptions::~RAROptions()
-{
+RAROptions::~RAROptions() {
 	memset(this, 0, sizeof(RAROptions));
 }
 
 
-void RAROptions::Init()
-{
+void RAROptions::Init() {
 	memset(this, 0, sizeof(RAROptions));
 	WinSize = 0x400000;
 	Overwrite = OVERWRITE_ASK;

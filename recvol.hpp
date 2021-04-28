@@ -1,8 +1,7 @@
 #ifndef _RAR_RECVOL_
 #define _RAR_RECVOL_
 
-class RecVolumes
-{
+class RecVolumes {
 private:
 	File *SrcFile[256];
 	Array<byte> Buf;

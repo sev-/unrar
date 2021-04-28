@@ -3,56 +3,49 @@
 
 enum BLOCK_TYPES {BLOCK_LZ, BLOCK_PPM};
 
-struct Decode
-{
+struct Decode {
 	unsigned int MaxNum;
 	unsigned int DecodeLen[16];
 	unsigned int DecodePos[16];
 	unsigned int DecodeNum[2];
 };
 
-struct LitDecode
-{
+struct LitDecode {
 	unsigned int MaxNum;
 	unsigned int DecodeLen[16];
 	unsigned int DecodePos[16];
 	unsigned int DecodeNum[NC];
 };
 
-struct DistDecode
-{
+struct DistDecode {
 	unsigned int MaxNum;
 	unsigned int DecodeLen[16];
 	unsigned int DecodePos[16];
 	unsigned int DecodeNum[DC];
 };
 
-struct LowDistDecode
-{
+struct LowDistDecode {
 	unsigned int MaxNum;
 	unsigned int DecodeLen[16];
 	unsigned int DecodePos[16];
 	unsigned int DecodeNum[LDC];
 };
 
-struct RepDecode
-{
+struct RepDecode {
 	unsigned int MaxNum;
 	unsigned int DecodeLen[16];
 	unsigned int DecodePos[16];
 	unsigned int DecodeNum[RC];
 };
 
-struct BitDecode
-{
+struct BitDecode {
 	unsigned int MaxNum;
 	unsigned int DecodeLen[16];
 	unsigned int DecodePos[16];
 	unsigned int DecodeNum[BC];
 };
 
-struct UnpackFilter
-{
+struct UnpackFilter {
 	unsigned int BlockStart;
 	unsigned int BlockLength;
 	unsigned int ExecCount;
@@ -61,16 +54,14 @@ struct UnpackFilter
 };
 
 /***************************** Unpack v 2.0 *********************************/
-struct MultDecode
-{
+struct MultDecode {
 	unsigned int MaxNum;
 	unsigned int DecodeLen[16];
 	unsigned int DecodePos[16];
 	unsigned int DecodeNum[MC20];
 };
 
-struct AudioVariables
-{
+struct AudioVariables {
 	int K1, K2, K3, K4, K5;
 	int D1, D2, D3, D4;
 	int LastDelta;
@@ -81,8 +72,7 @@ struct AudioVariables
 /***************************** Unpack v 2.0 *********************************/
 
 
-class Unpack: BitInput
-{
+class Unpack: BitInput {
 private:
 	friend class Pack;
 
@@ -198,8 +188,7 @@ public:
 		Unpack::Suspended = Suspended;
 	}
 
-	unsigned int GetChar()
-	{
+	unsigned int GetChar() {
 		if (InAddr > BitInput::MAX_SIZE - 30)
 			UnpReadBuf();
 		return (InBuf[InAddr++]);

@@ -4,8 +4,7 @@
 
 const uint TOP = 1 << 24, BOT = 1 << 15;
 
-class RangeCoder
-{
+class RangeCoder {
 public:
 	void InitDecoder(Unpack *UnpackRead);
 	inline int GetCurrentCount();
@@ -15,8 +14,7 @@ public:
 	inline unsigned int GetChar();
 
 	uint low, code, range;
-	struct SUBRANGE
-	{
+	struct SUBRANGE {
 		uint LowCount, HighCount, scale;
 	} SubRange;
 

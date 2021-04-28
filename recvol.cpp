@@ -2,15 +2,13 @@
 
 #define RECVOL_BUFSIZE  0x800
 
-RecVolumes::RecVolumes()
-{
+RecVolumes::RecVolumes() {
 	Buf.Alloc(RECVOL_BUFSIZE * 256);
 	memset(SrcFile, 0, sizeof(SrcFile));
 }
 
 
-RecVolumes::~RecVolumes()
-{
+RecVolumes::~RecVolumes() {
 	for (int I = 0; I < sizeof(SrcFile) / sizeof(SrcFile[0]); I++)
 		delete SrcFile[I];
 }
@@ -19,8 +17,7 @@ RecVolumes::~RecVolumes()
 
 
 bool RecVolumes::Restore(RAROptions *Cmd, const char *Name,
-                         const wchar *NameW, bool Silent)
-{
+                         const wchar *NameW, bool Silent) {
 	char ArcName[NM];
 	wchar ArcNameW[NM];
 	strcpy(ArcName, Name);
@@ -28,14 +25,12 @@ bool RecVolumes::Restore(RAROptions *Cmd, const char *Name,
 	char *Ext = GetExt(ArcName);
 	bool NewStyle = false;
 	bool RevName = Ext != NULL && stricomp(Ext, ".rev") == 0;
-	if (RevName)
-	{
+	if (RevName) {
 		for (int DigitGroup = 0; Ext > ArcName && DigitGroup < 3; Ext--)
 			if (!isdigit(*Ext))
 				if (isdigit(*(Ext - 1)) && (*Ext == '_' || DigitGroup < 2))
 					DigitGroup++;
-				else if (DigitGroup < 2)
-				{
+				else if (DigitGroup < 2) {
 					NewStyle = true;
 					break;
 				}
@@ -45,11 +40,9 @@ bool RecVolumes::Restore(RAROptions *Cmd, const char *Name,
 		FindFile Find;
 		Find.SetMask(ArcName);
 		struct FindData FD;
-		while (Find.Next(&FD))
-		{
+		while (Find.Next(&FD)) {
 			Archive Arc(Cmd);
-			if (Arc.WOpen(FD.Name, FD.NameW) && Arc.IsArchive(true))
-			{
+			if (Arc.WOpen(FD.Name, FD.NameW) && Arc.IsArchive(true)) {
 				strcpy(ArcName, FD.Name);
 				*ArcNameW = 0;
 				break;
@@ -60,8 +53,7 @@ bool RecVolumes::Restore(RAROptions *Cmd, const char *Name,
 	Archive Arc(Cmd);
 	if (!Arc.WCheckOpen(ArcName, ArcNameW))
 		return (false);
-	if (!Arc.Volume)
-	{
+	if (!Arc.Volume) {
 #ifndef SILENT
 		Log(ArcName, St(MNotVolume), ArcName);
 #endif
@@ -80,20 +72,16 @@ bool RecVolumes::Restore(RAROptions *Cmd, const char *Name,
 	struct FindData RecData;
 	int FileNumber = 0, RecVolNumber = 0, FoundRecVolumes = 0, MissingVolumes = 0;
 	char PrevName[NM];
-	while (Find.Next(&RecData))
-	{
+	while (Find.Next(&RecData)) {
 		char *Name = RecData.Name;
 		int P[3];
-		if (!RevName && !NewStyle)
-		{
+		if (!RevName && !NewStyle) {
 			NewStyle = true;
 			char *Dot = GetExt(Name);
-			if (Dot != NULL)
-			{
+			if (Dot != NULL) {
 				int LineCount = 0;
 				Dot--;
-				while (Dot > Name && *Dot != '.')
-				{
+				while (Dot > Name && *Dot != '.') {
 					if (*Dot == '_')
 						LineCount++;
 					Dot--;
@@ -102,8 +90,7 @@ bool RecVolumes::Restore(RAROptions *Cmd, const char *Name,
 					NewStyle = false;
 			}
 		}
-		if (NewStyle)
-		{
+		if (NewStyle) {
 			File CurFile;
 			CurFile.TOpen(Name);
 			CurFile.Seek(0, SEEK_END);
@@ -114,24 +101,19 @@ bool RecVolumes::Restore(RAROptions *Cmd, const char *Name,
 			uint FileCRC = 0;
 			for (int I = 0; I < 4; I++)
 				FileCRC |= CurFile.GetByte() << (I * 8);
-			if (FileCRC != CalcFileCRC(&CurFile, Length - 4))
-			{
+			if (FileCRC != CalcFileCRC(&CurFile, Length - 4)) {
 #ifndef SILENT
 				mprintf(St(MCRCFailed), Name);
 #endif
 				continue;
 			}
-		}
-		else
-		{
+		} else {
 			char *Dot = GetExt(Name);
 			if (Dot == NULL)
 				continue;
 			bool WrongParam = false;
-			for (int I = 0; I < sizeof(P) / sizeof(P[0]); I++)
-			{
-				do
-				{
+			for (int I = 0; I < sizeof(P) / sizeof(P[0]); I++) {
+				do {
 					Dot--;
 				} while (isdigit(*Dot) && Dot >= Name + BaseNamePartLength);
 				P[I] = atoi(Dot + 1);
@@ -143,8 +125,7 @@ bool RecVolumes::Restore(RAROptions *Cmd, const char *Name,
 		}
 		if (P[1] + P[2] > 255)
 			continue;
-		if (RecVolNumber != 0 && RecVolNumber != P[1] || FileNumber != 0 && FileNumber != P[2])
-		{
+		if (RecVolNumber != 0 && RecVolNumber != P[1] || FileNumber != 0 && FileNumber != P[2]) {
 #ifndef SILENT
 			Log(NULL, St(MRecVolDiffSets), Name, PrevName);
 #endif
@@ -159,8 +140,7 @@ bool RecVolumes::Restore(RAROptions *Cmd, const char *Name,
 		FoundRecVolumes++;
 	}
 #ifndef SILENT
-	if (!Silent || FoundRecVolumes != 0)
-	{
+	if (!Silent || FoundRecVolumes != 0) {
 		mprintf(St(MRecVolFound), FoundRecVolumes);
 	}
 #endif
@@ -173,31 +153,24 @@ bool RecVolumes::Restore(RAROptions *Cmd, const char *Name,
 	char LastVolName[NM];
 	*LastVolName = 0;
 
-	for (int CurArcNum = 0; CurArcNum < FileNumber; CurArcNum++)
-	{
+	for (int CurArcNum = 0; CurArcNum < FileNumber; CurArcNum++) {
 		Archive *NewFile = new Archive;
 		bool ValidVolume = FileExist(ArcName);
-		if (ValidVolume)
-		{
+		if (ValidVolume) {
 			NewFile->TOpen(ArcName);
 			ValidVolume = NewFile->IsArchive(false);
-			if (ValidVolume)
-			{
+			if (ValidVolume) {
 				bool EndFound = false, EndBlockRequired = false;
-				while (NewFile->ReadHeader() != 0)
-				{
-					if (NewFile->GetHeaderType() == FILE_HEAD)
-					{
+				while (NewFile->ReadHeader() != 0) {
+					if (NewFile->GetHeaderType() == FILE_HEAD) {
 						if (NewFile->NewLhd.UnpVer >= 29)
 							EndBlockRequired = true;
 						if (!EndBlockRequired && (NewFile->NewLhd.Flags & LHD_SPLIT_AFTER))
 							EndFound = true;
 					}
-					if (NewFile->GetHeaderType() == ENDARC_HEAD)
-					{
+					if (NewFile->GetHeaderType() == ENDARC_HEAD) {
 						if ((NewFile->EndArcHead.Flags & EARC_DATACRC) != 0 &&
-						        NewFile->EndArcHead.ArcDataCRC != CalcFileCRC(NewFile, NewFile->CurBlockPos))
-						{
+						        NewFile->EndArcHead.ArcDataCRC != CalcFileCRC(NewFile, NewFile->CurBlockPos)) {
 							ValidVolume = false;
 #ifndef SILENT
 							mprintf(St(MCRCFailed), ArcName);
@@ -210,8 +183,7 @@ bool RecVolumes::Restore(RAROptions *Cmd, const char *Name,
 				if (!EndFound)
 					ValidVolume = false;
 			}
-			if (!ValidVolume)
-			{
+			if (!ValidVolume) {
 				NewFile->Close();
 				char NewName[NM];
 				strcpy(NewName, ArcName);
@@ -224,8 +196,7 @@ bool RecVolumes::Restore(RAROptions *Cmd, const char *Name,
 			}
 			NewFile->Seek(0, SEEK_SET);
 		}
-		if (!ValidVolume)
-		{
+		if (!ValidVolume) {
 			NewFile->TCreate(ArcName);
 			WriteFlags[CurArcNum] = true;
 			MissingVolumes++;
@@ -245,16 +216,14 @@ bool RecVolumes::Restore(RAROptions *Cmd, const char *Name,
 	mprintf(St(MRecVolMissing), MissingVolumes);
 #endif
 
-	if (MissingVolumes == 0)
-	{
+	if (MissingVolumes == 0) {
 #ifndef SILENT
 		mprintf(St(MRecVolAllExist));
 #endif
 		return (false);
 	}
 
-	if (MissingVolumes > FoundRecVolumes)
-	{
+	if (MissingVolumes > FoundRecVolumes) {
 #ifndef SILENT
 		mprintf(St(MRecVolCannotFix));
 #endif
@@ -274,14 +243,12 @@ bool RecVolumes::Restore(RAROptions *Cmd, const char *Name,
 			Erasures[EraSize++] = I;
 
 
-	while (true)
-	{
+	while (true) {
 		int MaxRead = 0;
 		for (int I = 0; I < TotalFiles; I++)
 			if (WriteFlags[I] || SrcFile[I] == NULL)
 				memset(&Buf[I * RECVOL_BUFSIZE], 0, RECVOL_BUFSIZE);
-			else
-			{
+			else {
 				int ReadSize = SrcFile[I]->Read(&Buf[I * RECVOL_BUFSIZE], RECVOL_BUFSIZE);
 				if (ReadSize != RECVOL_BUFSIZE)
 					memset(&Buf[I * RECVOL_BUFSIZE + ReadSize], 0, RECVOL_BUFSIZE - ReadSize);
@@ -290,8 +257,7 @@ bool RecVolumes::Restore(RAROptions *Cmd, const char *Name,
 			}
 		if (MaxRead == 0)
 			break;
-		for (int BufPos = 0; BufPos < MaxRead; BufPos++)
-		{
+		for (int BufPos = 0; BufPos < MaxRead; BufPos++) {
 			byte Data[256];
 			for (int I = 0; I < TotalFiles; I++)
 				Data[I] = Buf[I * RECVOL_BUFSIZE + BufPos];
@@ -308,11 +274,9 @@ bool RecVolumes::Restore(RAROptions *Cmd, const char *Name,
 				SrcFile[I]->Write(&Buf[I * RECVOL_BUFSIZE], MaxRead);
 	}
 	for (int I = 0; I < RecVolNumber + FileNumber; I++)
-		if (SrcFile[I] != NULL)
-		{
+		if (SrcFile[I] != NULL) {
 			File *CurFile = SrcFile[I];
-			if (NewStyle && WriteFlags[I])
-			{
+			if (NewStyle && WriteFlags[I]) {
 				Int64 Length = CurFile->Tell();
 				CurFile->Seek(Length - 7, SEEK_SET);
 				for (int J = 0; J < 7; J++)
@@ -321,20 +285,17 @@ bool RecVolumes::Restore(RAROptions *Cmd, const char *Name,
 			CurFile->Close();
 			SrcFile[I] = NULL;
 		}
-	if (*LastVolName)
-	{
+	if (*LastVolName) {
 		Archive Arc(Cmd);
 		if (Arc.Open(LastVolName, NULL, false, true) && Arc.IsArchive(true) &&
-		        Arc.SearchBlock(ENDARC_HEAD))
-		{
+		        Arc.SearchBlock(ENDARC_HEAD)) {
 			Arc.Seek(Arc.NextBlockPos, SEEK_SET);
 			char Buf[8192];
 			int ReadSize = Arc.Read(Buf, sizeof(Buf));
 			int ZeroCount = 0;
 			while (ZeroCount < ReadSize && Buf[ZeroCount] == 0)
 				ZeroCount++;
-			if (ZeroCount == ReadSize)
-			{
+			if (ZeroCount == ReadSize) {
 				Arc.Seek(Arc.NextBlockPos, SEEK_SET);
 				Arc.Truncate();
 			}

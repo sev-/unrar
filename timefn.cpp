@@ -3,22 +3,19 @@
 static time_t SystemTime;
 
 
-void InitTime()
-{
+void InitTime() {
 	time(&SystemTime);
 }
 
 
 #ifndef SFX_MODULE
-uint SecondsToDosTime(uint Seconds)
-{
+uint SecondsToDosTime(uint Seconds) {
 	return (UnixTimeToDos(SystemTime - Seconds));
 }
 #endif
 
 
-void ConvertDate(uint ft, char *DateStr, bool FullYear)
-{
+void ConvertDate(uint ft, char *DateStr, bool FullYear) {
 	int Day = (ft >> 16) & 0x1f;
 	int Month = (ft >> 21) & 0xf;
 	int Year = (ft >> 25) + 1980;
@@ -32,8 +29,7 @@ void ConvertDate(uint ft, char *DateStr, bool FullYear)
 
 
 #ifndef SFX_MODULE
-const char *GetMonthName(int Month)
-{
+const char *GetMonthName(int Month) {
 #ifdef SILENT
 	return ("");
 #else
@@ -48,18 +44,14 @@ const char *GetMonthName(int Month)
 
 
 #ifndef SFX_MODULE
-uint TextAgeToSeconds(char *TimeText)
-{
+uint TextAgeToSeconds(char *TimeText) {
 	uint Seconds = 0, Value = 0;
-	for (int I = 0; TimeText[I] != 0; I++)
-	{
+	for (int I = 0; TimeText[I] != 0; I++) {
 		int Ch = TimeText[I];
 		if (isdigit(Ch))
 			Value = Value * 10 + Ch - '0';
-		else
-		{
-			switch (toupper(Ch))
-			{
+		else {
+			switch (toupper(Ch)) {
 			case 'D':
 				Seconds += Value * 24 * 3600;
 				break;
@@ -82,13 +74,11 @@ uint TextAgeToSeconds(char *TimeText)
 
 
 #ifndef SFX_MODULE
-uint IsoTextToDosTime(char *TimeText)
-{
+uint IsoTextToDosTime(char *TimeText) {
 	int Field[6];
 	memset(Field, 0, sizeof(Field));
 	for (int DigitCount = 0; *TimeText != 0; TimeText++)
-		if (isdigit(*TimeText))
-		{
+		if (isdigit(*TimeText)) {
 			int FieldPos = DigitCount < 4 ? 0 : (DigitCount - 4) / 2 + 1;
 			if (FieldPos < sizeof(Field) / sizeof(Field[0]))
 				Field[FieldPos] = Field[FieldPos] * 10 + *TimeText - '0';
@@ -105,8 +95,7 @@ uint IsoTextToDosTime(char *TimeText)
 #endif
 
 
-uint UnixTimeToDos(time_t UnixTime)
-{
+uint UnixTimeToDos(time_t UnixTime) {
 	struct tm *t;
 	uint DosTime;
 	t = localtime(&UnixTime);
@@ -116,8 +105,7 @@ uint UnixTimeToDos(time_t UnixTime)
 }
 
 
-time_t DosTimeToUnix(uint DosTime)
-{
+time_t DosTimeToUnix(uint DosTime) {
 	struct tm t;
 
 	t.tm_sec = (DosTime & 0x1f) * 2;

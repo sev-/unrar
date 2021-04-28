@@ -47,8 +47,7 @@ A million repetitions of "a"
 
 /* Hash a single 512-bit block. This is the core of the algorithm. */
 
-void SHA1Transform(uint32 state[5], unsigned char buffer[64])
-{
+void SHA1Transform(uint32 state[5], unsigned char buffer[64]) {
 	uint32 a, b, c, d, e;
 	typedef union {
 		unsigned char c[64];
@@ -65,10 +64,8 @@ void SHA1Transform(uint32 state[5], unsigned char buffer[64])
 #ifdef SFX_MODULE
 	static int pos[80][5];
 	static bool pinit = false;
-	if (!pinit)
-	{
-		for (int I = 0, P = 0; I < 80; I++, P = (P ? P - 1 : 4))
-		{
+	if (!pinit) {
+		for (int I = 0, P = 0; I < 80; I++, P = (P ? P - 1 : 4)) {
 			pos[I][0] = P;
 			pos[I][1] = (P + 1) % 5;
 			pos[I][2] = (P + 2) % 5;
@@ -198,8 +195,7 @@ void SHA1Transform(uint32 state[5], unsigned char buffer[64])
 
 /* Initialize new context */
 
-void hash_initial(hash_context *context)
-{
+void hash_initial(hash_context *context) {
 	/* SHA1 initialization constants */
 	context->state[0] = 0x67452301;
 	context->state[1] = 0xEFCDAB89;
@@ -211,8 +207,7 @@ void hash_initial(hash_context *context)
 
 
 /* Run your data through this. */
-void hash_process(hash_context *context, unsigned char *data, unsigned len)
-{
+void hash_process(hash_context *context, unsigned char *data, unsigned len) {
 	unsigned int i, j;
 	uint blen = ((uint)len) << 3;
 
@@ -226,8 +221,7 @@ void hash_process(hash_context *context, unsigned char *data, unsigned len)
 			SHA1Transform(context->state, &data[i]);
 		}
 		j = 0;
-	}
-	else i = 0;
+	} else i = 0;
 	if (len > i)
 		memcpy(&context->buffer[j], &data[i], len - i);
 }
@@ -235,8 +229,7 @@ void hash_process(hash_context *context, unsigned char *data, unsigned len)
 
 /* Add padding and return the message digest. */
 
-void hash_final(hash_context *context, uint32 digest[5])
-{
+void hash_final(hash_context *context, uint32 digest[5]) {
 	uint i, j;
 	unsigned char finalcount[8];
 

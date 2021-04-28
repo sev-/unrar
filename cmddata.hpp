@@ -3,8 +3,7 @@
 
 #define DefaultStoreList "ace;arj;bz2;cab;gz;jpeg;jpg;lha;lzh;mp3;rar;zip;taz;tgz;z"
 
-class CommandData: public RAROptions
-{
+class CommandData: public RAROptions {
 private:
 	void ProcessSwitchesString(char *Str);
 	void ProcessSwitch(char *Switch);

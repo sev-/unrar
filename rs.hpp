@@ -4,8 +4,7 @@
 #define MAXPAR 255
 #define MAXPOL 512
 
-class RSCoder
-{
+class RSCoder {
 private:
 	void gfInit();
 	int gfMult(int a, int b);

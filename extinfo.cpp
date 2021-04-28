@@ -2,18 +2,15 @@
 
 
 
-void ExtractUnixOwner(Archive &Arc, char *FileName)
-{
-	if (Arc.HeaderCRC != Arc.UOHead.HeadCRC)
-	{
+void ExtractUnixOwner(Archive &Arc, char *FileName) {
+	if (Arc.HeaderCRC != Arc.UOHead.HeadCRC) {
 		Log(Arc.FileName, St(MOwnersBroken), FileName);
 		ErrHandler.SetErrorCode(CRC_ERROR);
 		return;
 	}
 
 	struct passwd *pw;
-	if ((pw = getpwnam(Arc.UOHead.OwnerName)) == NULL)
-	{
+	if ((pw = getpwnam(Arc.UOHead.OwnerName)) == NULL) {
 		Log(Arc.FileName, St(MErrGetOwnerID), Arc.UOHead.OwnerName);
 		ErrHandler.SetErrorCode(WARNING);
 		return;
@@ -21,23 +18,20 @@ void ExtractUnixOwner(Archive &Arc, char *FileName)
 	uid_t OwnerID = pw->pw_uid;
 
 	struct group *gr;
-	if ((gr = getgrnam(Arc.UOHead.GroupName)) == NULL)
-	{
+	if ((gr = getgrnam(Arc.UOHead.GroupName)) == NULL) {
 		Log(Arc.FileName, St(MErrGetGroupID), Arc.UOHead.GroupName);
 		ErrHandler.SetErrorCode(CRC_ERROR);
 		return;
 	}
 	gid_t GroupID = gr->gr_gid;
-	if (chown(FileName, OwnerID, GroupID) != 0)
-	{
+	if (chown(FileName, OwnerID, GroupID) != 0) {
 		Log(Arc.FileName, St(MSetOwnersError), FileName);
 		ErrHandler.SetErrorCode(CRC_ERROR);
 	}
 }
 
 
-void ExtractUnixOwnerNew(Archive &Arc, char *FileName)
-{
+void ExtractUnixOwnerNew(Archive &Arc, char *FileName) {
 	char *OwnerName = (char *)&Arc.SubHead.SubData[0];
 	int OwnerSize = strlen(OwnerName) + 1;
 	int GroupSize = Arc.SubHead.SubData.Size() - OwnerSize;
@@ -46,8 +40,7 @@ void ExtractUnixOwnerNew(Archive &Arc, char *FileName)
 	GroupName[GroupSize] = 0;
 
 	struct passwd *pw;
-	if ((pw = getpwnam(OwnerName)) == NULL)
-	{
+	if ((pw = getpwnam(OwnerName)) == NULL) {
 		Log(Arc.FileName, St(MErrGetOwnerID), OwnerName);
 		ErrHandler.SetErrorCode(WARNING);
 		return;
@@ -55,15 +48,13 @@ void ExtractUnixOwnerNew(Archive &Arc, char *FileName)
 	uid_t OwnerID = pw->pw_uid;
 
 	struct group *gr;
-	if ((gr = getgrnam(GroupName)) == NULL)
-	{
+	if ((gr = getgrnam(GroupName)) == NULL) {
 		Log(Arc.FileName, St(MErrGetGroupID), GroupName);
 		ErrHandler.SetErrorCode(CRC_ERROR);
 		return;
 	}
 	gid_t GroupID = gr->gr_gid;
-	if (chown(FileName, OwnerID, GroupID) != 0)
-	{
+	if (chown(FileName, OwnerID, GroupID) != 0) {
 		Log(Arc.FileName, St(MSetOwnersError), FileName);
 		ErrHandler.SetErrorCode(CRC_ERROR);
 	}
@@ -71,10 +62,8 @@ void ExtractUnixOwnerNew(Archive &Arc, char *FileName)
 
 
 #ifndef SFX_MODULE
-void SetExtraInfo(CommandData *Cmd, Archive &Arc, char *Name, wchar *NameW)
-{
-	switch (Arc.SubBlockHead.SubType)
-	{
+void SetExtraInfo(CommandData *Cmd, Archive &Arc, char *Name, wchar *NameW) {
+	switch (Arc.SubBlockHead.SubType) {
 	case UO_HEAD:
 		if (Cmd->ProcessOwners)
 			ExtractUnixOwner(Arc, Name);
@@ -84,8 +73,7 @@ void SetExtraInfo(CommandData *Cmd, Archive &Arc, char *Name, wchar *NameW)
 #endif
 
 
-void SetExtraInfoNew(CommandData *Cmd, Archive &Arc, char *Name, wchar *NameW)
-{
+void SetExtraInfoNew(CommandData *Cmd, Archive &Arc, char *Name, wchar *NameW) {
 	if (Cmd->ProcessOwners && Arc.SubHead.CmpName(SUBHEAD_TYPE_UOWNER))
 		ExtractUnixOwnerNew(Arc, Name);
 }

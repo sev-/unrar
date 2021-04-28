@@ -14,8 +14,7 @@ typedef long long Int64;
 
 #else
 
-class Int64
-{
+class Int64 {
 public:
 	Int64();
 	Int64(uint n);
@@ -35,19 +34,16 @@ public:
 	friend Int64 operator *= (Int64 &n1, Int64 n2);
 	friend Int64 operator /= (Int64 &n1, Int64 n2);
 	friend Int64 operator | (Int64 n1, Int64 n2);
-	inline friend void operator -= (Int64 &n1, unsigned int n2)
-	{
+	inline friend void operator -= (Int64 &n1, unsigned int n2) {
 		if (n1.LowPart < n2)
 			n1.HighPart--;
 		n1.LowPart -= n2;
 	}
-	inline friend void operator ++ (Int64 &n)
-	{
+	inline friend void operator ++ (Int64 &n) {
 		if (++n.LowPart == 0)
 			++n.HighPart;
 	}
-	inline friend void operator -- (Int64 &n)
-	{
+	inline friend void operator -- (Int64 &n) {
 		if (n.LowPart-- == 0)
 			n.HighPart--;
 	}

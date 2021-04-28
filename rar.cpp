@@ -3,8 +3,7 @@
 ErrorHandler ErrHandler;
 
 
-int ToPercent(Int64 N1, Int64 N2)
-{
+int ToPercent(Int64 N1, Int64 N2) {
 	if (N2 == 0)
 		return (0);
 	if (N2 < N1)
@@ -12,8 +11,7 @@ int ToPercent(Int64 N1, Int64 N2)
 	return (int64to32(N1 * 100 / N2));
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 #ifndef SFX_MODULE
 	setbuf(stdout, NULL);
 
@@ -38,8 +36,7 @@ int main(int argc, char *argv[])
 		char *CmdLine = GetCommandLine();
 		if (CmdLine != NULL && *CmdLine == '\"')
 			CmdLine = strchr(CmdLine + 1, '\"');
-		if (CmdLine != NULL && (CmdLine = strpbrk(CmdLine, " /")) != NULL)
-		{
+		if (CmdLine != NULL && (CmdLine = strpbrk(CmdLine, " /")) != NULL) {
 			while (isspace(*CmdLine))
 				CmdLine++;
 			Switch = CmdLine;
@@ -47,11 +44,9 @@ int main(int argc, char *argv[])
 #else
 		Switch = argc > 1 ? argv[1] : NULL;
 #endif
-		if (Switch != NULL && Cmd.IsSwitch(Switch[0]))
-		{
+		if (Switch != NULL && Cmd.IsSwitch(Switch[0])) {
 			int UpperCmd = toupper(Switch[1]);
-			switch (UpperCmd)
-			{
+			switch (UpperCmd) {
 			case 'T':
 			case 'V':
 				Cmd.Command[0] = UpperCmd;
@@ -63,8 +58,7 @@ int main(int argc, char *argv[])
 		}
 		Cmd.AddArcName(ModuleName, NULL);
 #else
-		if (Cmd.IsConfigEnabled(argc, argv))
-		{
+		if (Cmd.IsConfigEnabled(argc, argv)) {
 			Cmd.ReadConfig(argc, argv);
 			Cmd.ParseEnvVar();
 		}
@@ -84,18 +78,15 @@ int main(int argc, char *argv[])
 		Cmd.ProcessCommand();
 	}
 #ifdef ALLOW_EXCEPTIONS
-	catch (int ErrCode)
-	{
+	catch (int ErrCode) {
 		ErrHandler.SetErrorCode(ErrCode);
 	}
 #ifdef ENABLE_BAD_ALLOC
-	catch (bad_alloc)
-	{
+	catch (bad_alloc) {
 		ErrHandler.SetErrorCode(MEMORY_ERROR);
 	}
 #endif
-	catch (...)
-	{
+	catch (...) {
 		ErrHandler.SetErrorCode(FATAL_ERROR);
 	}
 #endif
@@ -104,8 +95,7 @@ int main(int argc, char *argv[])
 }
 
 
-void RARInitData()
-{
+void RARInitData() {
 	InitCRC();
 #ifndef SFX_MODULE
 	InitTime();

@@ -2,14 +2,11 @@
 
 bool FileCreate(RAROptions *Cmd, File *NewFile, char *Name, wchar *NameW,
                 OVERWRITE_MODE Mode, bool *UserReject, Int64 FileSize,
-                uint FileTime)
-{
+                uint FileTime) {
 	if (UserReject != NULL)
 		*UserReject = false;
-	while (FileExist(Name, NameW))
-	{
-		if (Mode == OVERWRITE_NONE)
-		{
+	while (FileExist(Name, NameW)) {
+		if (Mode == OVERWRITE_NONE) {
 			if (UserReject != NULL)
 				*UserReject = true;
 			return (false);
@@ -19,32 +16,27 @@ bool FileCreate(RAROptions *Cmd, File *NewFile, char *Name, wchar *NameW,
 #endif
 		if (Cmd->AllYes || Mode == OVERWRITE_ALL)
 			break;
-		if (Mode == OVERWRITE_ASK)
-		{
+		if (Mode == OVERWRITE_ASK) {
 			eprintf(St(MFileExists), Name);
 			int Choice = Ask(St(MYesNoAllRenQ));
 			if (Choice == 1)
 				break;
-			if (Choice == 2)
-			{
+			if (Choice == 2) {
 				if (UserReject != NULL)
 					*UserReject = true;
 				return (false);
 			}
-			if (Choice == 3)
-			{
+			if (Choice == 3) {
 				Cmd->Overwrite = OVERWRITE_ALL;
 				break;
 			}
-			if (Choice == 4)
-			{
+			if (Choice == 4) {
 				if (UserReject != NULL)
 					*UserReject = true;
 				Cmd->Overwrite = OVERWRITE_NONE;
 				return (false);
 			}
-			if (Choice == 5)
-			{
+			if (Choice == 5) {
 				mprintf(St(MAskNewName));
 
 				char NewName[NM];

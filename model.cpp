@@ -6,11 +6,9 @@
  ****************************************************************************/
 
 inline PPM_CONTEXT *PPM_CONTEXT::createChild(ModelPPM *Model, STATE *pStats,
-        STATE &FirstState)
-{
+        STATE &FirstState) {
 	PPM_CONTEXT *pc = (PPM_CONTEXT *) Model->SubAlloc.AllocContext();
-	if (pc)
-	{
+	if (pc) {
 		pc->NumStats = 1;
 		pc->OneState = FirstState;
 		pc->Suffix = this;
@@ -20,16 +18,14 @@ inline PPM_CONTEXT *PPM_CONTEXT::createChild(ModelPPM *Model, STATE *pStats,
 }
 
 
-ModelPPM::ModelPPM()
-{
+ModelPPM::ModelPPM() {
 	MinContext = NULL;
 	MaxContext = NULL;
 	MedContext = NULL;
 }
 
 
-void ModelPPM::RestartModelRare()
-{
+void ModelPPM::RestartModelRare() {
 	int i, k, m;
 	memset(CharMask, 0, sizeof(CharMask));
 	SubAlloc.InitSubAllocator();
@@ -39,8 +35,7 @@ void ModelPPM::RestartModelRare()
 	OrderFall = MaxOrder;
 	MinContext->U.SummFreq = (MinContext->NumStats = 256) + 1;
 	FoundState = MinContext->U.Stats = (STATE *)SubAlloc.AllocUnits(256 / 2);
-	for (RunLength = InitRL, PrevSuccess = i = 0; i < 256; i++)
-	{
+	for (RunLength = InitRL, PrevSuccess = i = 0; i < 256; i++) {
 		MinContext->U.Stats[i].Symbol = i;
 		MinContext->U.Stats[i].Freq = 1;
 		MinContext->U.Stats[i].Successor = NULL;
@@ -60,8 +55,7 @@ void ModelPPM::RestartModelRare()
 }
 
 
-void ModelPPM::StartModelRare(int MaxOrder)
-{
+void ModelPPM::StartModelRare(int MaxOrder) {
 	int i, k, m, Step;
 	EscCount = 1;
 	/*
@@ -89,11 +83,9 @@ void ModelPPM::StartModelRare(int MaxOrder)
 		memset(NS2BSIndx + 11, 2 * 3, 256 - 11);
 		for (i = 0; i < 3; i++)
 			NS2Indx[i] = i;
-		for (m = i, k = Step = 1; i < 256; i++)
-		{
+		for (m = i, k = Step = 1; i < 256; i++) {
 			NS2Indx[i] = m;
-			if (!--k)
-			{
+			if (!--k) {
 				k = ++Step;
 				m++;
 			}
@@ -105,8 +97,7 @@ void ModelPPM::StartModelRare(int MaxOrder)
 }
 
 
-void PPM_CONTEXT::rescale(ModelPPM *Model)
-{
+void PPM_CONTEXT::rescale(ModelPPM *Model) {
 	int OldNS = NumStats, i = NumStats - 1, Adder, EscFreq;
 	STATE *p1, * p;
 	for (p = Model->FoundState; p != U.Stats; p--)
@@ -116,32 +107,25 @@ void PPM_CONTEXT::rescale(ModelPPM *Model)
 	EscFreq = U.SummFreq - p->Freq;
 	Adder = (Model->OrderFall != 0);
 	U.SummFreq = (p->Freq = (p->Freq + Adder) >> 1);
-	do
-	{
+	do {
 		EscFreq -= (++p)->Freq;
 		U.SummFreq += (p->Freq = (p->Freq + Adder) >> 1);
-		if (p[0].Freq > p[-1].Freq)
-		{
+		if (p[0].Freq > p[-1].Freq) {
 			STATE tmp = *(p1 = p);
-			do
-			{
+			do {
 				p1[0] = p1[-1];
 			} while (--p1 != U.Stats && tmp.Freq > p1[-1].Freq);
 			*p1 = tmp;
 		}
 	} while (--i);
-	if (p->Freq == 0)
-	{
-		do
-		{
+	if (p->Freq == 0) {
+		do {
 			i++;
 		} while ((--p)->Freq == 0);
 		EscFreq += i;
-		if ((NumStats -= i) == 1)
-		{
+		if ((NumStats -= i) == 1) {
 			STATE tmp = *U.Stats;
-			do
-			{
+			do {
 				tmp.Freq -= (tmp.Freq >> 1);
 				EscFreq >>= 1;
 			} while (EscFreq > 1);
@@ -158,42 +142,34 @@ void PPM_CONTEXT::rescale(ModelPPM *Model)
 }
 
 
-inline PPM_CONTEXT *ModelPPM::CreateSuccessors(bool Skip, STATE *p1)
-{
+inline PPM_CONTEXT *ModelPPM::CreateSuccessors(bool Skip, STATE *p1) {
 #ifdef __ICL
 	static
 #endif
 	STATE UpState;
 	PPM_CONTEXT *pc = MinContext, * UpBranch = FoundState->Successor;
 	STATE *p, * ps[MAX_O], ** pps = ps;
-	if (!Skip)
-	{
+	if (!Skip) {
 		*pps++ = FoundState;
 		if (!pc->Suffix)
 			goto NO_LOOP;
 	}
-	if (p1)
-	{
+	if (p1) {
 		p = p1;
 		pc = pc->Suffix;
 		goto LOOP_ENTRY;
 	}
-	do
-	{
+	do {
 		pc = pc->Suffix;
-		if (pc->NumStats != 1)
-		{
+		if (pc->NumStats != 1) {
 			if ((p = pc->U.Stats)->Symbol != FoundState->Symbol)
-				do
-				{
+				do {
 					p++;
 				} while (p->Symbol != FoundState->Symbol);
-		}
-		else
+		} else
 			p = &(pc->OneState);
 LOOP_ENTRY:
-		if (p->Successor != UpBranch)
-		{
+		if (p->Successor != UpBranch) {
 			pc = p->Successor;
 			break;
 		}
@@ -204,23 +180,19 @@ NO_LOOP:
 		return pc;
 	UpState.Symbol = *(byte *) UpBranch;
 	UpState.Successor = (PPM_CONTEXT *)(((byte *) UpBranch) + 1);
-	if (pc->NumStats != 1)
-	{
+	if (pc->NumStats != 1) {
 		if ((byte *) pc <= SubAlloc.pText)
 			return (NULL);
 		if ((p = pc->U.Stats)->Symbol != UpState.Symbol)
-			do
-			{
+			do {
 				p++;
 			} while (p->Symbol != UpState.Symbol);
 		uint cf = p->Freq - 1;
 		uint s0 = pc->U.SummFreq - pc->NumStats - cf;
 		UpState.Freq = 1 + ((2 * cf <= s0) ? (5 * cf > s0) : ((2 * cf + 3 * s0 - 1) / (2 * s0)));
-	}
-	else
+	} else
 		UpState.Freq = pc->OneState.Freq;
-	do
-	{
+	do {
 		pc = pc->createChild(this, *--pps, UpState);
 		if (!pc)
 			return NULL;
@@ -229,41 +201,31 @@ NO_LOOP:
 }
 
 
-inline void ModelPPM::UpdateModel()
-{
+inline void ModelPPM::UpdateModel() {
 	STATE fs = *FoundState, *p = NULL;
 	PPM_CONTEXT *pc, *Successor;
 	uint ns1, ns, cf, sf, s0;
-	if (fs.Freq < MAX_FREQ / 4 && (pc = MinContext->Suffix) != NULL)
-	{
-		if (pc->NumStats != 1)
-		{
-			if ((p = pc->U.Stats)->Symbol != fs.Symbol)
-			{
-				do
-				{
+	if (fs.Freq < MAX_FREQ / 4 && (pc = MinContext->Suffix) != NULL) {
+		if (pc->NumStats != 1) {
+			if ((p = pc->U.Stats)->Symbol != fs.Symbol) {
+				do {
 					p++;
 				} while (p->Symbol != fs.Symbol);
-				if (p[0].Freq >= p[-1].Freq)
-				{
+				if (p[0].Freq >= p[-1].Freq) {
 					_PPMD_SWAP(p[0], p[-1]);
 					p--;
 				}
 			}
-			if (p->Freq < MAX_FREQ - 9)
-			{
+			if (p->Freq < MAX_FREQ - 9) {
 				p->Freq += 2;
 				pc->U.SummFreq += 2;
 			}
-		}
-		else
-		{
+		} else {
 			p = &(pc->OneState);
 			p->Freq += (p->Freq < 32);
 		}
 	}
-	if (!OrderFall)
-	{
+	if (!OrderFall) {
 		MinContext = MaxContext = FoundState->Successor = CreateSuccessors(TRUE, p);
 		if (!MinContext)
 			goto RESTART_MODEL;
@@ -273,37 +235,28 @@ inline void ModelPPM::UpdateModel()
 	Successor = (PPM_CONTEXT *) SubAlloc.pText;
 	if (SubAlloc.pText >= SubAlloc.FakeUnitsStart)
 		goto RESTART_MODEL;
-	if (fs.Successor)
-	{
+	if (fs.Successor) {
 		if ((byte *) fs.Successor <= SubAlloc.pText &&
 		        (fs.Successor = CreateSuccessors(FALSE, p)) == NULL)
 			goto RESTART_MODEL;
-		if (!--OrderFall)
-		{
+		if (!--OrderFall) {
 			Successor = fs.Successor;
 			SubAlloc.pText -= (MaxContext != MinContext);
 		}
-	}
-	else
-	{
+	} else {
 		FoundState->Successor = Successor;
 		fs.Successor = MinContext;
 	}
 	s0 = MinContext->U.SummFreq - (ns = MinContext->NumStats) - (fs.Freq - 1);
-	for (pc = MaxContext; pc != MinContext; pc = pc->Suffix)
-	{
-		if ((ns1 = pc->NumStats) != 1)
-		{
-			if ((ns1 & 1) == 0)
-			{
+	for (pc = MaxContext; pc != MinContext; pc = pc->Suffix) {
+		if ((ns1 = pc->NumStats) != 1) {
+			if ((ns1 & 1) == 0) {
 				pc->U.Stats = (STATE *) SubAlloc.ExpandUnits(pc->U.Stats, ns1 >> 1);
 				if (!pc->U.Stats)
 					goto RESTART_MODEL;
 			}
 			pc->U.SummFreq += (2 * ns1 < ns) + 2 * ((4 * ns1 <= ns) & (pc->U.SummFreq <= 8 * ns1));
-		}
-		else
-		{
+		} else {
 			p = (STATE *) SubAlloc.AllocUnits(1);
 			if (!p)
 				goto RESTART_MODEL;
@@ -317,13 +270,10 @@ inline void ModelPPM::UpdateModel()
 		}
 		cf = 2 * fs.Freq * (pc->U.SummFreq + 6);
 		sf = s0 + pc->U.SummFreq;
-		if (cf < 6 * sf)
-		{
+		if (cf < 6 * sf) {
 			cf = 1 + (cf > sf) + (cf >= 4 * sf);
 			pc->U.SummFreq += 3;
-		}
-		else
-		{
+		} else {
 			cf = 4 + (cf >= 9 * sf) + (cf >= 12 * sf) + (cf >= 15 * sf);
 			pc->U.SummFreq += cf;
 		}
@@ -347,16 +297,14 @@ static const byte ExpEscape[16] = { 25, 14, 9, 7, 5, 5, 4, 4, 4, 3, 3, 3, 2, 2, 
 
 
 
-inline void PPM_CONTEXT::decodeBinSymbol(ModelPPM *Model)
-{
+inline void PPM_CONTEXT::decodeBinSymbol(ModelPPM *Model) {
 	STATE &rs = OneState;
 	Model->HiBitsFlag = Model->HB2Flag[Model->FoundState->Symbol];
 	ushort &bs = Model->BinSumm[rs.Freq - 1][Model->PrevSuccess +
 	             Model->NS2BSIndx[Suffix->NumStats - 1] +
 	             Model->HiBitsFlag + 2 * Model->HB2Flag[rs.Symbol] +
 	             ((Model->RunLength >> 26) & 0x20)];
-	if (Model->Coder.GetCurrentShiftCount(TOT_BITS) < bs)
-	{
+	if (Model->Coder.GetCurrentShiftCount(TOT_BITS) < bs) {
 		Model->FoundState = &rs;
 		rs.Freq += (rs.Freq < 128);
 		Model->Coder.SubRange.LowCount = 0;
@@ -364,9 +312,7 @@ inline void PPM_CONTEXT::decodeBinSymbol(ModelPPM *Model)
 		bs = SHORT16(bs + INTERVAL - GET_MEAN(bs, PERIOD_BITS, 2));
 		Model->PrevSuccess = 1;
 		Model->RunLength++;
-	}
-	else
-	{
+	} else {
 		Model->Coder.SubRange.LowCount = bs;
 		bs = SHORT16(bs - GET_MEAN(bs, PERIOD_BITS, 2));
 		Model->Coder.SubRange.HighCount = BIN_SCALE;
@@ -379,12 +325,10 @@ inline void PPM_CONTEXT::decodeBinSymbol(ModelPPM *Model)
 }
 
 
-inline void PPM_CONTEXT::update1(ModelPPM *Model, STATE *p)
-{
+inline void PPM_CONTEXT::update1(ModelPPM *Model, STATE *p) {
 	(Model->FoundState = p)->Freq += 4;
 	U.SummFreq += 4;
-	if (p[0].Freq > p[-1].Freq)
-	{
+	if (p[0].Freq > p[-1].Freq) {
 		_PPMD_SWAP(p[0], p[-1]);
 		Model->FoundState = --p;
 		if (p->Freq > MAX_FREQ)
@@ -395,16 +339,14 @@ inline void PPM_CONTEXT::update1(ModelPPM *Model, STATE *p)
 
 
 
-inline bool PPM_CONTEXT::decodeSymbol1(ModelPPM *Model)
-{
+inline bool PPM_CONTEXT::decodeSymbol1(ModelPPM *Model) {
 	Model->Coder.SubRange.scale = U.SummFreq;
 	STATE *p = U.Stats;
 	int i, HiCnt;
 	int count = Model->Coder.GetCurrentCount();
 	if (count >= Model->Coder.SubRange.scale)
 		return (false);
-	if (count < (HiCnt = p->Freq))
-	{
+	if (count < (HiCnt = p->Freq)) {
 		Model->PrevSuccess = (2 * (Model->Coder.SubRange.HighCount = HiCnt) > Model->Coder.SubRange.scale);
 		Model->RunLength += Model->PrevSuccess;
 		(Model->FoundState = p)->Freq = (HiCnt += 4);
@@ -413,21 +355,18 @@ inline bool PPM_CONTEXT::decodeSymbol1(ModelPPM *Model)
 			rescale(Model);
 		Model->Coder.SubRange.LowCount = 0;
 		return (true);
-	}
-	else if (Model->FoundState == NULL)
+	} else if (Model->FoundState == NULL)
 		return (false);
 	Model->PrevSuccess = 0;
 	i = NumStats - 1;
 	while ((HiCnt += (++p)->Freq) <= count)
-		if (--i == 0)
-		{
+		if (--i == 0) {
 			Model->HiBitsFlag = Model->HB2Flag[Model->FoundState->Symbol];
 			Model->Coder.SubRange.LowCount = HiCnt;
 			Model->CharMask[p->Symbol] = Model->EscCount;
 			i = (Model->NumMasked = NumStats) - 1;
 			Model->FoundState = NULL;
-			do
-			{
+			do {
 				Model->CharMask[(--p)->Symbol] = Model->EscCount;
 			} while (--i);
 			Model->Coder.SubRange.HighCount = Model->Coder.SubRange.scale;
@@ -439,8 +378,7 @@ inline bool PPM_CONTEXT::decodeSymbol1(ModelPPM *Model)
 }
 
 
-inline void PPM_CONTEXT::update2(ModelPPM *Model, STATE *p)
-{
+inline void PPM_CONTEXT::update2(ModelPPM *Model, STATE *p) {
 	(Model->FoundState = p)->Freq += 4;
 	U.SummFreq += 4;
 	if (p->Freq > MAX_FREQ)
@@ -450,19 +388,15 @@ inline void PPM_CONTEXT::update2(ModelPPM *Model, STATE *p)
 }
 
 
-inline SEE2_CONTEXT *PPM_CONTEXT::makeEscFreq2(ModelPPM *Model, int Diff)
-{
+inline SEE2_CONTEXT *PPM_CONTEXT::makeEscFreq2(ModelPPM *Model, int Diff) {
 	SEE2_CONTEXT *psee2c;
-	if (NumStats != 256)
-	{
+	if (NumStats != 256) {
 		psee2c = Model->SEE2Cont[Model->NS2Indx[Diff - 1]] +
 		         (Diff < Suffix->NumStats - NumStats) +
 		         2 * (U.SummFreq < 11 * NumStats) + 4 * (Model->NumMasked > Diff) +
 		         Model->HiBitsFlag;
 		Model->Coder.SubRange.scale = psee2c->getMean();
-	}
-	else
-	{
+	} else {
 		psee2c = &Model->DummySEE2Cont;
 		Model->Coder.SubRange.scale = 1;
 	}
@@ -472,16 +406,13 @@ inline SEE2_CONTEXT *PPM_CONTEXT::makeEscFreq2(ModelPPM *Model, int Diff)
 
 
 
-inline bool PPM_CONTEXT::decodeSymbol2(ModelPPM *Model)
-{
+inline bool PPM_CONTEXT::decodeSymbol2(ModelPPM *Model) {
 	int count, HiCnt, i = NumStats - Model->NumMasked;
 	SEE2_CONTEXT *psee2c = makeEscFreq2(Model, i);
 	STATE *ps[256], ** pps = ps, * p = U.Stats - 1;
 	HiCnt = 0;
-	do
-	{
-		do
-		{
+	do {
+		do {
 			p++;
 		} while (Model->CharMask[p->Symbol] == Model->EscCount);
 		HiCnt += p->Freq;
@@ -492,23 +423,19 @@ inline bool PPM_CONTEXT::decodeSymbol2(ModelPPM *Model)
 	if (count >= Model->Coder.SubRange.scale)
 		return (false);
 	p = *(pps = ps);
-	if (count < HiCnt)
-	{
+	if (count < HiCnt) {
 		HiCnt = 0;
 		while ((HiCnt += p->Freq) <= count)
 			p = *++pps;
 		Model->Coder.SubRange.LowCount = (Model->Coder.SubRange.HighCount = HiCnt) - p->Freq;
 		psee2c->update();
 		update2(Model, p);
-	}
-	else
-	{
+	} else {
 		Model->Coder.SubRange.LowCount = HiCnt;
 		Model->Coder.SubRange.HighCount = Model->Coder.SubRange.scale;
 		i = NumStats - Model->NumMasked;
 		pps--;
-		do
-		{
+		do {
 			Model->CharMask[(*++pps)->Symbol] = Model->EscCount;
 		} while (--i);
 		psee2c->Summ += Model->Coder.SubRange.scale;
@@ -518,8 +445,7 @@ inline bool PPM_CONTEXT::decodeSymbol2(ModelPPM *Model)
 }
 
 
-inline void ModelPPM::ClearMask()
-{
+inline void ModelPPM::ClearMask() {
 	EscCount = 1;
 	memset(CharMask, 0, sizeof(CharMask));
 }
@@ -527,8 +453,7 @@ inline void ModelPPM::ClearMask()
 
 
 
-bool ModelPPM::DecodeInit(Unpack *UnpackRead, int &EscChar)
-{
+bool ModelPPM::DecodeInit(Unpack *UnpackRead, int &EscChar) {
 	int MaxOrder = UnpackRead->GetChar();
 	bool Reset = MaxOrder & 0x20;
 
@@ -540,13 +465,11 @@ bool ModelPPM::DecodeInit(Unpack *UnpackRead, int &EscChar)
 	if (MaxOrder & 0x40)
 		EscChar = UnpackRead->GetChar();
 	Coder.InitDecoder(UnpackRead);
-	if (Reset)
-	{
+	if (Reset) {
 		MaxOrder = (MaxOrder & 0x1f) + 1;
 		if (MaxOrder > 16)
 			MaxOrder = 16 + (MaxOrder - 16) * 3;
-		if (MaxOrder == 1)
-		{
+		if (MaxOrder == 1) {
 			SubAlloc.StopSubAllocator();
 			return (false);
 		}
@@ -557,23 +480,18 @@ bool ModelPPM::DecodeInit(Unpack *UnpackRead, int &EscChar)
 }
 
 
-int ModelPPM::DecodeChar()
-{
+int ModelPPM::DecodeChar() {
 	if ((byte *)MinContext <= SubAlloc.pText || (byte *)MinContext > SubAlloc.HeapEnd)
 		return (-1);
-	if (MinContext->NumStats != 1)
-	{
+	if (MinContext->NumStats != 1) {
 		if (!MinContext->decodeSymbol1(this))
 			return (-1);
-	}
-	else
+	} else
 		MinContext->decodeBinSymbol(this);
 	Coder.Decode();
-	while (!FoundState)
-	{
+	while (!FoundState) {
 		ARI_DEC_NORMALIZE(Coder.code, Coder.low, Coder.range, Coder.UnpackRead);
-		do
-		{
+		do {
 			OrderFall++;
 			MinContext = MinContext->Suffix;
 			if ((byte *)MinContext <= SubAlloc.pText || (byte *)MinContext > SubAlloc.HeapEnd)
@@ -586,8 +504,7 @@ int ModelPPM::DecodeChar()
 	int Symbol = FoundState->Symbol;
 	if (!OrderFall && (byte *) FoundState->Successor > SubAlloc.pText)
 		MinContext = MaxContext = FoundState->Successor;
-	else
-	{
+	else {
 		UpdateModel();
 		if (EscCount == 0)
 			ClearMask();

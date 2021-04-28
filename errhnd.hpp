@@ -6,8 +6,7 @@ enum { SUCCESS, WARNING, FATAL_ERROR, CRC_ERROR, LOCK_ERROR, WRITE_ERROR,
        OPEN_ERROR, USER_ERROR, MEMORY_ERROR, USER_BREAK = 255
      };
 
-class ErrorHandler
-{
+class ErrorHandler {
 private:
 	void ErrMsg(char *ArcName, const char *fmt, ...);
 

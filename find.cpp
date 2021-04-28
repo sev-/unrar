@@ -1,7 +1,6 @@
 #include "rar.hpp"
 
-FindFile::FindFile()
-{
+FindFile::FindFile() {
 	*FindMask = 0;
 	*FindMaskW = 0;
 	FirstCall = TRUE;
@@ -9,15 +8,13 @@ FindFile::FindFile()
 }
 
 
-FindFile::~FindFile()
-{
+FindFile::~FindFile() {
 	if (dirp != NULL)
 		closedir(dirp);
 }
 
 
-void FindFile::SetMask(const char *FindMask)
-{
+void FindFile::SetMask(const char *FindMask) {
 	strcpy(FindFile::FindMask, FindMask);
 	if (*FindMaskW == 0)
 		CharToWide(FindMask, FindMaskW);
@@ -25,8 +22,7 @@ void FindFile::SetMask(const char *FindMask)
 }
 
 
-void FindFile::SetMaskW(const wchar *FindMaskW)
-{
+void FindFile::SetMaskW(const wchar *FindMaskW) {
 	if (FindMaskW == NULL)
 		return;
 	strcpyw(FindFile::FindMaskW, FindMaskW);
@@ -36,13 +32,11 @@ void FindFile::SetMaskW(const wchar *FindMaskW)
 }
 
 
-bool FindFile::Next(struct FindData *fd, bool GetSymLink)
-{
+bool FindFile::Next(struct FindData *fd, bool GetSymLink) {
 	fd->Error = false;
 	if (*FindMask == 0)
 		return (false);
-	if (FirstCall)
-	{
+	if (FirstCall) {
 		char DirName[NM];
 		strcpy(DirName, FindMask);
 		RemoveNameFromPath(DirName);
@@ -56,26 +50,22 @@ bool FindFile::Next(struct FindData *fd, bool GetSymLink)
 		        DirName[Length-1]=0;
 		    }
 		*/
-		if ((dirp = opendir(DirName)) == NULL)
-		{
+		if ((dirp = opendir(DirName)) == NULL) {
 			fd->Error = (errno != ENOENT);
 			return (false);
 		}
 	}
-	while (1)
-	{
+	while (1) {
 		struct dirent *ent = readdir(dirp);
 		if (ent == NULL)
 			return (false);
 		if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0)
 			continue;
-		if (CmpName(FindMask, ent->d_name, MATCH_NAMES))
-		{
+		if (CmpName(FindMask, ent->d_name, MATCH_NAMES)) {
 			char FullName[NM];
 			strcpy(FullName, FindMask);
 			strcpy(PointToName(FullName), ent->d_name);
-			if (!FastFind(FullName, NULL, fd, GetSymLink))
-			{
+			if (!FastFind(FullName, NULL, fd, GetSymLink)) {
 				ErrHandler.OpenErrorMsg(FullName);
 				continue;
 			}
@@ -94,23 +84,18 @@ bool FindFile::Next(struct FindData *fd, bool GetSymLink)
 }
 
 
-bool FindFile::FastFind(const char *FindMask, const wchar *FindMaskW, struct FindData *fd, bool GetSymLink)
-{
+bool FindFile::FastFind(const char *FindMask, const wchar *FindMaskW, struct FindData *fd, bool GetSymLink) {
 	fd->Error = false;
 	if (IsWildcard(FindMask, FindMaskW))
 		return (false);
 
 	struct stat st;
-	if (GetSymLink)
-	{
-		if (stat(FindMask, &st) != 0)
-		{
+	if (GetSymLink) {
+		if (stat(FindMask, &st) != 0) {
 			fd->Error = (errno != ENOENT);
 			return (false);
 		}
-	}
-	else if (stat(FindMask, &st) != 0)
-	{
+	} else if (stat(FindMask, &st) != 0) {
 		fd->Error = (errno != ENOENT);
 		return (false);
 	}

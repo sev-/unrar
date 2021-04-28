@@ -7,8 +7,7 @@ enum { SCAN_SUCCESS, SCAN_DONE, SCAN_ERROR, SCAN_NEXT };
 
 #define MAXSCANDEPTH    (NM/2)
 
-class ScanTree
-{
+class ScanTree {
 private:
 	bool PrepareMasks();
 	int FindProc(FindData *FindData);

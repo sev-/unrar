@@ -5,45 +5,38 @@
  *  Contents: memory allocation routines                                    *
  ****************************************************************************/
 
-SubAllocator::SubAllocator()
-{
+SubAllocator::SubAllocator() {
 	Clean();
 }
 
 
-void SubAllocator::Clean()
-{
+void SubAllocator::Clean() {
 	SubAllocatorSize = 0;
 }
 
 
-inline void SubAllocator::InsertNode(void *p, int indx)
-{
+inline void SubAllocator::InsertNode(void *p, int indx) {
 	((NODE *) p)->next = FreeList[indx].next;
 	FreeList[indx].next = (NODE *) p;
 }
 
 
-inline void *SubAllocator::RemoveNode(int indx)
-{
+inline void *SubAllocator::RemoveNode(int indx) {
 	NODE *RetVal = FreeList[indx].next;
 	FreeList[indx].next = RetVal->next;
 	return RetVal;
 }
 
 
-inline uint SubAllocator::U2B(int NU)
-{
+inline uint SubAllocator::U2B(int NU) {
 	return /*8*NU+4*NU*/UNIT_SIZE * NU;
 }
 
 
-inline void SubAllocator::SplitBlock(void *pv, int OldIndx, int NewIndx)
-{
+inline void SubAllocator::SplitBlock(void *pv, int OldIndx, int NewIndx) {
 	int i, UDiff = Indx2Units[OldIndx] - Indx2Units[NewIndx];
 	byte *p = ((byte *) pv) + U2B(Indx2Units[NewIndx]);
-	if (Indx2Units[i = Units2Indx[UDiff - 1]] != UDiff)
-	{
+	if (Indx2Units[i = Units2Indx[UDiff - 1]] != UDiff) {
 		InsertNode(p, --i);
 		p += U2B(i = Indx2Units[i]);
 		UDiff -= i;
@@ -54,25 +47,21 @@ inline void SubAllocator::SplitBlock(void *pv, int OldIndx, int NewIndx)
 
 
 
-void SubAllocator::StopSubAllocator()
-{
-	if (SubAllocatorSize)
-	{
+void SubAllocator::StopSubAllocator() {
+	if (SubAllocatorSize) {
 		SubAllocatorSize = 0;
 		free(HeapStart);
 	}
 }
 
 
-bool SubAllocator::StartSubAllocator(int SASize)
-{
+bool SubAllocator::StartSubAllocator(int SASize) {
 	uint t = SASize << 20;
 	if (SubAllocatorSize == t)
 		return TRUE;
 	StopSubAllocator();
 	uint AllocSize = t / FIXED_UNIT_SIZE * UNIT_SIZE + UNIT_SIZE;
-	if ((HeapStart = (byte *)malloc(AllocSize)) == NULL)
-	{
+	if ((HeapStart = (byte *)malloc(AllocSize)) == NULL) {
 		ErrHandler.MemoryError();
 		return FALSE;
 	}
@@ -82,8 +71,7 @@ bool SubAllocator::StartSubAllocator(int SASize)
 }
 
 
-void SubAllocator::InitSubAllocator()
-{
+void SubAllocator::InitSubAllocator() {
 	int i, k;
 	memset(FreeList, 0, sizeof(FreeList));
 	pText = HeapStart;
@@ -103,40 +91,34 @@ void SubAllocator::InitSubAllocator()
 		Indx2Units[i] = k;
 	for (k++; i < N1 + N2 + N3 + N4; i++, k += 4)
 		Indx2Units[i] = k;
-	for (GlueCount = k = i = 0; k < 128; k++)
-	{
+	for (GlueCount = k = i = 0; k < 128; k++) {
 		i += (Indx2Units[i] < k + 1);
 		Units2Indx[k] = i;
 	}
 }
 
 
-inline void SubAllocator::GlueFreeBlocks()
-{
+inline void SubAllocator::GlueFreeBlocks() {
 	MEM_BLK s0, * p, * p1;
 	int i, k, sz;
 	if (LoUnit != HiUnit)
 		*LoUnit = 0;
 	for (i = 0, s0.next = s0.prev = &s0; i < N_INDEXES; i++)
-		while (FreeList[i].next)
-		{
+		while (FreeList[i].next) {
 			p = (MEM_BLK *)RemoveNode(i);
 			p->insertAt(&s0);
 			p->Stamp = 0xFFFF;
 			p->NU = Indx2Units[i];
 		}
 	for (p = s0.next; p != &s0; p = p->next)
-		while ((p1 = p + p->NU)->Stamp == 0xFFFF && int(p->NU) + p1->NU < 0x10000)
-		{
+		while ((p1 = p + p->NU)->Stamp == 0xFFFF && int(p->NU) + p1->NU < 0x10000) {
 			p1->remove();
 			p->NU += p1->NU;
 		}
-	while ((p = s0.next) != &s0)
-	{
+	while ((p = s0.next) != &s0) {
 		for (p->remove(), sz = p->NU; sz > 128; sz -= 128, p += 128)
 			InsertNode(p, N_INDEXES - 1);
-		if (Indx2Units[i = Units2Indx[sz - 1]] != sz)
-		{
+		if (Indx2Units[i = Units2Indx[sz - 1]] != sz) {
 			k = sz - Indx2Units[--i];
 			InsertNode(p + (sz - k), k - 1);
 		}
@@ -144,25 +126,20 @@ inline void SubAllocator::GlueFreeBlocks()
 	}
 }
 
-void *SubAllocator::AllocUnitsRare(int indx)
-{
-	if (!GlueCount)
-	{
+void *SubAllocator::AllocUnitsRare(int indx) {
+	if (!GlueCount) {
 		GlueCount = 255;
 		GlueFreeBlocks();
 		if (FreeList[indx].next)
 			return RemoveNode(indx);
 	}
 	int i = indx;
-	do
-	{
-		if (++i == N_INDEXES)
-		{
+	do {
+		if (++i == N_INDEXES) {
 			GlueCount--;
 			i = U2B(Indx2Units[indx]);
 			int j = 12 * Indx2Units[indx];
-			if (FakeUnitsStart - pText > j)
-			{
+			if (FakeUnitsStart - pText > j) {
 				FakeUnitsStart -= j;
 				UnitsStart -= i;
 				return (UnitsStart);
@@ -176,8 +153,7 @@ void *SubAllocator::AllocUnitsRare(int indx)
 }
 
 
-inline void *SubAllocator::AllocUnits(int NU)
-{
+inline void *SubAllocator::AllocUnits(int NU) {
 	int indx = Units2Indx[NU - 1];
 	if (FreeList[indx].next)
 		return RemoveNode(indx);
@@ -190,8 +166,7 @@ inline void *SubAllocator::AllocUnits(int NU)
 }
 
 
-void *SubAllocator::AllocContext()
-{
+void *SubAllocator::AllocContext() {
 	if (HiUnit != LoUnit)
 		return (HiUnit -= UNIT_SIZE);
 	if (FreeList->next)
@@ -200,14 +175,12 @@ void *SubAllocator::AllocContext()
 }
 
 
-void *SubAllocator::ExpandUnits(void *OldPtr, int OldNU)
-{
+void *SubAllocator::ExpandUnits(void *OldPtr, int OldNU) {
 	int i0 = Units2Indx[OldNU - 1], i1 = Units2Indx[OldNU - 1 + 1];
 	if (i0 == i1)
 		return OldPtr;
 	void *ptr = AllocUnits(OldNU + 1);
-	if (ptr)
-	{
+	if (ptr) {
 		memcpy(ptr, OldPtr, U2B(OldNU));
 		InsertNode(OldPtr, i0);
 	}
@@ -215,27 +188,22 @@ void *SubAllocator::ExpandUnits(void *OldPtr, int OldNU)
 }
 
 
-void *SubAllocator::ShrinkUnits(void *OldPtr, int OldNU, int NewNU)
-{
+void *SubAllocator::ShrinkUnits(void *OldPtr, int OldNU, int NewNU) {
 	int i0 = Units2Indx[OldNU - 1], i1 = Units2Indx[NewNU - 1];
 	if (i0 == i1)
 		return OldPtr;
-	if (FreeList[i1].next)
-	{
+	if (FreeList[i1].next) {
 		void *ptr = RemoveNode(i1);
 		memcpy(ptr, OldPtr, U2B(NewNU));
 		InsertNode(OldPtr, i0);
 		return ptr;
-	}
-	else
-	{
+	} else {
 		SplitBlock(OldPtr, i0, i1);
 		return OldPtr;
 	}
 }
 
 
-void SubAllocator::FreeUnits(void *ptr, int OldNU)
-{
+void SubAllocator::FreeUnits(void *ptr, int OldNU) {
 	InsertNode(ptr, Units2Indx[OldNU - 1]);
 }

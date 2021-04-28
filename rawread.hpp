@@ -1,8 +1,7 @@
 #ifndef _RAR_RAWREAD_
 #define _RAR_RAWREAD_
 
-class RawRead
-{
+class RawRead {
 private:
 	Array<byte> Data;
 	File *SrcFile;

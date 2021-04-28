@@ -1,8 +1,7 @@
 #ifndef _RAR_ENCNAME_
 #define _RAR_ENCNAME_
 
-class EncodeFileName
-{
+class EncodeFileName {
 private:
 	void AddFlags(int Value);
 

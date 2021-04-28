@@ -5,8 +5,7 @@ static void ListFileAttr(uint A, int HostOS);
 static void ListOldSubHeader(Archive &Arc);
 static void ListNewSubHeader(CommandData *Cmd, Archive &Arc, bool Technical);
 
-void ListArchive(CommandData *Cmd)
-{
+void ListArchive(CommandData *Cmd) {
 	Int64 SumPackSize = 0, SumUnpSize = 0;
 	uint ArcCount = 0, SumFileCount = 0;
 	bool Technical = (Cmd->Command[1] == 'T');
@@ -15,18 +14,15 @@ void ListArchive(CommandData *Cmd)
 	char ArcName[NM];
 	wchar ArcNameW[NM];
 
-	while (Cmd->GetArcName(ArcName, ArcNameW, sizeof(ArcName)))
-	{
+	while (Cmd->GetArcName(ArcName, ArcNameW, sizeof(ArcName))) {
 		Archive Arc(Cmd);
 		if (!Arc.WOpen(ArcName, ArcNameW))
 			continue;
 		bool FileMatched = true;
-		while (1)
-		{
+		while (1) {
 			Int64 TotalPackSize = 0, TotalUnpSize = 0;
 			uint FileCount = 0;
-			if (Arc.IsArchive(true))
-			{
+			if (Arc.IsArchive(true)) {
 				bool TitleShown = false;
 //        Arc.SkipMhdExtra();
 				mprintf("\n");
@@ -44,24 +40,19 @@ void ListArchive(CommandData *Cmd)
 				else
 					mprintf(St(MListArc2));
 				mprintf(" %s\n", Arc.FileName);
-				if (Technical)
-				{
+				if (Technical) {
 					if (Arc.Protected)
 						mprintf(St(MListRecRec));
 					if (Arc.Locked)
 						mprintf(St(MListLock));
 				}
-				while (Arc.ReadHeader() > 0)
-				{
-					switch (Arc.GetHeaderType())
-					{
+				while (Arc.ReadHeader() > 0) {
+					switch (Arc.GetHeaderType()) {
 					case FILE_HEAD:
 						IntToExt(Arc.NewLhd.FileName, Arc.NewLhd.FileName);
-						if ((FileMatched = Cmd->IsProcessFile(Arc.NewLhd)) == true)
-						{
+						if ((FileMatched = Cmd->IsProcessFile(Arc.NewLhd)) == true) {
 							ListFileHeader(Arc.NewLhd, Verbose, Technical, TitleShown);
-							if (!(Arc.NewLhd.Flags & LHD_SPLIT_BEFORE))
-							{
+							if (!(Arc.NewLhd.Flags & LHD_SPLIT_BEFORE)) {
 								TotalUnpSize += Arc.NewLhd.FullUnpSize;
 								FileCount++;
 							}
@@ -75,8 +66,7 @@ void ListArchive(CommandData *Cmd)
 						break;
 #endif
 					case NEWSUB_HEAD:
-						if (FileMatched)
-						{
+						if (FileMatched) {
 							if (Technical)
 								ListFileHeader(Arc.SubHead, Verbose, true, TitleShown);
 							ListNewSubHeader(Cmd, Arc, Technical);
@@ -85,8 +75,7 @@ void ListArchive(CommandData *Cmd)
 					}
 					Arc.SeekToNext();
 				}
-				if (TitleShown)
-				{
+				if (TitleShown) {
 					mprintf("\n");
 					for (int I = 0; I < 79; I++)
 						mprintf("-");
@@ -101,8 +90,7 @@ void ListArchive(CommandData *Cmd)
 					SumFileCount += FileCount;
 					SumUnpSize += TotalUnpSize;
 					SumPackSize += TotalPackSize;
-				}
-				else
+				} else
 					mprintf(St(MListNoFiles));
 
 				ArcCount++;
@@ -111,24 +99,19 @@ void ListArchive(CommandData *Cmd)
 				if (Cmd->VolSize != 0 && ((Arc.NewLhd.Flags & LHD_SPLIT_AFTER) ||
 				                          Arc.GetHeaderType() == ENDARC_HEAD &&
 				                          (Arc.EndArcHead.Flags & EARC_NEXT_VOLUME) != 0) &&
-				        MergeArchive(Arc, NULL, false, *Cmd->Command))
-				{
+				        MergeArchive(Arc, NULL, false, *Cmd->Command)) {
 					Arc.Seek(0, SEEK_SET);
-				}
-				else
+				} else
 #endif
 					break;
-			}
-			else
-			{
+			} else {
 				if (Cmd->ArcNames->ItemsCount() < 2)
 					mprintf(St(MNotRAR), Arc.FileName);
 				break;
 			}
 		}
 	}
-	if (ArcCount > 1)
-	{
+	if (ArcCount > 1) {
 		char UnpSizeText[20], PackSizeText[20];
 		itoa(SumUnpSize, UnpSizeText);
 		itoa(SumPackSize, PackSizeText);
@@ -138,10 +121,8 @@ void ListArchive(CommandData *Cmd)
 }
 
 
-void ListFileHeader(FileHeader &hd, bool Verbose, bool Technical, bool &TitleShown)
-{
-	if (!TitleShown)
-	{
+void ListFileHeader(FileHeader &hd, bool Verbose, bool Technical, bool &TitleShown) {
+	if (!TitleShown) {
 		if (Verbose)
 			mprintf(St(MListPathComm));
 		else
@@ -207,10 +188,8 @@ void ListFileHeader(FileHeader &hd, bool Verbose, bool Technical, bool &TitleSho
 }
 
 
-void ListFileAttr(uint A, int HostOS)
-{
-	switch (HostOS)
-	{
+void ListFileAttr(uint A, int HostOS) {
+	switch (HostOS) {
 	case MS_DOS:
 	case OS2:
 	case WIN_32:
@@ -225,8 +204,7 @@ void ListFileAttr(uint A, int HostOS)
 		break;
 	case UNIX:
 	case BEOS:
-		switch (A & 0xF000)
-		{
+		switch (A & 0xF000) {
 		case 0x4000:
 			mprintf("d");
 			break;
@@ -253,10 +231,8 @@ void ListFileAttr(uint A, int HostOS)
 
 
 #ifndef SFX_MODULE
-void ListOldSubHeader(Archive &Arc)
-{
-	switch (Arc.SubBlockHead.SubType)
-	{
+void ListOldSubHeader(Archive &Arc) {
+	switch (Arc.SubBlockHead.SubType) {
 	case EA_HEAD:
 		mprintf(St(MListEAHead));
 		break;
@@ -284,6 +260,5 @@ void ListOldSubHeader(Archive &Arc)
 #endif
 
 
-void ListNewSubHeader(CommandData *Cmd, Archive &Arc, bool Technical)
-{
+void ListNewSubHeader(CommandData *Cmd, Archive &Arc, bool Technical) {
 }

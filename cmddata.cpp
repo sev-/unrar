@@ -1,20 +1,17 @@
 #include "rar.hpp"
 
-CommandData::CommandData()
-{
+CommandData::CommandData() {
 	FileArgs = ExclArgs = StoreArgs = ArcNames = NULL;
 	Init();
 }
 
 
-CommandData::~CommandData()
-{
+CommandData::~CommandData() {
 	Close();
 }
 
 
-void CommandData::Init()
-{
+void CommandData::Init() {
 	Close();
 
 	*Command = 0;
@@ -31,8 +28,7 @@ void CommandData::Init()
 }
 
 
-void CommandData::Close()
-{
+void CommandData::Close() {
 	delete FileArgs;
 	delete ExclArgs;
 	delete StoreArgs;
@@ -42,18 +38,15 @@ void CommandData::Close()
 
 
 #ifndef SFX_MODULE
-void CommandData::ParseArg(char *Arg)
-{
+void CommandData::ParseArg(char *Arg) {
 	if (IsSwitch(*Arg) && !NoMoreSwitches)
 		if (Arg[1] == '-')
 			NoMoreSwitches = true;
 		else
 			ProcessSwitch(&Arg[1]);
-	else if (*Command == 0)
-	{
+	else if (*Command == 0) {
 		strncpy(Command, Arg, sizeof(Command));
-		if (toupper(*Command) == 'S')
-		{
+		if (toupper(*Command) == 'S') {
 			const char *SFXName = Command[1] ? Command + 1 : DefSFXName;
 			if (PointToName(SFXName) != SFXName || FileExist(SFXName))
 				strcpy(SFXModule, SFXName);
@@ -65,11 +58,9 @@ void CommandData::ParseArg(char *Arg)
 		if (*Command != 'I' && *Command != 'S')
 			strupper(Command);
 #endif
-	}
-	else if (*ArcName == 0)
+	} else if (*ArcName == 0)
 		strncpy(ArcName, Arg, sizeof(ArcName));
-	else
-	{
+	else {
 		int Length = strlen(Arg);
 		char EndChar = Arg[Length - 1];
 		char CmdChar = toupper(*Command);
@@ -79,21 +70,16 @@ void CommandData::ParseArg(char *Arg)
 			strcpy(ExtrPath, Arg);
 		else if ((Add || CmdChar == 'T') && *Arg != '@')
 			FileArgs->AddString(Arg);
-		else
-		{
+		else {
 			struct FindData FileData;
 			bool Found = FindFile::FastFind(Arg, NULL, &FileData);
-			if (!Found && *Arg == '@' && !IsWildcard(Arg))
-			{
+			if (!Found && *Arg == '@' && !IsWildcard(Arg)) {
 				ReadTextFile(Arg + 1, FileArgs, false, true, true, true, true);
 				FileLists = true;
-			}
-			else if (Found && FileData.IsDir && Extract && *ExtrPath == 0)
-			{
+			} else if (Found && FileData.IsDir && Extract && *ExtrPath == 0) {
 				strcpy(ExtrPath, Arg);
 				AddEndSlash(ExtrPath);
-			}
-			else
+			} else
 				FileArgs->AddString(Arg);
 		}
 	}
@@ -101,8 +87,7 @@ void CommandData::ParseArg(char *Arg)
 #endif
 
 
-void CommandData::ParseDone()
-{
+void CommandData::ParseDone() {
 	if (FileArgs->ItemsCount() == 0 && !FileLists)
 		FileArgs->AddString(MASKALL);
 	char CmdChar = toupper(*Command);
@@ -113,8 +98,7 @@ void CommandData::ParseDone()
 
 
 #ifndef SFX_MODULE
-void CommandData::ParseEnvVar()
-{
+void CommandData::ParseEnvVar() {
 	char *EnvStr = getenv("RAR");
 	if (EnvStr != NULL)
 		ProcessSwitchesString(EnvStr);
@@ -123,8 +107,7 @@ void CommandData::ParseEnvVar()
 
 
 #if !defined(GUI) && !defined(SFX_MODULE)
-bool CommandData::IsConfigEnabled(int argc, char *argv[])
-{
+bool CommandData::IsConfigEnabled(int argc, char *argv[]) {
 	for (int I = 1; I < argc; I++)
 		if (IsSwitch(*argv[I]) && stricomp(&argv[I][1], "cfg-") == 0)
 			return (false);
@@ -134,11 +117,9 @@ bool CommandData::IsConfigEnabled(int argc, char *argv[])
 
 
 #if !defined(GUI) && !defined(SFX_MODULE)
-void CommandData::ReadConfig(int argc, char *argv[])
-{
+void CommandData::ReadConfig(int argc, char *argv[]) {
 	StringList List;
-	if (ReadTextFile(DefConfigName, &List, true))
-	{
+	if (ReadTextFile(DefConfigName, &List, true)) {
 		char *Str;
 		while ((Str = List.GetString()) != NULL)
 			if (strnicomp(Str, "switches=", 9) == 0)
@@ -149,10 +130,8 @@ void CommandData::ReadConfig(int argc, char *argv[])
 
 
 #ifndef SFX_MODULE
-void CommandData::ProcessSwitchesString(char *Str)
-{
-	while (*Str)
-	{
+void CommandData::ProcessSwitchesString(char *Str) {
+	while (*Str) {
 		while (!IsSwitch(*Str) && *Str != 0)
 			Str++;
 		if (*Str == 0)
@@ -171,52 +150,42 @@ void CommandData::ProcessSwitchesString(char *Str)
 
 
 #ifndef SFX_MODULE
-void CommandData::ProcessSwitch(char *Switch)
-{
+void CommandData::ProcessSwitch(char *Switch) {
 
-	switch (toupper(Switch[0]))
-	{
+	switch (toupper(Switch[0])) {
 	case 'I':
-		if (strnicomp(&Switch[1], "LOG", 3) == 0)
-		{
+		if (strnicomp(&Switch[1], "LOG", 3) == 0) {
 			strncpy(LogName, Switch[4] ? Switch + 4 : DefLogName, sizeof(LogName));
 			break;
 		}
-		if (stricomp(&Switch[1], "SND") == 0)
-		{
+		if (stricomp(&Switch[1], "SND") == 0) {
 			Sound = true;
 			break;
 		}
-		if (stricomp(&Switch[1], "ERR") == 0)
-		{
+		if (stricomp(&Switch[1], "ERR") == 0) {
 			MsgStream = MSG_STDERR;
 			break;
 		}
-		if (strnicomp(&Switch[1], "EML", 3) == 0)
-		{
+		if (strnicomp(&Switch[1], "EML", 3) == 0) {
 			strncpy(EmailTo, Switch[4] ? Switch + 4 : "@", sizeof(EmailTo));
 			EmailTo[sizeof(EmailTo) - 1] = 0;
 			break;
 		}
-		if (stricomp(&Switch[1], "NUL") == 0)
-		{
+		if (stricomp(&Switch[1], "NUL") == 0) {
 			MsgStream = MSG_NULL;
 			break;
 		}
-		if (stricomp(&Switch[1], "DP") == 0)
-		{
+		if (stricomp(&Switch[1], "DP") == 0) {
 			DisablePercentage = true;
 			break;
 		}
-		if (stricomp(&Switch[1], "OFF") == 0)
-		{
+		if (stricomp(&Switch[1], "OFF") == 0) {
 			Shutdown = true;
 			break;
 		}
 		break;
 	case 'T':
-		switch (toupper(Switch[1]))
-		{
+		switch (toupper(Switch[1])) {
 		case 'K':
 			ArcTime = ARCTIME_KEEP;
 			break;
@@ -247,8 +216,7 @@ void CommandData::ProcessSwitch(char *Switch)
 		}
 		break;
 	case 'A':
-		switch (toupper(Switch[1]))
-		{
+		switch (toupper(Switch[1])) {
 		case 'C':
 			ClearArc = true;
 			break;
@@ -258,8 +226,7 @@ void CommandData::ProcessSwitch(char *Switch)
 		case 'G':
 			if (Switch[2] == '-' && Switch[3] == 0)
 				GenerateArcName = 0;
-			else
-			{
+			else {
 				GenerateArcName = true;
 				strncpy(GenerateMask, Switch + 2, sizeof(GenerateMask));
 			}
@@ -279,8 +246,7 @@ void CommandData::ProcessSwitch(char *Switch)
 		break;
 	case 'D':
 		if (Switch[2] == 0)
-			switch (toupper(Switch[1]))
-			{
+			switch (toupper(Switch[1])) {
 			case 'S':
 				DisableSortSolid = true;
 				break;
@@ -293,8 +259,7 @@ void CommandData::ProcessSwitch(char *Switch)
 			}
 		break;
 	case 'O':
-		switch (toupper(Switch[1]))
-		{
+		switch (toupper(Switch[1])) {
 		case '+':
 			Overwrite = OVERWRITE_ALL;
 			break;
@@ -310,8 +275,7 @@ void CommandData::ProcessSwitch(char *Switch)
 		}
 		break;
 	case 'R':
-		switch (toupper(Switch[1]))
-		{
+		switch (toupper(Switch[1])) {
 		case 0:
 			Recurse = RECURSE_ALWAYS;
 			break;
@@ -327,8 +291,7 @@ void CommandData::ProcessSwitch(char *Switch)
 		case 'V':
 			RecVolNumber = GetRecoverySize(Switch + 2, DEFAULT_RECVOLUMES);
 			break;
-		case 'I':
-		{
+		case 'I': {
 			Priority = atoi(Switch + 2);
 			char *ChPtr = strchr(Switch + 2, ':');
 			if (ChPtr != NULL)
@@ -349,11 +312,9 @@ void CommandData::ProcessSwitch(char *Switch)
 				ExclArgs->AddString(Switch + 1);
 		break;
 	case 'E':
-		switch (toupper(Switch[1]))
-		{
+		switch (toupper(Switch[1])) {
 		case 'P':
-			switch (Switch[2])
-			{
+			switch (Switch[2]) {
 			case 0:
 				ExclPath = EXCL_SKIPWHOLEPATH;
 				break;
@@ -380,24 +341,20 @@ void CommandData::ProcessSwitch(char *Switch)
 		}
 		break;
 	case 'P':
-		if (Switch[1] == 0)
-		{
+		if (Switch[1] == 0) {
 #ifndef GUI
 			GetPassword(PASSWORD_GLOBAL, NULL, Password, sizeof(Password));
 			eprintf("\n");
 #endif
-		}
-		else
+		} else
 			strncpy(Password, Switch + 1, sizeof(Password));
 		break;
 	case 'H':
-		if (toupper(Switch[1]) == 'P')
-		{
+		if (toupper(Switch[1]) == 'P') {
 			EncryptHeaders = true;
 			if (Switch[2] != 0)
 				strncpy(Password, Switch + 2, sizeof(Password));
-			else if (*Password == 0)
-			{
+			else if (*Password == 0) {
 #ifndef GUI
 				GetPassword(PASSWORD_GLOBAL, NULL, Password, sizeof(Password));
 				eprintf("\n");
@@ -409,34 +366,28 @@ void CommandData::ProcessSwitch(char *Switch)
 		strncpy(CommentFile, Switch[1] != 0 ? Switch + 1 : "stdin", sizeof(CommentFile));
 		break;
 	case 'M':
-		switch (toupper(Switch[1]))
-		{
-		case 'C':
-		{
+		switch (toupper(Switch[1])) {
+		case 'C': {
 			char *Str = Switch + 2;
 			if (*Str == '-')
 				for (int I = 0; I < sizeof(FilterModes) / sizeof(FilterModes[0]); I++)
 					FilterModes[I].State = FILTER_DISABLE;
 			else
-				while (*Str)
-				{
+				while (*Str) {
 					int Param1 = 0, Param2 = 0;
 					FilterState State = FILTER_AUTO;
 					FilterType Type = FILTER_NONE;
-					if (isdigit(*Str))
-					{
+					if (isdigit(*Str)) {
 						Param1 = atoi(Str);
 						while (isdigit(*Str))
 							Str++;
 					}
-					if (*Str == ':' && isdigit(Str[1]))
-					{
+					if (*Str == ':' && isdigit(Str[1])) {
 						Param2 = atoi(++Str);
 						while (isdigit(*Str))
 							Str++;
 					}
-					switch (toupper(*(Str++)))
-					{
+					switch (toupper(*(Str++))) {
 					case 'T':
 						Type = FILTER_PPM;
 						break;
@@ -469,8 +420,7 @@ void CommandData::ProcessSwitch(char *Switch)
 		break;
 		case 'M':
 			break;
-		case 'D':
-		{
+		case 'D': {
 			if ((WinSize = atoi(&Switch[2])) == 0)
 				WinSize = 0x10000 << (toupper(Switch[2]) - 'A');
 			else
@@ -479,16 +429,13 @@ void CommandData::ProcessSwitch(char *Switch)
 				BadSwitch(Switch);
 		}
 		break;
-		case 'S':
-		{
+		case 'S': {
 			char *Names = Switch + 2, DefNames[512];
-			if (*Names == 0)
-			{
+			if (*Names == 0) {
 				strcpy(DefNames, DefaultStoreList);
 				Names = DefNames;
 			}
-			while (*Names != 0)
-			{
+			while (*Names != 0) {
 				char *End = strchr(Names, ';');
 				if (End != NULL)
 					*End = 0;
@@ -514,8 +461,7 @@ void CommandData::ProcessSwitch(char *Switch)
 		}
 		break;
 	case 'V':
-		switch (toupper(Switch[1]))
-		{
+		switch (toupper(Switch[1])) {
 		case 'N':
 			OldNumbering = true;
 			break;
@@ -535,12 +481,10 @@ void CommandData::ProcessSwitch(char *Switch)
 			if (VolSize == 0)
 				VolSize = INT64ERR;
 			else
-				switch (Switch[strlen(Switch) - 1])
-				{
+				switch (Switch[strlen(Switch) - 1]) {
 				case 'f':
 				case 'F':
-					switch (int64to32(VolSize))
-					{
+					switch (int64to32(VolSize)) {
 					case 360:
 						VolSize = 362496;
 						break;
@@ -590,22 +534,18 @@ void CommandData::ProcessSwitch(char *Switch)
 		AddEndSlash(TempPath);
 		break;
 	case 'S':
-		if (strnicomp(Switch, "SFX", 3) == 0)
-		{
+		if (strnicomp(Switch, "SFX", 3) == 0) {
 			const char *SFXName = Switch[3] ? Switch + 3 : DefSFXName;
 			if (PointToName(SFXName) != SFXName || FileExist(SFXName))
 				strcpy(SFXModule, SFXName);
 			else
 				GetConfigName(SFXName, SFXModule);
 		}
-		if (isdigit(Switch[1]))
-		{
+		if (isdigit(Switch[1])) {
 			Solid |= SOLID_COUNT;
 			SolidCount = atoi(&Switch[1]);
-		}
-		else
-			switch (toupper(Switch[1]))
-			{
+		} else
+			switch (toupper(Switch[1])) {
 			case 0:
 				Solid |= SOLID_NORMAL;
 				break;
@@ -625,8 +565,7 @@ void CommandData::ProcessSwitch(char *Switch)
 		break;
 	case 'C':
 		if (Switch[2] == 0)
-			switch (toupper(Switch[1]))
-			{
+			switch (toupper(Switch[1])) {
 			case '-':
 				DisableComment = true;
 				break;
@@ -639,8 +578,7 @@ void CommandData::ProcessSwitch(char *Switch)
 			}
 		break;
 	case 'K':
-		switch (toupper(Switch[1]))
-		{
+		switch (toupper(Switch[1])) {
 		case 'B':
 			KeepBroken = true;
 			break;
@@ -663,8 +601,7 @@ void CommandData::ProcessSwitch(char *Switch)
 
 
 #ifndef SFX_MODULE
-void CommandData::BadSwitch(char *Switch)
-{
+void CommandData::BadSwitch(char *Switch) {
 	mprintf(St(MUnknownOption), Switch);
 	ErrHandler.Exit(USER_ERROR);
 }
@@ -672,8 +609,7 @@ void CommandData::BadSwitch(char *Switch)
 
 
 #ifndef GUI
-void CommandData::OutTitle()
-{
+void CommandData::OutTitle() {
 #if defined(__GNUC__) && defined(SFX_MODULE)
 	mprintf(St(MCopyrightS));
 #else
@@ -701,8 +637,7 @@ void CommandData::OutTitle()
 #endif
 
 
-void CommandData::OutHelp()
-{
+void CommandData::OutHelp() {
 #if !defined(GUI) && !defined(SILENT)
 	OutTitle();
 	static MSGID Help[] = {
@@ -738,8 +673,7 @@ void CommandData::OutHelp()
 #endif
 	};
 
-	for (int I = 0; I < sizeof(Help) / sizeof(Help[0]); I++)
-	{
+	for (int I = 0; I < sizeof(Help) / sizeof(Help[0]); I++) {
 #ifndef SFX_MODULE
 #ifdef DISABLEAUTODETECT
 		if (Help[I] == MCHelpSwV)
@@ -754,8 +688,7 @@ void CommandData::OutHelp()
 		if (Help[I] == MCHelpSwRI)
 			continue;
 #endif
-		if (Help[I] == MCHelpSwEE)
-		{
+		if (Help[I] == MCHelpSwEE) {
 			continue;
 		}
 #endif
@@ -767,22 +700,19 @@ void CommandData::OutHelp()
 }
 
 
-bool CommandData::ExclCheck(char *CheckName, bool CheckFullPath)
-{
+bool CommandData::ExclCheck(char *CheckName, bool CheckFullPath) {
 	char *Name = ConvertPath(CheckName, NULL);
 	char FullName[NM], *ExclName;
 	*FullName = 0;
 	ExclArgs->Rewind();
 	while ((ExclName = ExclArgs->GetString()) != NULL)
 #ifndef SFX_MODULE
-		if (CheckFullPath && IsFullPath(ExclName))
-		{
+		if (CheckFullPath && IsFullPath(ExclName)) {
 			if (*FullName == 0)
 				ConvertNameToFull(CheckName, FullName);
 			if (CmpName(ExclName, FullName, MATCH_WILDSUBPATH))
 				return (true);
-		}
-		else
+		} else
 #endif
 			if (CmpName(ConvertPath(ExclName, NULL), Name, MATCH_SUBPATH))
 				return (true);
@@ -793,16 +723,13 @@ bool CommandData::ExclCheck(char *CheckName, bool CheckFullPath)
 
 
 #ifndef SFX_MODULE
-bool CommandData::TimeCheck(uint FileDosTime)
-{
+bool CommandData::TimeCheck(uint FileDosTime) {
 	if (FileTimeBefore != 0 && FileDosTime >= FileTimeBefore)
 		return (true);
 	if (FileTimeAfter != 0 && FileDosTime <= FileTimeAfter)
 		return (true);
-	if (FileTimeOlder != 0 || FileTimeNewer != 0)
-	{
-		if (!TimeConverted)
-		{
+	if (FileTimeOlder != 0 || FileTimeNewer != 0) {
+		if (!TimeConverted) {
 			if (FileTimeOlder != 0)
 				FileTimeOlder = SecondsToDosTime(FileTimeOlder);
 			if (FileTimeNewer != 0)
@@ -819,8 +746,7 @@ bool CommandData::TimeCheck(uint FileDosTime)
 #endif
 
 
-bool CommandData::IsProcessFile(FileHeader &NewLhd, bool *ExactMatch)
-{
+bool CommandData::IsProcessFile(FileHeader &NewLhd, bool *ExactMatch) {
 	if (ExclCheck(NewLhd.FileName, false))
 		return (false);
 #ifndef SFX_MODULE
@@ -830,33 +756,27 @@ bool CommandData::IsProcessFile(FileHeader &NewLhd, bool *ExactMatch)
 	char *ArgName;
 	wchar *ArgNameW;
 	FileArgs->Rewind();
-	while (FileArgs->GetString(&ArgName, &ArgNameW))
-	{
+	while (FileArgs->GetString(&ArgName, &ArgNameW)) {
 #ifndef SFX_MODULE
 		bool Unicode = (NewLhd.Flags & LHD_UNICODE) || ArgNameW != NULL;
-		if (Unicode)
-		{
+		if (Unicode) {
 			wchar NameW[NM], ArgW[NM], *NamePtr = NewLhd.FileNameW;
-			if (ArgNameW == NULL)
-			{
+			if (ArgNameW == NULL) {
 				CharToWide(ArgName, ArgW);
 				ArgNameW = ArgW;
 			}
-			if ((NewLhd.Flags & LHD_UNICODE) == 0)
-			{
+			if ((NewLhd.Flags & LHD_UNICODE) == 0) {
 				CharToWide(NewLhd.FileName, NameW);
 				NamePtr = NameW;
 			}
-			if (CmpName(ArgNameW, NamePtr, MATCH_WILDSUBPATH))
-			{
+			if (CmpName(ArgNameW, NamePtr, MATCH_WILDSUBPATH)) {
 				if (ExactMatch != NULL)
 					*ExactMatch = stricompcw(ArgNameW, NamePtr) == 0;
 				return (true);
 			}
 		}
 #endif
-		if (CmpName(ArgName, NewLhd.FileName, MATCH_WILDSUBPATH))
-		{
+		if (CmpName(ArgName, NewLhd.FileName, MATCH_WILDSUBPATH)) {
 			if (ExactMatch != NULL)
 				*ExactMatch = stricompc(ArgName, NewLhd.FileName) == 0;
 			return (true);
@@ -866,8 +786,7 @@ bool CommandData::IsProcessFile(FileHeader &NewLhd, bool *ExactMatch)
 }
 
 
-void CommandData::ProcessCommand()
-{
+void CommandData::ProcessCommand() {
 #ifndef SFX_MODULE
 	if (Command[1] && strchr("FUADPXETK", *Command) != NULL || *ArcName == 0)
 		OutHelp();
@@ -875,27 +794,23 @@ void CommandData::ProcessCommand()
 	if (GetExt(ArcName) == NULL && (!FileExist(ArcName) || IsDir(GetFileAttr(ArcName))))
 		strcat(ArcName, ".rar");
 
-	if (strchr("AFUMD", *Command) == NULL)
-	{
+	if (strchr("AFUMD", *Command) == NULL) {
 		StringList ArcMasks;
 		ArcMasks.AddString(ArcName);
 		ScanTree Scan(&ArcMasks, Recurse, SaveLinks, SCAN_SKIPDIRS);
 		FindData FindData;
 		while (Scan.GetNext(&FindData) == SCAN_SUCCESS)
 			AddArcName(FindData.Name, FindData.NameW);
-	}
-	else
+	} else
 		AddArcName(ArcName, NULL);
 #endif
 
-	switch (Command[0])
-	{
+	switch (Command[0]) {
 	case 'P':
 	case 'X':
 	case 'E':
 	case 'T':
-	case 'I':
-	{
+	case 'I': {
 		CmdExtract Extract;
 		Extract.DoExtract(this);
 	}
@@ -915,37 +830,32 @@ void CommandData::ProcessCommand()
 }
 
 
-void CommandData::AddArcName(char *Name, wchar *NameW)
-{
+void CommandData::AddArcName(char *Name, wchar *NameW) {
 	ArcNames->AddString(Name, NameW);
 }
 
 
-bool CommandData::GetArcName(char *Name, wchar *NameW, int MaxSize)
-{
+bool CommandData::GetArcName(char *Name, wchar *NameW, int MaxSize) {
 	if (!ArcNames->GetString(Name, NameW, NM))
 		return (false);
 	return (true);
 }
 
 
-bool CommandData::IsSwitch(int Ch)
-{
+bool CommandData::IsSwitch(int Ch) {
 	return (Ch == '-');
 }
 
 
 #ifndef SFX_MODULE
-uint CommandData::GetExclAttr(char *Str)
-{
+uint CommandData::GetExclAttr(char *Str) {
 	return (strtol(Str, NULL, 0));
 }
 #endif
 
 
 #ifndef SFX_MODULE
-int CommandData::GetRecoverySize(char *Str, int DefSize)
-{
+int CommandData::GetRecoverySize(char *Str, int DefSize) {
 	if (*Str == '-')
 		return (0);
 	if (*Str == 0)
@@ -959,8 +869,7 @@ int CommandData::GetRecoverySize(char *Str, int DefSize)
 
 
 #ifndef SFX_MODULE
-bool CommandData::CheckWinSize()
-{
+bool CommandData::CheckWinSize() {
 	static int ValidSize[] = {
 		0x10000, 0x20000, 0x40000, 0x80000, 0x100000, 0x200000, 0x400000
 	};

@@ -1,11 +1,9 @@
 #include "rar.hpp"
 
-int Archive::SearchBlock(int BlockType)
-{
+int Archive::SearchBlock(int BlockType) {
 	int Size, Count = 0;
 	while ((Size = ReadHeader()) != 0 &&
-	        (BlockType == ENDARC_HEAD || GetHeaderType() != ENDARC_HEAD))
-	{
+	        (BlockType == ENDARC_HEAD || GetHeaderType() != ENDARC_HEAD)) {
 		if ((++Count & 127) == 0)
 			Wait();
 		if (GetHeaderType() == BlockType)
@@ -16,11 +14,9 @@ int Archive::SearchBlock(int BlockType)
 }
 
 
-int Archive::SearchSubBlock(const char *Type)
-{
+int Archive::SearchSubBlock(const char *Type) {
 	int Size;
-	while ((Size = ReadHeader()) != 0)
-	{
+	while ((Size = ReadHeader()) != 0) {
 		if (GetHeaderType() == NEWSUB_HEAD && SubHead.CmpName(Type))
 			return (Size);
 		SeekToNext();
@@ -29,8 +25,7 @@ int Archive::SearchSubBlock(const char *Type)
 }
 
 
-int Archive::ReadHeader()
-{
+int Archive::ReadHeader() {
 	CurBlockPos = Tell();
 
 #ifndef SFX_MODULE
@@ -42,17 +37,14 @@ int Archive::ReadHeader()
 
 	bool Decrypt = Encrypted && CurBlockPos >= SFXSize + SIZEOF_MARKHEAD + SIZEOF_NEWMHD;
 
-	if (Decrypt)
-	{
+	if (Decrypt) {
 		return (0);
 	}
 
 	Raw.Read(SIZEOF_SHORTBLOCKHEAD);
-	if (Raw.Size() == 0)
-	{
+	if (Raw.Size() == 0) {
 		Int64 ArcSize = FileLength();
-		if (CurBlockPos > ArcSize || NextBlockPos > ArcSize)
-		{
+		if (CurBlockPos > ArcSize || NextBlockPos > ArcSize) {
 #ifndef SHELL_EXT
 			Log(FileName, St(MLogUnexpEOF));
 #endif
@@ -67,8 +59,7 @@ int Archive::ReadHeader()
 	ShortBlock.HeadType = (HEADER_TYPE)HeadType;
 	Raw.Get(ShortBlock.Flags);
 	Raw.Get(ShortBlock.HeadSize);
-	if (ShortBlock.HeadSize < SIZEOF_SHORTBLOCKHEAD)
-	{
+	if (ShortBlock.HeadSize < SIZEOF_SHORTBLOCKHEAD) {
 #ifndef SHELL_EXT
 		Log(FileName, St(MLogFileHead), "???");
 #endif
@@ -86,8 +77,7 @@ int Archive::ReadHeader()
 
 	NextBlockPos = CurBlockPos + ShortBlock.HeadSize;
 
-	switch (ShortBlock.HeadType)
-	{
+	switch (ShortBlock.HeadType) {
 	case MAIN_HEAD:
 		*(BaseBlock *)&NewMhd = ShortBlock;
 		Raw.Get(NewMhd.HighPosAV);
@@ -99,8 +89,7 @@ int Archive::ReadHeader()
 			Raw.Get(EndArcHead.ArcDataCRC);
 		break;
 	case FILE_HEAD:
-	case NEWSUB_HEAD:
-	{
+	case NEWSUB_HEAD: {
 		FileHeader *hd = ShortBlock.HeadType == FILE_HEAD ? &NewLhd : &SubHead;
 		*(BaseBlock *)hd = ShortBlock;
 		Raw.Get(hd->PackSize);
@@ -112,12 +101,10 @@ int Archive::ReadHeader()
 		Raw.Get(hd->Method);
 		Raw.Get(hd->NameSize);
 		Raw.Get(hd->FileAttr);
-		if (hd->Flags & LHD_LARGE)
-		{
+		if (hd->Flags & LHD_LARGE) {
 			Raw.Get(hd->HighPackSize);
 			Raw.Get(hd->HighUnpSize);
-		}
-		else
+		} else
 			hd->HighPackSize = hd->HighUnpSize = 0;
 		hd->FullPackSize = int32to64(hd->HighPackSize, hd->PackSize);
 		hd->FullUnpSize = int32to64(hd->HighUnpSize, hd->UnpSize);
@@ -130,26 +117,20 @@ int Archive::ReadHeader()
 		strncpy(hd->FileName, FileName, sizeof(hd->FileName));
 		hd->FileName[sizeof(hd->FileName) - 1] = 0;
 
-		if (hd->HeadType == NEWSUB_HEAD)
-		{
+		if (hd->HeadType == NEWSUB_HEAD) {
 			int DataSize = hd->HeadSize - hd->NameSize - SIZEOF_NEWLHD;
 			if (hd->Flags & LHD_SALT)
 				DataSize -= SALT_SIZE;
-			if (DataSize > 0)
-			{
+			if (DataSize > 0) {
 				hd->SubData.Alloc(DataSize);
 				Raw.Get(&hd->SubData[0], DataSize);
-				if (hd->CmpName(SUBHEAD_TYPE_RR))
-				{
+				if (hd->CmpName(SUBHEAD_TYPE_RR)) {
 					byte *D = &hd->SubData[8];
 					RecoverySectors = D[0] + ((uint)D[1] << 8) + ((uint)D[2] << 16) + ((uint)D[3] << 24);
 				}
 			}
-		}
-		else if (hd->HeadType == FILE_HEAD)
-		{
-			if (hd->Flags & LHD_UNICODE)
-			{
+		} else if (hd->HeadType == FILE_HEAD) {
+			if (hd->Flags & LHD_UNICODE) {
 				EncodeFileName NameCoder;
 				int Length = strlen(FileName) + 1;
 				NameCoder.Decode(FileName, (byte *)FileName + Length,
@@ -157,8 +138,7 @@ int Archive::ReadHeader()
 				                 sizeof(hd->FileNameW) / sizeof(hd->FileNameW[0]));
 				if (*hd->FileNameW == 0)
 					hd->Flags &= ~LHD_UNICODE;
-			}
-			else
+			} else
 				*hd->FileNameW = 0;
 #ifndef SFX_MODULE
 			ConvertNameCase(hd->FileName);
@@ -172,8 +152,7 @@ int Archive::ReadHeader()
 		NextBlockPos += hd->FullPackSize;
 		bool CRCProcessedOnly = (hd->Flags & LHD_COMMENT) != 0;
 		HeaderCRC = ~Raw.GetCRC(CRCProcessedOnly) & 0xffff;
-		if (hd->HeadCRC != HeaderCRC)
-		{
+		if (hd->HeadCRC != HeaderCRC) {
 			if (hd->HeadType == NEWSUB_HEAD)
 				strcat(hd->FileName, "- ???");
 			BrokenFileHeader = true;
@@ -222,8 +201,7 @@ int Archive::ReadHeader()
 		NextBlockPos += SubBlockHead.DataSize;
 		Raw.Get(SubBlockHead.SubType);
 		Raw.Get(SubBlockHead.Level);
-		switch (SubBlockHead.SubType)
-		{
+		switch (SubBlockHead.SubType) {
 		case UO_HEAD:
 			*(SubBlockHeader *)&UOHead = SubBlockHead;
 			Raw.Get(UOHead.OwnerNameSize);
@@ -261,8 +239,7 @@ int Archive::ReadHeader()
 		break;
 #endif
 	default:
-		if (ShortBlock.Flags & LONG_BLOCK)
-		{
+		if (ShortBlock.Flags & LONG_BLOCK) {
 			uint DataSize;
 			Raw.Get(DataSize);
 			NextBlockPos += DataSize;
@@ -271,11 +248,9 @@ int Archive::ReadHeader()
 	}
 	HeaderCRC = ~Raw.GetCRC(false) & 0xffff;
 	CurHeaderType = ShortBlock.HeadType;
-	if (Decrypt)
-	{
+	if (Decrypt) {
 		NextBlockPos += Raw.PaddedSize() + SALT_SIZE;
-		if (ShortBlock.HeadCRC != HeaderCRC)
-		{
+		if (ShortBlock.HeadCRC != HeaderCRC) {
 #ifndef SILENT
 			Log(FileName, St(MEncrBadCRC), FileName);
 #endif
@@ -284,8 +259,7 @@ int Archive::ReadHeader()
 		}
 	}
 
-	if (NextBlockPos <= CurBlockPos)
-	{
+	if (NextBlockPos <= CurBlockPos) {
 #ifndef SHELL_EXT
 		Log(FileName, St(MLogFileHead), "???");
 #endif
@@ -298,20 +272,16 @@ int Archive::ReadHeader()
 
 
 #ifndef SFX_MODULE
-int Archive::ReadOldHeader()
-{
+int Archive::ReadOldHeader() {
 	RawRead Raw(this);
-	if (CurBlockPos <= SFXSize)
-	{
+	if (CurBlockPos <= SFXSize) {
 		Raw.Read(SIZEOF_OLDMHD);
 		Raw.Get(OldMhd.Mark, 4);
 		Raw.Get(OldMhd.HeadSize);
 		Raw.Get(OldMhd.Flags);
 		NextBlockPos = CurBlockPos + OldMhd.HeadSize;
 		CurHeaderType = MAIN_HEAD;
-	}
-	else
-	{
+	} else {
 		OldFileHeader OldLhd;
 		Raw.Read(SIZEOF_OLDLHD);
 		NewLhd.HeadType = FILE_HEAD;
@@ -350,16 +320,13 @@ int Archive::ReadOldHeader()
 #endif
 
 
-void Archive::ConvertNameCase(char *Name)
-{
-	if (Cmd->ConvertNames == NAMES_UPPERCASE)
-	{
+void Archive::ConvertNameCase(char *Name) {
+	if (Cmd->ConvertNames == NAMES_UPPERCASE) {
 		IntToExt(Name, Name);
 		strupper(Name);
 		ExtToInt(Name, Name);
 	}
-	if (Cmd->ConvertNames == NAMES_LOWERCASE)
-	{
+	if (Cmd->ConvertNames == NAMES_LOWERCASE) {
 		IntToExt(Name, Name);
 		strlower(Name);
 		ExtToInt(Name, Name);
@@ -368,8 +335,7 @@ void Archive::ConvertNameCase(char *Name)
 
 
 #ifndef SFX_MODULE
-void Archive::ConvertNameCase(wchar *Name)
-{
+void Archive::ConvertNameCase(wchar *Name) {
 	if (Cmd->ConvertNames == NAMES_UPPERCASE)
 		strupperw(Name);
 	if (Cmd->ConvertNames == NAMES_LOWERCASE)
@@ -378,29 +344,24 @@ void Archive::ConvertNameCase(wchar *Name)
 #endif
 
 
-bool Archive::IsArcDir()
-{
+bool Archive::IsArcDir() {
 	return ((NewLhd.Flags & LHD_WINDOWMASK) == LHD_DIRECTORY);
 }
 
 
-bool Archive::IsArcLabel()
-{
+bool Archive::IsArcLabel() {
 	return (NewLhd.HostOS <= WIN_32 && (NewLhd.FileAttr & 8));
 }
 
 
-void Archive::ConvertAttributes()
-{
+void Archive::ConvertAttributes() {
 	static mode_t mask = (mode_t) -1;
 
-	if (mask == (mode_t) -1)
-	{
+	if (mask == (mode_t) -1) {
 		mask = umask(022);
 		umask(mask);
 	}
-	switch (NewLhd.HostOS)
-	{
+	switch (NewLhd.HostOS) {
 	case MS_DOS:
 	case OS2:
 	case WIN_32:
@@ -424,19 +385,16 @@ void Archive::ConvertAttributes()
 }
 
 
-void Archive::ConvertUnknownHeader()
-{
+void Archive::ConvertUnknownHeader() {
 	if (NewLhd.UnpVer < 20 && (NewLhd.FileAttr & 0x10))
 		NewLhd.Flags |= LHD_DIRECTORY;
-	if (NewLhd.HostOS > BEOS)
-	{
+	if (NewLhd.HostOS > BEOS) {
 		if ((NewLhd.Flags & LHD_WINDOWMASK) == LHD_DIRECTORY)
 			NewLhd.FileAttr = 0x10;
 		else
 			NewLhd.FileAttr = 0x20;
 	}
-	for (char *s = NewLhd.FileName; *s != 0; s = charnext(s))
-	{
+	for (char *s = NewLhd.FileName; *s != 0; s = charnext(s)) {
 		if (*s == '/' || *s == '\\')
 			*s = CPATHDIVIDER;
 #if defined(_APPLE) && !defined(UNICODE_SUPPORTED)
@@ -447,31 +405,26 @@ void Archive::ConvertUnknownHeader()
 }
 
 
-int Archive::LhdSize()
-{
+int Archive::LhdSize() {
 	return ((NewLhd.Flags & LHD_LARGE) ? SIZEOF_NEWLHD + 8 : SIZEOF_NEWLHD);
 }
 
 
-int Archive::LhdExtraSize()
-{
+int Archive::LhdExtraSize() {
 	return (NewLhd.HeadSize - NewLhd.NameSize - LhdSize());
 }
 
 
 #ifndef SHELL_EXT
-bool Archive::ReadSubData(Array<byte> *UnpData, File *DestFile)
-{
-	if (HeaderCRC != SubHead.HeadCRC)
-	{
+bool Archive::ReadSubData(Array<byte> *UnpData, File *DestFile) {
+	if (HeaderCRC != SubHead.HeadCRC) {
 #ifndef SHELL_EXT
 		Log(FileName, St(MSubHeadCorrupt));
 #endif
 		ErrHandler.SetErrorCode(CRC_ERROR);
 		return (false);
 	}
-	if (SubHead.Method < 0x30 || SubHead.Method > 0x35 || SubHead.UnpVer > PACK_VER)
-	{
+	if (SubHead.Method < 0x30 || SubHead.Method > 0x35 || SubHead.UnpVer > PACK_VER) {
 #ifndef SHELL_EXT
 		Log(FileName, St(MSubHeadUnknown));
 #endif
@@ -486,8 +439,7 @@ bool Archive::ReadSubData(Array<byte> *UnpData, File *DestFile)
 	Unpack Unpack(&SubDataIO);
 	Unpack.Init();
 
-	if (DestFile == NULL)
-	{
+	if (DestFile == NULL) {
 		UnpData->Alloc(SubHead.UnpSize);
 		SubDataIO.SetUnpackToMemory(&(*UnpData)[0], SubHead.UnpSize);
 	}
@@ -508,8 +460,7 @@ bool Archive::ReadSubData(Array<byte> *UnpData, File *DestFile)
 	else
 		Unpack.DoUnpack(SubHead.UnpVer, false);
 
-	if (SubHead.FileCRC != ~SubDataIO.UnpFileCRC)
-	{
+	if (SubHead.FileCRC != ~SubDataIO.UnpFileCRC) {
 #ifndef SHELL_EXT
 		Log(FileName, St(MSubHeadDataCRC), SubHead.FileName);
 #endif

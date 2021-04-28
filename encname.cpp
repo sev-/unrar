@@ -1,7 +1,6 @@
 #include "rar.hpp"
 
-EncodeFileName::EncodeFileName()
-{
+EncodeFileName::EncodeFileName() {
 	Flags = 0;
 	FlagBits = 0;
 	FlagsPos = 0;
@@ -12,19 +11,15 @@ EncodeFileName::EncodeFileName()
 
 
 void EncodeFileName::Decode(char *Name, byte *EncName, int EncSize, wchar *NameW,
-                            int MaxDecSize)
-{
+                            int MaxDecSize) {
 	int EncPos = 0, DecPos = 0;
 	byte HighByte = EncName[EncPos++];
-	while (EncPos < EncSize && DecPos < MaxDecSize)
-	{
-		if (FlagBits == 0)
-		{
+	while (EncPos < EncSize && DecPos < MaxDecSize) {
+		if (FlagBits == 0) {
 			Flags = EncName[EncPos++];
 			FlagBits = 8;
 		}
-		switch (Flags >> 6)
-		{
+		switch (Flags >> 6) {
 		case 0:
 			NameW[DecPos++] = EncName[EncPos++];
 			break;
@@ -35,16 +30,13 @@ void EncodeFileName::Decode(char *Name, byte *EncName, int EncSize, wchar *NameW
 			NameW[DecPos++] = EncName[EncPos] + (EncName[EncPos + 1] << 8);
 			EncPos += 2;
 			break;
-		case 3:
-		{
+		case 3: {
 			int Length = EncName[EncPos++];
-			if (Length & 0x80)
-			{
+			if (Length & 0x80) {
 				byte Correction = EncName[EncPos++];
 				for (Length = (Length & 0x7f) + 2; Length > 0 && DecPos < MaxDecSize; Length--, DecPos++)
 					NameW[DecPos] = ((Name[DecPos] + Correction) & 0xff) + (HighByte << 8);
-			}
-			else
+			} else
 				for (Length += 2; Length > 0 && DecPos < MaxDecSize; Length--, DecPos++)
 					NameW[DecPos] = Name[DecPos];
 		}

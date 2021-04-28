@@ -4,8 +4,7 @@
 class CmdAdd;
 class Unpack;
 
-class ComprDataIO
-{
+class ComprDataIO {
 private:
 	void ShowPackRead(Int64 CurSize, Int64 UnpSize);
 	void ShowPackWrite();

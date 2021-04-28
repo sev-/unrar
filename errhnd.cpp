@@ -2,14 +2,12 @@
 
 static bool UserBreak;
 
-ErrorHandler::ErrorHandler()
-{
+ErrorHandler::ErrorHandler() {
 	Clean();
 }
 
 
-void ErrorHandler::Clean()
-{
+void ErrorHandler::Clean() {
 	ExitCode = SUCCESS;
 	ErrCount = 0;
 	EnableBreak = true;
@@ -18,15 +16,13 @@ void ErrorHandler::Clean()
 }
 
 
-void ErrorHandler::MemoryError()
-{
+void ErrorHandler::MemoryError() {
 	MemoryErrorMsg();
 	Throw(MEMORY_ERROR);
 }
 
 
-void ErrorHandler::OpenError(const char *FileName)
-{
+void ErrorHandler::OpenError(const char *FileName) {
 #ifndef SILENT
 	OpenErrorMsg(FileName);
 	Throw(OPEN_ERROR);
@@ -34,8 +30,7 @@ void ErrorHandler::OpenError(const char *FileName)
 }
 
 
-void ErrorHandler::CloseError(const char *FileName)
-{
+void ErrorHandler::CloseError(const char *FileName) {
 #ifndef SILENT
 	ErrMsg(NULL, St(MErrFClose), FileName);
 	Throw(FATAL_ERROR);
@@ -43,8 +38,7 @@ void ErrorHandler::CloseError(const char *FileName)
 }
 
 
-void ErrorHandler::ReadError(const char *FileName)
-{
+void ErrorHandler::ReadError(const char *FileName) {
 #ifndef SILENT
 	ReadErrorMsg(FileName);
 	Throw(FATAL_ERROR);
@@ -52,11 +46,9 @@ void ErrorHandler::ReadError(const char *FileName)
 }
 
 
-bool ErrorHandler::AskRepeatRead(const char *FileName)
-{
+bool ErrorHandler::AskRepeatRead(const char *FileName) {
 #if !defined(SILENT) && !defined(SFX_MODULE)
-	if (!Silent)
-	{
+	if (!Silent) {
 		mprintf("\n");
 		Log(NULL, St(MErrRead), FileName);
 		return (Ask(St(MRetryAbort)) == 1);
@@ -66,8 +58,7 @@ bool ErrorHandler::AskRepeatRead(const char *FileName)
 }
 
 
-void ErrorHandler::WriteError(const char *FileName)
-{
+void ErrorHandler::WriteError(const char *FileName) {
 #ifndef SILENT
 	ErrMsg(NULL, St(MErrWrite), FileName);
 	Throw(WRITE_ERROR);
@@ -75,11 +66,9 @@ void ErrorHandler::WriteError(const char *FileName)
 }
 
 
-bool ErrorHandler::AskRepeatWrite(const char *FileName)
-{
+bool ErrorHandler::AskRepeatWrite(const char *FileName) {
 #ifndef SILENT
-	if (!Silent)
-	{
+	if (!Silent) {
 		mprintf("\n");
 		Log(NULL, St(MErrWrite), FileName);
 		return (Ask(St(MRetryAbort)) == 1);
@@ -89,8 +78,7 @@ bool ErrorHandler::AskRepeatWrite(const char *FileName)
 }
 
 
-void ErrorHandler::SeekError(const char *FileName)
-{
+void ErrorHandler::SeekError(const char *FileName) {
 #ifndef SILENT
 	ErrMsg(NULL, St(MErrSeek), FileName);
 	Throw(FATAL_ERROR);
@@ -98,16 +86,14 @@ void ErrorHandler::SeekError(const char *FileName)
 }
 
 
-void ErrorHandler::MemoryErrorMsg()
-{
+void ErrorHandler::MemoryErrorMsg() {
 #ifndef SILENT
 	ErrMsg(NULL, St(MErrOutMem));
 #endif
 }
 
 
-void ErrorHandler::OpenErrorMsg(const char *FileName)
-{
+void ErrorHandler::OpenErrorMsg(const char *FileName) {
 #ifndef SILENT
 	Log(NULL, St(MCannotOpen), FileName);
 	Alarm();
@@ -115,8 +101,7 @@ void ErrorHandler::OpenErrorMsg(const char *FileName)
 }
 
 
-void ErrorHandler::CreateErrorMsg(const char *FileName)
-{
+void ErrorHandler::CreateErrorMsg(const char *FileName) {
 #ifndef SILENT
 	Log(NULL, St(MCannotCreate), FileName);
 	Alarm();
@@ -124,16 +109,14 @@ void ErrorHandler::CreateErrorMsg(const char *FileName)
 }
 
 
-void ErrorHandler::ReadErrorMsg(const char *FileName)
-{
+void ErrorHandler::ReadErrorMsg(const char *FileName) {
 #ifndef SILENT
 	ErrMsg(NULL, St(MErrRead), FileName);
 #endif
 }
 
 
-void ErrorHandler::Exit(int ExitCode)
-{
+void ErrorHandler::Exit(int ExitCode) {
 #ifndef SFX_MODULE
 	Alarm();
 #endif
@@ -142,16 +125,14 @@ void ErrorHandler::Exit(int ExitCode)
 
 
 #ifndef GUI
-void ErrorHandler::ErrMsg(char *ArcName, const char *fmt, ...)
-{
+void ErrorHandler::ErrMsg(char *ArcName, const char *fmt, ...) {
 	char Msg[NM + 256];
 	va_list argptr;
 	va_start(argptr, fmt);
 	vsprintf(Msg, fmt, argptr);
 	va_end(argptr);
 	Alarm();
-	if (*Msg)
-	{
+	if (*Msg) {
 		Log(ArcName, "\n%s", Msg);
 		mprintf("\n%s\n", St(MProgAborted));
 	}
@@ -159,10 +140,8 @@ void ErrorHandler::ErrMsg(char *ArcName, const char *fmt, ...)
 #endif
 
 
-void ErrorHandler::SetErrorCode(int Code)
-{
-	switch (Code)
-	{
+void ErrorHandler::SetErrorCode(int Code) {
+	switch (Code) {
 	case WARNING:
 	case USER_BREAK:
 		if (ExitCode == SUCCESS)
@@ -181,8 +160,7 @@ void ErrorHandler::SetErrorCode(int Code)
 
 
 #if !defined(GUI) && !defined(_SFX_RTL_)
-void _stdfunction ProcessSignal(int SigType)
-{
+void _stdfunction ProcessSignal(int SigType) {
 	UserBreak = true;
 	mprintf(St(MBreak));
 	File::RemoveCreated();
@@ -194,8 +172,7 @@ void _stdfunction ProcessSignal(int SigType)
 #endif
 
 
-void ErrorHandler::SetSignalHandlers(bool Enable)
-{
+void ErrorHandler::SetSignalHandlers(bool Enable) {
 	EnableBreak = Enable;
 #if !defined(GUI) && !defined(_SFX_RTL_)
 	signal(SIGINT, Enable ? ProcessSignal : SIG_IGN);
@@ -204,8 +181,7 @@ void ErrorHandler::SetSignalHandlers(bool Enable)
 }
 
 
-void ErrorHandler::Throw(int Code)
-{
+void ErrorHandler::Throw(int Code) {
 	if (Code == USER_BREAK && !EnableBreak)
 		return;
 	ErrHandler.SetErrorCode(Code);

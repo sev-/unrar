@@ -1,14 +1,12 @@
 #include "rar.hpp"
 
-ComprDataIO::ComprDataIO(CmdAdd *Command)
-{
+ComprDataIO::ComprDataIO(CmdAdd *Command) {
 	ComprDataIO::Command = Command;
 	Init();
 }
 
 
-void ComprDataIO::Init()
-{
+void ComprDataIO::Init() {
 	SrcUnpack = NULL;
 	PackFromMemory = false;
 	UnpackFromMemory = false;
@@ -38,24 +36,19 @@ void ComprDataIO::Init()
 
 
 
-int ComprDataIO::UnpRead(byte *Addr, uint Count)
-{
+int ComprDataIO::UnpRead(byte *Addr, uint Count) {
 	int RetCode = 0, TotalRead = 0;
 	byte *ReadAddr;
 	ReadAddr = Addr;
-	while (Count > 0)
-	{
+	while (Count > 0) {
 		Archive *SrcArc = (Archive *)SrcFile;
 
 		uint ReadSize = (Count > UnpPackedSize) ? int64to32(UnpPackedSize) : Count;
-		if (UnpackFromMemory)
-		{
+		if (UnpackFromMemory) {
 			memcpy(Addr, UnpackFromMemoryAddr, UnpackFromMemorySize);
 			RetCode = UnpackFromMemorySize;
 			UnpackFromMemorySize = 0;
-		}
-		else
-		{
+		} else {
 			if (!SrcFile->IsOpened())
 				return (-1);
 			RetCode = SrcFile->Read(ReadAddr, ReadSize);
@@ -68,21 +61,18 @@ int ComprDataIO::UnpRead(byte *Addr, uint Count)
 		TotalRead += RetCode;
 		Count -= RetCode;
 		UnpPackedSize -= RetCode;
-		if (UnpPackedSize == 0 && UnpVolume)
-		{
+		if (UnpPackedSize == 0 && UnpVolume) {
 #ifndef NOVOLUME
 			if (!MergeArchive(*SrcArc, this, true, CurrentCommand))
 #endif
 				return (-1);
-		}
-		else
+		} else
 			break;
 	}
 	Archive *SrcArc = (Archive *)SrcFile;
 	if (SrcArc != NULL)
 		ShowUnpRead(SrcArc->CurBlockPos + CurUnpRead, UnpArcSize);
-	if (RetCode != -1)
-	{
+	if (RetCode != -1) {
 		RetCode = TotalRead;
 	}
 	Wait();
@@ -90,12 +80,10 @@ int ComprDataIO::UnpRead(byte *Addr, uint Count)
 }
 
 
-void ComprDataIO::UnpWrite(byte *Addr, uint Count)
-{
+void ComprDataIO::UnpWrite(byte *Addr, uint Count) {
 	UnpWrAddr = Addr;
 	UnpWrSize = Count;
-	if (SrcUnpack != NULL)
-	{
+	if (SrcUnpack != NULL) {
 		int NewSize = RepackUnpDataEnd + Count;
 		RepackUnpData.Alloc(NewSize);
 		memcpy(&RepackUnpData[RepackUnpDataEnd], Addr, Count);
@@ -103,16 +91,13 @@ void ComprDataIO::UnpWrite(byte *Addr, uint Count)
 
 		SrcUnpack->SetSuspended(true);
 	}
-	if (UnpackToMemory)
-	{
-		if (Count <= UnpackToMemorySize)
-		{
+	if (UnpackToMemory) {
+		if (Count <= UnpackToMemorySize) {
 			memcpy(UnpackToMemoryAddr, Addr, Count);
 			UnpackToMemoryAddr += Count;
 			UnpackToMemorySize -= Count;
 		}
-	}
-	else if (!TestMode)
+	} else if (!TestMode)
 		DestFile->Write(Addr, Count);
 	CurUnpWrite += Count;
 	if (!SkipUnpCRC)
@@ -127,15 +112,12 @@ void ComprDataIO::UnpWrite(byte *Addr, uint Count)
 }
 
 
-void ComprDataIO::ShowPackRead(Int64 CurSize, Int64 UnpSize)
-{
-	if (ShowProgress)
-	{
+void ComprDataIO::ShowPackRead(Int64 CurSize, Int64 UnpSize) {
+	if (ShowProgress) {
 		Archive *DestArc = (Archive *)DestFile;
 		RAROptions *Cmd = DestArc->GetRAROptions();
 		int CurPercent = ToPercent(TotalPackRead, DestArc->AddingFilesSize);
-		if (!Cmd->DisablePercentage && CurPercent != LastPercent)
-		{
+		if (!Cmd->DisablePercentage && CurPercent != LastPercent) {
 			mprintf("\b\b\b\b%3d%%", CurPercent);
 			LastPercent = CurPercent;
 		}
@@ -145,20 +127,16 @@ void ComprDataIO::ShowPackRead(Int64 CurSize, Int64 UnpSize)
 
 
 
-void ComprDataIO::ShowUnpRead(Int64 ArcPos, Int64 ArcSize)
-{
-	if (ShowProgress && SrcUnpack == NULL && SrcFile != NULL)
-	{
+void ComprDataIO::ShowUnpRead(Int64 ArcPos, Int64 ArcSize) {
+	if (ShowProgress && SrcUnpack == NULL && SrcFile != NULL) {
 		Archive *SrcArc = (Archive *)SrcFile;
 		RAROptions *Cmd = SrcArc->GetRAROptions();
 		if (TotalArcSize != 0)
 			ArcSize = TotalArcSize;
 		ArcPos += ProcessedArcSize;
-		if (!SrcArc->Volume)
-		{
+		if (!SrcArc->Volume) {
 			int CurPercent = ToPercent(ArcPos, ArcSize);
-			if (!Cmd->DisablePercentage && CurPercent != LastPercent)
-			{
+			if (!Cmd->DisablePercentage && CurPercent != LastPercent) {
 				mprintf("\b\b\b\b%3d%%", CurPercent);
 				LastPercent = CurPercent;
 			}
@@ -167,8 +145,7 @@ void ComprDataIO::ShowUnpRead(Int64 ArcPos, Int64 ArcSize)
 }
 
 
-void ComprDataIO::ShowUnpWrite()
-{
+void ComprDataIO::ShowUnpWrite() {
 }
 
 
@@ -178,8 +155,7 @@ void ComprDataIO::ShowUnpWrite()
 
 
 
-void ComprDataIO::SetFiles(File *SrcFile, File *DestFile)
-{
+void ComprDataIO::SetFiles(File *SrcFile, File *DestFile) {
 	if (SrcFile != NULL)
 		ComprDataIO::SrcFile = SrcFile;
 	if (DestFile != NULL)
@@ -188,29 +164,23 @@ void ComprDataIO::SetFiles(File *SrcFile, File *DestFile)
 }
 
 
-void ComprDataIO::GetUnpackedData(byte **Data, uint *Size)
-{
+void ComprDataIO::GetUnpackedData(byte **Data, uint *Size) {
 	*Data = UnpWrAddr;
 	*Size = UnpWrSize;
 }
 
 
-void ComprDataIO::SetEncryption(int Method, char *Password, byte *Salt, bool Encrypt)
-{
-	if (Encrypt)
-	{
+void ComprDataIO::SetEncryption(int Method, char *Password, byte *Salt, bool Encrypt) {
+	if (Encrypt) {
 		Encryption = *Password ? Method : 0;
-	}
-	else
-	{
+	} else {
 		Decryption = *Password ? Method : 0;
 	}
 }
 
 
 
-void ComprDataIO::SetUnpackToMemory(byte *Addr, uint Size)
-{
+void ComprDataIO::SetUnpackToMemory(byte *Addr, uint Size) {
 	UnpackToMemory = true;
 	UnpackToMemoryAddr = Addr;
 	UnpackToMemorySize = Size;
