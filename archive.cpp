@@ -168,9 +168,6 @@ bool Archive::IsArchive(bool EnableBroken)
   Protected=(NewMhd.Flags & MHD_PROTECT)!=0;
   Encrypted=(NewMhd.Flags & MHD_PASSWORD)!=0;
 
-#ifdef RARDLL
-  SilentOpen=true;
-#endif
   if (!SilentOpen || !Encrypted)
   {
     SaveFilePos SavePos(*this);

@@ -139,23 +139,7 @@ void SetExt(wchar *Name,const wchar *NewExt)
 #ifndef SFX_MODULE
 void SetSFXExt(char *SFXName)
 {
-#ifdef _UNIX
   SetExt(SFXName,"sfx");
-#endif
-}
-#endif
-
-
-#ifndef SFX_MODULE
-void SetSFXExt(wchar *SFXName)
-{
-  if (SFXName==NULL || *SFXName==0)
-    return;
-
-#ifdef _UNIX
-  SetExt(SFXName,L"sfx");
-#endif
-
 }
 #endif
 
@@ -195,11 +179,7 @@ bool IsPathDiv(int Ch)
 
 bool IsDriveDiv(int Ch)
 {
-#ifdef _UNIX
   return(false);
-#else
-  return(Ch==':');
-#endif
 }
 
 
@@ -378,10 +358,8 @@ bool PrevVolumeName(char *ArcName,bool OldNumbering)
 
 bool IsNameUsable(const char *Name)
 {
-#ifndef _UNIX
   if (Name[0] && Name[1] && strchr(Name+2,':')!=NULL)
     return(false);
-#endif
   return(*Name!=0 && strpbrk(Name,"?*<>|")==NULL);
 }
 

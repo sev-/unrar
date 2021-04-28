@@ -2,14 +2,12 @@
 
 MKDIR_CODE MakeDir(const char *Name,const wchar *NameW,uint Attr)
 {
-#ifdef _UNIX
   int prevmask=umask(0);
   int ErrCode=mkdir(Name,(mode_t)Attr);
   umask(prevmask);
   if (ErrCode==-1)
     return(errno==ENOENT ? MKDIR_BADPATH:MKDIR_ERROR);
   return(MKDIR_SUCCESS);
-#endif
 }
 
 
@@ -49,11 +47,9 @@ void CreatePath(const char *Path,const wchar *PathW,bool SkipLastName)
 
 void SetDirTime(const char *Name,uint ft)
 {
-#if defined(_UNIX)
   struct utimbuf ut;
   ut.actime=ut.modtime=DosTimeToUnix(ft);
   utime(Name,&ut);
-#endif
 }
 
 
@@ -94,18 +90,13 @@ bool WildFileExist(const char *FileName,const wchar *FileNameW)
 
 bool IsDir(uint Attr)
 {
-#if defined(_UNIX)
   return((Attr & 0xF000)==0x4000);
-#endif
 }
 
 
 bool IsUnreadable(uint Attr)
 {
-#if defined(_UNIX) && defined(S_ISFIFO) && defined(S_ISSOCK) && defined(S_ISCHR)
   return(S_ISFIFO(Attr) || S_ISSOCK(Attr) || S_ISCHR(Attr));
-#endif
-  return(false);
 }
 
 
@@ -117,10 +108,7 @@ bool IsLabel(uint Attr)
 
 bool IsLink(uint Attr)
 {
-#ifdef _UNIX
   return((Attr & 0xF000)==0xA000);
-#endif
-  return(false);
 }
 
 
@@ -136,9 +124,7 @@ bool IsDeleteAllowed(uint FileAttr)
 
 void PrepareToDelete(const char *Name,const wchar *NameW)
 {
-#ifdef _UNIX
   chmod(Name,S_IRUSR|S_IWUSR);
-#endif
 }
 
 

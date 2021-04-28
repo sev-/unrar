@@ -394,7 +394,6 @@ bool Archive::IsArcLabel()
 
 void Archive::ConvertAttributes()
 {
-#ifdef _UNIX
   static mode_t mask = (mode_t) -1;
 
   if (mask == (mode_t) -1)
@@ -425,7 +424,6 @@ void Archive::ConvertAttributes()
         NewLhd.FileAttr=0x81b6 & ~mask;
       break;
   }
-#endif
 }
 
 

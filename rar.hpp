@@ -4,13 +4,8 @@
 #include "errhnd.hpp"
 #include "global.hpp"
 
-#include "raros.hpp"
 #include "os.hpp"
 
-
-#ifdef RARDLL
-#include "dll.hpp"
-#endif
 
 #include "version.hpp"
 #include "rartypes.hpp"
@@ -45,7 +40,6 @@
 #include "log.hpp"
 #include "rawread.hpp"
 #include "encname.hpp"
-#include "resource.hpp"
 #include "match.hpp"
 #include "timefn.hpp"
 #include "compress.hpp"
@@ -75,5 +69,6 @@
 
 
 int ToPercent(Int64 N1,Int64 N2);
+const char *St(MSGID StringId);
 
 #endif

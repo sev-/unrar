@@ -61,14 +61,13 @@ void RawPrint(char *Msg,MESSAGE_TYPE MessageType)
     default:
       return;
   }
-#if defined(_UNIX)
+
   char OutMsg[MaxMsgSize],*OutPos=OutMsg;
   for (int I=0;Msg[I]!=0;I++)
     if (Msg[I]!='\r')
       *(OutPos++)=Msg[I];
   *OutPos=0;
   strcpy(Msg,OutMsg);
-#endif
 
   OutFile.Write(Msg,strlen(Msg));
 //  OutFile.Flush();

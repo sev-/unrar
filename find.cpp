@@ -97,19 +97,13 @@ bool FindFile::Next(struct FindData *fd,bool GetSymLink)
 bool FindFile::FastFind(const char *FindMask,const wchar *FindMaskW,struct FindData *fd,bool GetSymLink)
 {
   fd->Error=false;
-#ifndef _UNIX
   if (IsWildcard(FindMask,FindMaskW))
     return(false);
-#endif
 
   struct stat st;
   if (GetSymLink)
   {
-#ifdef SAVE_LINKS
-    if (lstat(FindMask,&st)!=0)
-#else
     if (stat(FindMask,&st)!=0)
-#endif
     {
       fd->Error=(errno!=ENOENT);
       return(false);

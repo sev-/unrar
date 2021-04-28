@@ -255,7 +255,6 @@ bool CmdExtract::ExtractCurrentFile(CommandData *Cmd,Archive &Arc,int HeaderSize
       Repeat=true;
       return(false);
     }
-#ifndef RARDLL
     if (!ReconstructDone)
     {
       ReconstructDone=true;
@@ -267,7 +266,6 @@ bool CmdExtract::ExtractCurrentFile(CommandData *Cmd,Archive &Arc,int HeaderSize
         return(false);
       }
     }
-#endif
     strcpy(ArcName,CurVolName);
   }
 #endif
@@ -285,9 +283,6 @@ bool CmdExtract::ExtractCurrentFile(CommandData *Cmd,Archive &Arc,int HeaderSize
     if (ExactMatch)
     {
       Log(Arc.FileName,St(MUnpCannotMerge),ArcFileName);
-#ifdef RARDLL
-      Cmd->DllError=ERAR_BAD_DATA;
-#endif
     }
     ExactMatch=false;
   }
@@ -298,23 +293,12 @@ bool CmdExtract::ExtractCurrentFile(CommandData *Cmd,Archive &Arc,int HeaderSize
   if (ExactMatch || (SkipSolid=Arc.Solid)!=0)
   {
     if (Arc.NewLhd.Flags & LHD_PASSWORD)
-#ifndef RARDLL
       if (*Password==0)
-#endif
       {
-#ifdef RARDLL
-        if (*Cmd->Password==0)
-          if (Cmd->Callback==NULL ||
-              Cmd->Callback(UCM_NEEDPASSWORD,Cmd->UserData,(LONG)Cmd->Password,sizeof(Cmd->Password))==-1)
-            return(false);
-        strcpy(Password,Cmd->Password);
-
-#else
         if (!GetPassword(PASSWORD_FILE,ArcFileName,Password,sizeof(Password)))
         {
           return(false);
         }
-#endif
       }
 #if !defined(GUI) && !defined(SILENT)
       else
@@ -413,16 +397,6 @@ bool CmdExtract::ExtractCurrentFile(CommandData *Cmd,Archive &Arc,int HeaderSize
           ExtrFile=false;
     }
 
-#ifdef RARDLL
-    if (*Cmd->DllDestName)
-    {
-      strncpy(DestFileName,Cmd->DllDestName,sizeof(DestFileName));
-      *DestFileNameW=0;
-      if (Cmd->DllOpMode!=RAR_EXTRACT)
-        ExtrFile=false;
-    }
-#endif
-
 #ifdef SFX_MODULE
     if (Arc.NewLhd.UnpVer!=UNP_VER && Arc.NewLhd.Method!=0x30)
 #else
@@ -437,9 +411,6 @@ bool CmdExtract::ExtractCurrentFile(CommandData *Cmd,Archive &Arc,int HeaderSize
 #endif
       ExtrFile=false;
       ErrHandler.SetErrorCode(WARNING);
-#ifdef RARDLL
-      Cmd->DllError=ERAR_UNKNOWN_FORMAT;
-#endif
     }
 
     File CurFile;
@@ -488,9 +459,6 @@ bool CmdExtract::ExtractCurrentFile(CommandData *Cmd,Archive &Arc,int HeaderSize
           else
           {
             Log(Arc.FileName,St(MExtrErrMkDir),DestFileName);
-#ifdef RARDLL
-            Cmd->DllError=ERAR_ECREATE;
-#endif
             ErrHandler.SetErrorCode(WARNING);
           }
         if (PrevExtracted)
@@ -525,9 +493,6 @@ bool CmdExtract::ExtractCurrentFile(CommandData *Cmd,Archive &Arc,int HeaderSize
                 else
                 {
                   ErrHandler.CreateErrorMsg(DestFileName);
-#ifdef RARDLL
-                  Cmd->DllError=ERAR_ECREATE;
-#endif
                 }
               }
             }
@@ -634,9 +599,6 @@ bool CmdExtract::ExtractCurrentFile(CommandData *Cmd,Archive &Arc,int HeaderSize
           }
           BrokenFile=true;
           ErrHandler.SetErrorCode(CRC_ERROR);
-#ifdef RARDLL
-          Cmd->DllError=ERAR_BAD_DATA;
-#endif
           Alarm();
         }
       }

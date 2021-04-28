@@ -26,32 +26,12 @@ bool MergeArchive(Archive &Arc,ComprDataIO *DataIO,bool ShowFileName,char Comman
   strcpy(NextName,Arc.FileName);
   NextVolumeName(NextName,(Arc.NewMhd.Flags & MHD_NEWNUMBERING)==0 || Arc.OldFormat);
 
-#if !defined(SFX_MODULE) && !defined(RARDLL)
+#if !defined(SFX_MODULE)
   bool RecoveryDone=false;
 #endif
 
   while (!Arc.Open(NextName))
   {
-#ifdef RARDLL
-    if (Cmd->Callback==NULL && Cmd->ChangeVolProc==NULL ||
-        Cmd->Callback!=NULL && Cmd->Callback(UCM_CHANGEVOLUME,Cmd->UserData,(LONG)NextName,RAR_VOL_ASK)==-1)
-    {
-      Cmd->DllError=ERAR_EOPEN;
-      return(false);
-    }
-    if (Cmd->ChangeVolProc!=NULL)
-    {
-      _EBX=_ESP;
-      int RetCode=Cmd->ChangeVolProc(NextName,RAR_VOL_ASK);
-      _ESP=_EBX;
-      if (RetCode==0)
-      {
-        Cmd->DllError=ERAR_EOPEN;
-        return(false);
-      }
-    }
-#else
-
 #ifndef SFX_MODULE
     if (!RecoveryDone)
     {
@@ -73,22 +53,8 @@ bool MergeArchive(Archive &Arc,ComprDataIO *DataIO,bool ShowFileName,char Comman
     if (Cmd->AllYes || !AskNextVol(NextName))
 #endif
       return(false);
-#endif
   }
   Arc.CheckArc(true);
-#ifdef RARDLL
-  if (Cmd->Callback!=NULL &&
-      Cmd->Callback(UCM_CHANGEVOLUME,Cmd->UserData,(LONG)NextName,RAR_VOL_NOTIFY)==-1)
-    return(false);
-  if (Cmd->ChangeVolProc!=NULL)
-  {
-    _EBX=_ESP;
-    int RetCode=Cmd->ChangeVolProc(NextName,RAR_VOL_NOTIFY);
-    _ESP=_EBX;
-    if (RetCode==0)
-      return(false);
-  }
-#endif
 
   if (Command=='T' || Command=='X' || Command=='E')
     mprintf(St(Command=='T' ? MTestVol:MExtrVol),Arc.FileName);

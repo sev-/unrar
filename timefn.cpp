@@ -12,9 +12,7 @@ void InitTime()
 #ifndef SFX_MODULE
 uint SecondsToDosTime(uint Seconds)
 {
-#if defined(_UNIX)
   return(UnixTimeToDos(SystemTime-Seconds));
-#endif
 }
 #endif
 
@@ -107,7 +105,6 @@ uint IsoTextToDosTime(char *TimeText)
 #endif
 
 
-#if defined(_UNIX)
 uint UnixTimeToDos(time_t UnixTime)
 {
   struct tm *t;
@@ -132,4 +129,3 @@ time_t DosTimeToUnix(uint DosTime)
   t.tm_isdst=-1;
   return(mktime(&t));
 }
-#endif

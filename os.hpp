@@ -4,8 +4,6 @@
 #define FALSE 0
 #define TRUE  1
 
-#ifdef _UNIX
-
 #define  NM  1024
 
 #include <unistd.h>
@@ -31,10 +29,6 @@
 #include <time.h>
 #include <signal.h>
 #include <utime.h>
-
-#ifdef  S_IFLNK
-#define SAVE_LINKS
-#endif
 
 #define ENABLE_ACCESS
 
@@ -70,8 +64,6 @@
   #ifndef BIG_ENDIAN
      #define BIG_ENDIAN
   #endif
-#endif
-
 #endif
 
 typedef const char* MSGID;

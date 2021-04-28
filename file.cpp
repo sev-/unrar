@@ -318,21 +318,17 @@ void File::SetOpenFileTime(uint ft)
 
 void File::SetCloseFileTime(uint ft)
 {
-#if defined(_UNIX)
   struct utimbuf ut;
   ut.actime=ut.modtime=DosTimeToUnix(ft);
   utime(FileName,&ut);
-#endif
 }
 
 
 uint File::GetOpenFileTime()
 {
-#if defined(_UNIX)
   struct stat st;
   fstat(fileno(hFile),&st);
   return(UnixTimeToDos(st.st_mtime));
-#endif
 }
 
 
@@ -343,10 +339,8 @@ void File::SetOpenFileStat(uint FileTime)
 
 void File::SetCloseFileStat(uint FileTime,uint FileAttr)
 {
-#ifdef _UNIX
   SetCloseFileTime(FileTime);
   chmod(FileName,(mode_t)FileAttr);
-#endif
 }
 
 

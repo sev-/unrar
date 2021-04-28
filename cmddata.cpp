@@ -308,11 +308,6 @@ void CommandData::ProcessSwitch(char *Switch)
         case 'W':
           ProcessOwners=true;
           break;
-#ifdef SAVE_LINKS
-        case 'L':
-          SaveLinks=true;
-          break;
-#endif
         default :
           BadSwitch(Switch);
           break;
@@ -744,20 +739,16 @@ void CommandData::OutHelp()
     if (Help[I]==MCHelpSwIEML || Help[I]==MCHelpSwVD || Help[I]==MCHelpSwAC ||
         Help[I]==MCHelpSwAO || Help[I]==MCHelpSwDH || Help[I]==MCHelpSwOS)
       continue;
-#ifndef SAVE_LINKS
     if (Help[I]==MCHelpSwOL)
       continue;
-#endif
 #ifndef ENABLE_CHANGE_PRIORITY
     if (Help[I]==MCHelpSwRI)
       continue;
 #endif
-#if !defined(_BEOS)
     if (Help[I]==MCHelpSwEE)
     {
       continue;
     }
-#endif
 #endif
     mprintf(St(Help[I]));
   }
@@ -872,13 +863,8 @@ void CommandData::ProcessCommand()
   if (Command[1] && strchr("FUADPXETK",*Command)!=NULL || *ArcName==0)
     OutHelp();
 
-#ifdef _UNIX
   if (GetExt(ArcName)==NULL && (!FileExist(ArcName) || IsDir(GetFileAttr(ArcName))))
     strcat(ArcName,".rar");
-#else
-  if (GetExt(ArcName)==NULL)
-    strcat(ArcName,".rar");
-#endif
 
   if (strchr("AFUMD",*Command)==NULL)
   {
@@ -943,9 +929,7 @@ bool CommandData::IsSwitch(int Ch)
 #ifndef SFX_MODULE
 uint CommandData::GetExclAttr(char *Str)
 {
-#ifdef _UNIX
   return(strtol(Str,NULL,0));
-#endif
 }
 #endif
 

@@ -10,7 +10,6 @@ int ToPercent(Int64 N1,Int64 N2)
   return(int64to32(N1*100/N2));
 }
 
-#if !defined(GUI) && !defined(RARDLL)
 int main(int argc, char *argv[])
 {
 #ifndef SFX_MODULE
@@ -101,7 +100,6 @@ int main(int argc, char *argv[])
   File::RemoveCreated();
   return(ErrHandler.GetErrorCode());
 }
-#endif
 
 
 void RARInitData()
@@ -111,4 +109,8 @@ void RARInitData()
   InitTime();
 #endif
   ErrHandler.Clean();
+}
+
+const char *St(MSGID StringId) {
+  return(StringId);
 }

@@ -15,11 +15,7 @@ inline uint touppercw(uint ch)
 {
 /*
 */
-#if defined(_UNIX)
   return(ch);
-#else
-  return(toupperw(ch));
-#endif
 }
 
 
@@ -203,11 +199,7 @@ int stricompc(const char *Str1,const char *Str2)
 {
 /*
 */
-#if defined(_UNIX)
   return(strcmp(Str1,Str2));
-#else
-  return(stricomp(Str1,Str2));
-#endif
 }
 
 
@@ -216,11 +208,7 @@ int stricompcw(const wchar *Str1,const wchar *Str2)
 {
 /*
 */
-#if defined(_UNIX)
   return(strcmpw(Str1,Str2));
-#else
-  return(stricmpw(Str1,Str2));
-#endif
 }
 #endif
 
@@ -229,11 +217,7 @@ int strnicompc(const char *Str1,const char *Str2,int N)
 {
 /*
 */
-#if defined(_UNIX)
   return(strncmp(Str1,Str2,N));
-#else
-  return(strnicomp(Str1,Str2,N));
-#endif
 }
 
 
@@ -242,10 +226,6 @@ int strnicompcw(const wchar *Str1,const wchar *Str2,int N)
 {
 /*
 */
-#if defined(_UNIX)
   return(strncmpw(Str1,Str2,N));
-#else
-  return(strnicmpw(Str1,Str2,N));
-#endif
 }
 #endif

@@ -94,16 +94,5 @@ class RAROptions
     bool NoEndBlock;
     bool AppendArcNameToPath;
     bool Shutdown;
-
-
-#ifdef RARDLL
-    char DllDestName[NM];
-    int DllOpMode;
-    int DllError;
-    LONG UserData;
-    UNRARCALLBACK Callback;
-    CHANGEVOLPROC ChangeVolProc;
-    PROCESSDATAPROC ProcessDataProc;
-#endif
 };
 #endif

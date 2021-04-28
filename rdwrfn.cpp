@@ -92,20 +92,6 @@ int ComprDataIO::UnpRead(byte *Addr,uint Count)
 
 void ComprDataIO::UnpWrite(byte *Addr,uint Count)
 {
-#ifdef RARDLL
-  RAROptions *Cmd=((Archive *)SrcFile)->GetRAROptions();
-  if (Cmd->Callback!=NULL &&
-      Cmd->Callback(UCM_PROCESSDATA,Cmd->UserData,(LONG)Addr,Count)==-1)
-    ErrHandler.Exit(USER_BREAK);
-  if (Cmd->ProcessDataProc!=NULL)
-  {
-    _EBX=_ESP;
-    int RetCode=Cmd->ProcessDataProc(Addr,Count);
-    _ESP=_EBX;
-    if (RetCode==0)
-      ErrHandler.Exit(USER_BREAK);
-  }
-#endif
   UnpWrAddr=Addr;
   UnpWrSize=Count;
   if (SrcUnpack!=NULL)
