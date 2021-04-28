@@ -73,7 +73,6 @@ class Archive:public File
     void AddSubData(byte *SrcData,int DataSize,File *SrcFile,char *Name,bool AllowSplit);
     bool ReadSubData(Array<byte> *UnpData,File *DestFile);
     int GetHeaderType() {return(CurHeaderType);};
-    int ReadCommentData(Array<byte> &CmtData);
     void WriteCommentData(byte *Data,int DataSize,bool FileComment);
     RAROptions* GetRAROptions() {return(Cmd);}
     void SetSilentOpen(bool Mode) {SilentOpen=Mode;}

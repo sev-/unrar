@@ -28,7 +28,6 @@ void ListArchive(CommandData *Cmd)
       if (Arc.IsArchive(true))
       {
         bool TitleShown=false;
-        Arc.ViewComment();
 //        Arc.SkipMhdExtra();
         mprintf("\n");
         if (Arc.Solid)
@@ -94,10 +93,10 @@ void ListArchive(CommandData *Cmd)
             mprintf("-");
           char UnpSizeText[20];
           itoa(TotalUnpSize,UnpSizeText);
-      
+
           char PackSizeText[20];
           itoa(TotalPackSize,PackSizeText);
-      
+
           mprintf("\n%5lu %16s %8s %3d%%\n",FileCount,UnpSizeText,
                   PackSizeText,ToPercent(TotalPackSize,TotalUnpSize));
           SumFileCount+=FileCount;
@@ -290,14 +289,4 @@ void ListOldSubHeader(Archive &Arc)
 
 void ListNewSubHeader(CommandData *Cmd,Archive &Arc,bool Technical)
 {
-  if (strcmp(Arc.SubHead.FileName,SUBHEAD_TYPE_CMT)==0 && !Cmd->DisableComment)
-  {
-    Array<byte> CmtData;
-    int ReadSize=Arc.ReadCommentData(CmtData);
-    if (ReadSize!=0)
-    {
-      mprintf(St(MFileComment));
-      OutComment((char *)&CmtData[0],ReadSize);
-    }
-  }
 }

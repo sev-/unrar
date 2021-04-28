@@ -113,8 +113,6 @@ EXTRACT_ARC_CODE CmdExtract::ExtractArchive(CommandData *Cmd)
       mprintf(St(MExtracting),ArcName);
 #endif
 
-  Arc.ViewComment();
-
   while (1)
   {
     int Size=Arc.ReadHeader();

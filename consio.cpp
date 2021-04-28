@@ -118,8 +118,6 @@ void GetPasswordText(char *Str,int MaxLength)
   OemToChar(Str,Str);
   SetConsoleMode(hConIn,ConInMode);
   SetConsoleMode(hConOut,ConOutMode);
-#elif defined(_EMX) || defined(_BEOS)
-  fgets(Str,MaxLength-1,stdin);
 #else
   strncpy(Str,getpass(""),MaxLength-1);
 #endif
@@ -157,11 +155,7 @@ bool GetPassword(PASSWORD_TYPE Type,const char *FileName,char *Password,int MaxL
   while (true)
   {
     char PromptStr[256];
-#if defined(_EMX) || defined(_BEOS)
-    strcpy(PromptStr,St(MAskPswEcho));
-#else
     strcpy(PromptStr,St(MAskPsw));
-#endif
     if (Type!=PASSWORD_GLOBAL)
     {
       strcat(PromptStr,St(MFor));

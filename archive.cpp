@@ -1,10 +1,5 @@
 #include "rar.hpp"
 
-#ifndef SHELL_EXT
-#include "arccmt.cpp"
-#endif
-
-
 Archive::Archive(RAROptions *InitCmd)
 #ifndef SHELL_EXT
 :SubDataIO(NULL)

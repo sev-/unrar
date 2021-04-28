@@ -152,44 +152,8 @@ Int64 GetFreeDisk(const char *FileName)
   Int64 FreeSize=SectorsPerCluster*BytesPerSector;
   FreeSize=FreeSize*FreeClusters;
   return(FreeSize);
-#elif defined(_BEOS)
-  char Root[NM];
-  GetFilePath(FileName,Root);
-  dev_t Dev=dev_for_path(*Root ? Root:".");
-  if (Dev<0)
-    return(1457664);
-  fs_info Info;
-  if (fs_stat_dev(Dev,&Info)!=0)
-    return(1457664);
-  Int64 FreeSize=Info.block_size;
-  FreeSize=FreeSize*Info.free_blocks;
-  return(FreeSize);
 #elif defined(_UNIX)
   return(1457664);
-#elif defined(_EMX)
-  int Drive=(!isalpha(FileName[0]) || FileName[1]!=':') ? 0:toupper(FileName[0])-'A'+1;
-  if (_osmode == OS2_MODE)
-  {
-    FSALLOCATE fsa;
-    if (DosQueryFSInfo(Drive,1,&fsa,sizeof(fsa))!=0)
-      return(1457664);
-    Int64 FreeSize=fsa.cSectorUnit*fsa.cbSector;
-    FreeSize=FreeSize*fsa.cUnitAvail;
-    return(FreeSize);
-  }
-  else
-  {
-    union REGS regs,outregs;
-    memset(&regs,0,sizeof(regs));
-    regs.h.ah=0x36;
-    regs.h.dl=Drive;
-    _int86 (0x21,&regs,&outregs);
-    if (outregs.x.ax==0xffff)
-      return(1457664);
-    Int64 FreeSize=outregs.x.ax*outregs.x.cx;
-    FreeSize=FreeSize*outregs.x.bx;
-    return(FreeSize);
-  }
 #else
   #define DISABLEAUTODETECT
   return(1457664);

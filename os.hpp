@@ -130,11 +130,6 @@
 
 #define  NM  1024
 
-#ifdef _BEOS
-#include <be/kernel/fs_info.h>
-#include <be/kernel/fs_attr.h>
-#endif
-
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -168,11 +163,7 @@
 #define DefConfigName  ".rarrc"
 #define DefLogName     ".rarlog"
 
-#ifdef _BEOS
-#define HOST_OS     BEOS
-#else
 #define HOST_OS     UNIX
-#endif
 
 #define PATHDIVIDER  "/"
 #define PATHDIVIDERW L"/"
@@ -186,7 +177,7 @@
 #define CREATEBINARY "w+"
 #define APPENDTEXT   "a"
 
-#define _stdfunction 
+#define _stdfunction
 
 #ifdef _APPLE
 	#ifndef BIG_ENDIAN
