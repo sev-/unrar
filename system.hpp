@@ -4,7 +4,7 @@
 void InitSystemOptions(int SleepTime);
 void SetPriority(int Priority);
 void Wait();
-bool EmailFile(char *FileName,char *MailTo);
+bool EmailFile(char *FileName, char *MailTo);
 void Shutdown();
 
 #endif

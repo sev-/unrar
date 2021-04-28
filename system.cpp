@@ -1,10 +1,10 @@
 #include "rar.hpp"
 
-static int SleepTime=0;
+static int SleepTime = 0;
 
 void InitSystemOptions(int SleepTime)
 {
-  ::SleepTime=SleepTime;
+	::SleepTime = SleepTime;
 }
 
 

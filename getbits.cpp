@@ -2,23 +2,23 @@
 
 BitInput::BitInput()
 {
-  InBuf=new byte[MAX_SIZE];
+	InBuf = new byte[MAX_SIZE];
 }
 
 
 BitInput::~BitInput()
 {
-  delete[] InBuf;
+	delete[] InBuf;
 }
 
 
 void BitInput::faddbits(int Bits)
 {
-  addbits(Bits);
+	addbits(Bits);
 }
 
 
 unsigned int BitInput::fgetbits()
 {
-  return(getbits());
+	return (getbits());
 }

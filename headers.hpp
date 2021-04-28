@@ -68,15 +68,16 @@
 #define  EARC_REVSPACE      0x0004
 
 enum HEADER_TYPE {
-  MARK_HEAD=0x72,MAIN_HEAD=0x73,FILE_HEAD=0x74,COMM_HEAD=0x75,AV_HEAD=0x76,
-  SUB_HEAD=0x77,PROTECT_HEAD=0x78,SIGN_HEAD=0x79,NEWSUB_HEAD=0x7a,
-  ENDARC_HEAD=0x7b
+	MARK_HEAD = 0x72, MAIN_HEAD = 0x73, FILE_HEAD = 0x74, COMM_HEAD = 0x75, AV_HEAD = 0x76,
+	SUB_HEAD = 0x77, PROTECT_HEAD = 0x78, SIGN_HEAD = 0x79, NEWSUB_HEAD = 0x7a,
+	ENDARC_HEAD = 0x7b
 };
 
-enum { EA_HEAD=0x100,UO_HEAD=0x101,MAC_HEAD=0x102,BEEA_HEAD=0x103,
-       NTACL_HEAD=0x104,STREAM_HEAD=0x105 };
+enum { EA_HEAD = 0x100, UO_HEAD = 0x101, MAC_HEAD = 0x102, BEEA_HEAD = 0x103,
+       NTACL_HEAD = 0x104, STREAM_HEAD = 0x105
+     };
 
-enum { MS_DOS=0,OS2=1,WIN_32=2,UNIX=3,MAC_OS=4,BEOS=5 };
+enum { MS_DOS = 0, OS2 = 1, WIN_32 = 2, UNIX = 3, MAC_OS = 4, BEOS = 5 };
 
 #define SUBHEAD_TYPE_CMT      "CMT"
 #define SUBHEAD_TYPE_ACL      "ACL"
@@ -93,200 +94,200 @@ enum { MS_DOS=0,OS2=1,WIN_32=2,UNIX=3,MAC_OS=4,BEOS=5 };
 
 struct OldMainHeader
 {
-  byte Mark[4];
-  ushort HeadSize;
-  byte Flags;
+	byte Mark[4];
+	ushort HeadSize;
+	byte Flags;
 };
 
 
 struct OldFileHeader
 {
-  uint PackSize;
-  uint UnpSize;
-  ushort FileCRC;
-  ushort HeadSize;
-  uint FileTime;
-  byte FileAttr;
-  byte Flags;
-  byte UnpVer;
-  byte NameSize;
-  byte Method;
+	uint PackSize;
+	uint UnpSize;
+	ushort FileCRC;
+	ushort HeadSize;
+	uint FileTime;
+	byte FileAttr;
+	byte Flags;
+	byte UnpVer;
+	byte NameSize;
+	byte Method;
 };
 
 
 struct MarkHeader
 {
-  byte Mark[7];
+	byte Mark[7];
 };
 
 
 struct BaseBlock
 {
-  ushort HeadCRC;
-  HEADER_TYPE HeadType;//byte
-  ushort Flags;
-  ushort HeadSize;
+	ushort HeadCRC;
+	HEADER_TYPE HeadType;//byte
+	ushort Flags;
+	ushort HeadSize;
 
-  bool IsSubBlock()
-  {
-    if (HeadType==SUB_HEAD)
-      return(true);
-    if (HeadType==NEWSUB_HEAD && (Flags & LHD_SOLID)!=0)
-      return(true);
-    return(false);
-  }
+	bool IsSubBlock()
+	{
+		if (HeadType == SUB_HEAD)
+			return (true);
+		if (HeadType == NEWSUB_HEAD && (Flags & LHD_SOLID) != 0)
+			return (true);
+		return (false);
+	}
 };
 
-struct BlockHeader:BaseBlock
+struct BlockHeader: BaseBlock
 {
-  union {
-    uint DataSize;
-    uint PackSize;
-  };
+	union {
+		uint DataSize;
+		uint PackSize;
+	};
 };
 
 
-struct MainHeader:BlockHeader
+struct MainHeader: BlockHeader
 {
-  ushort HighPosAV;
-  uint PosAV;
+	ushort HighPosAV;
+	uint PosAV;
 };
 
 
 #define SALT_SIZE     8
 
-struct FileHeader:BlockHeader
+struct FileHeader: BlockHeader
 {
-  uint UnpSize;
-  byte HostOS;
-  uint FileCRC;
-  uint FileTime;
-  byte UnpVer;
-  byte Method;
-  ushort NameSize;
-  union {
-    uint FileAttr;
-    uint SubFlags;
-  };
-/* optional */
-  uint HighPackSize;
-  uint HighUnpSize;
-/* names */
-  char FileName[NM];
-  wchar FileNameW[NM];
-/* optional */
-  Array<byte> SubData;
-  byte Salt[SALT_SIZE];
-/* dummy */
-  Int64 FullPackSize;
-  Int64 FullUnpSize;
+	uint UnpSize;
+	byte HostOS;
+	uint FileCRC;
+	uint FileTime;
+	byte UnpVer;
+	byte Method;
+	ushort NameSize;
+	union {
+		uint FileAttr;
+		uint SubFlags;
+	};
+	/* optional */
+	uint HighPackSize;
+	uint HighUnpSize;
+	/* names */
+	char FileName[NM];
+	wchar FileNameW[NM];
+	/* optional */
+	Array<byte> SubData;
+	byte Salt[SALT_SIZE];
+	/* dummy */
+	Int64 FullPackSize;
+	Int64 FullUnpSize;
 
-  void Clear(int SubDataSize)
-  {
-    SubData.Alloc(SubDataSize);
-    Flags=LONG_BLOCK;
-    SubFlags=0;
-  }
+	void Clear(int SubDataSize)
+	{
+		SubData.Alloc(SubDataSize);
+		Flags = LONG_BLOCK;
+		SubFlags = 0;
+	}
 
-  bool CmpName(const char *Name)
-  {
-    return(strcmp(FileName,Name)==0);
-  }
+	bool CmpName(const char *Name)
+	{
+		return (strcmp(FileName, Name) == 0);
+	}
 
-  FileHeader& operator = (FileHeader &hd)
-  {
-    SubData.Reset();
-    memcpy(this,&hd,sizeof(*this));
-    SubData.CleanData();
-    SubData=hd.SubData;
-    return(*this);
-  }
+	FileHeader &operator = (FileHeader &hd)
+	{
+		SubData.Reset();
+		memcpy(this, &hd, sizeof(*this));
+		SubData.CleanData();
+		SubData = hd.SubData;
+		return (*this);
+	}
 };
 
 
-struct EndArcHeader:BaseBlock
+struct EndArcHeader: BaseBlock
 {
-  uint ArcDataCRC;
+	uint ArcDataCRC;
 };
 
 
-struct SubBlockHeader:BlockHeader
+struct SubBlockHeader: BlockHeader
 {
-  ushort SubType;
-  byte Level;
+	ushort SubType;
+	byte Level;
 };
 
 
-struct CommentHeader:BaseBlock
+struct CommentHeader: BaseBlock
 {
-  ushort UnpSize;
-  byte UnpVer;
-  byte Method;
-  ushort CommCRC;
+	ushort UnpSize;
+	byte UnpVer;
+	byte Method;
+	ushort CommCRC;
 };
 
 
-struct ProtectHeader:BlockHeader
+struct ProtectHeader: BlockHeader
 {
-  byte Version;
-  ushort RecSectors;
-  uint TotalBlocks;
-  byte Mark[8];
+	byte Version;
+	ushort RecSectors;
+	uint TotalBlocks;
+	byte Mark[8];
 };
 
 
-struct AVHeader:BaseBlock
+struct AVHeader: BaseBlock
 {
-  byte UnpVer;
-  byte Method;
-  byte AVVer;
-  uint AVInfoCRC;
+	byte UnpVer;
+	byte Method;
+	byte AVVer;
+	uint AVInfoCRC;
 };
 
 
-struct SignHeader:BaseBlock
+struct SignHeader: BaseBlock
 {
-  uint CreationTime;
-  ushort ArcNameSize;
-  ushort UserNameSize;
+	uint CreationTime;
+	ushort ArcNameSize;
+	ushort UserNameSize;
 };
 
 
-struct UnixOwnersHeader:SubBlockHeader
+struct UnixOwnersHeader: SubBlockHeader
 {
-  ushort OwnerNameSize;
-  ushort GroupNameSize;
-/* dummy */
-  char OwnerName[NM];
-  char GroupName[NM];
+	ushort OwnerNameSize;
+	ushort GroupNameSize;
+	/* dummy */
+	char OwnerName[NM];
+	char GroupName[NM];
 };
 
 
-struct EAHeader:SubBlockHeader
+struct EAHeader: SubBlockHeader
 {
-  uint UnpSize;
-  byte UnpVer;
-  byte Method;
-  uint EACRC;
+	uint UnpSize;
+	byte UnpVer;
+	byte Method;
+	uint EACRC;
 };
 
 
-struct StreamHeader:SubBlockHeader
+struct StreamHeader: SubBlockHeader
 {
-  uint UnpSize;
-  byte UnpVer;
-  byte Method;
-  uint StreamCRC;
-  ushort StreamNameSize;
-/* dummy */
-  byte StreamName[NM];
+	uint UnpSize;
+	byte UnpVer;
+	byte Method;
+	uint StreamCRC;
+	ushort StreamNameSize;
+	/* dummy */
+	byte StreamName[NM];
 };
 
 
-struct MacFInfoHeader:SubBlockHeader
+struct MacFInfoHeader: SubBlockHeader
 {
-  uint fileType;
-  uint fileCreator;
+	uint fileType;
+	uint fileCreator;
 };
 
 

@@ -2,9 +2,9 @@
 #define _RAR_GLOBAL_
 
 #ifdef INCLUDEGLOBAL
-  #define EXTVAR
+#define EXTVAR
 #else
-  #define EXTVAR extern
+#define EXTVAR extern
 #endif
 
 EXTVAR ErrorHandler ErrHandler;

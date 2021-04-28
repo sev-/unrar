@@ -7,8 +7,8 @@
 #if !defined(_SUBALLOC_H_)
 #define _SUBALLOC_H_
 
-const int N1=4, N2=4, N3=4, N4=(128+3-1*N1-2*N2-3*N3)/4;
-const int N_INDEXES=N1+N2+N3+N4;
+const int N1 = 4, N2 = 4, N3 = 4, N4 = (128 + 3 - 1 * N1 - 2 * N2 - 3 * N3) / 4;
+const int N_INDEXES = N1 + N2 + N3 + N4;
 
 #if defined(__GNUC__)
 #define _PACK_ATTR __attribute__ ((packed))
@@ -17,58 +17,62 @@ const int N_INDEXES=N1+N2+N3+N4;
 #endif /* defined(__GNUC__) */
 
 #pragma pack(1)
-struct MEM_BLK 
+struct MEM_BLK
 {
-  ushort Stamp, NU;
-  MEM_BLK* next, * prev;
-  void insertAt(MEM_BLK* p) 
-  {
-    next=(prev=p)->next;
-    p->next=next->prev=this;
-  }
-  void remove() 
-  {
-    prev->next=next;
-    next->prev=prev;
-  }
+	ushort Stamp, NU;
+	MEM_BLK *next, * prev;
+	void insertAt(MEM_BLK *p)
+	{
+		next = (prev = p)->next;
+		p->next = next->prev = this;
+	}
+	void remove()
+	{
+		prev->next = next;
+		next->prev = prev;
+	}
 } _PACK_ATTR;
 #pragma pack()
 
 struct NODE
 {
-  NODE* next;
+	NODE *next;
 };
 
 class SubAllocator
 {
-  private:
-    inline void InsertNode(void* p,int indx);
-    inline void* RemoveNode(int indx);
-    inline uint U2B(int NU);
-    inline void SplitBlock(void* pv,int OldIndx,int NewIndx);
-    uint GetUsedMemory();
-    inline void GlueFreeBlocks();
-    void* AllocUnitsRare(int indx);
+private:
+	inline void InsertNode(void *p, int indx);
+	inline void *RemoveNode(int indx);
+	inline uint U2B(int NU);
+	inline void SplitBlock(void *pv, int OldIndx, int NewIndx);
+	uint GetUsedMemory();
+	inline void GlueFreeBlocks();
+	void *AllocUnitsRare(int indx);
 
-    long SubAllocatorSize;
-    byte Indx2Units[N_INDEXES], Units2Indx[128], GlueCount;
-    byte *HeapStart,*LoUnit, *HiUnit;
-    struct NODE FreeList[N_INDEXES];
-  public:
-    SubAllocator();
-    ~SubAllocator() {StopSubAllocator();}
-    void Clean();
-    bool StartSubAllocator(int SASize);
-    void StopSubAllocator();
-    void  InitSubAllocator();
-    inline void* AllocContext();
-    inline void* AllocUnits(int NU);
-    inline void* ExpandUnits(void* ptr,int OldNU);
-    inline void* ShrinkUnits(void* ptr,int OldNU,int NewNU);
-    inline void  FreeUnits(void* ptr,int OldNU);
-    long GetAllocatedMemory() {return(SubAllocatorSize);};
+	long SubAllocatorSize;
+	byte Indx2Units[N_INDEXES], Units2Indx[128], GlueCount;
+	byte *HeapStart, *LoUnit, *HiUnit;
+	struct NODE FreeList[N_INDEXES];
+public:
+	SubAllocator();
+	~SubAllocator() {
+		StopSubAllocator();
+	}
+	void Clean();
+	bool StartSubAllocator(int SASize);
+	void StopSubAllocator();
+	void  InitSubAllocator();
+	inline void *AllocContext();
+	inline void *AllocUnits(int NU);
+	inline void *ExpandUnits(void *ptr, int OldNU);
+	inline void *ShrinkUnits(void *ptr, int OldNU, int NewNU);
+	inline void  FreeUnits(void *ptr, int OldNU);
+	long GetAllocatedMemory() {
+		return (SubAllocatorSize);
+	};
 
-    byte *pText, *UnitsStart,*HeapEnd,*FakeUnitsStart;
+	byte *pText, *UnitsStart, *HeapEnd, *FakeUnitsStart;
 };
 
 

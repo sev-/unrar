@@ -68,7 +68,7 @@
 #include "global.hpp"
 
 
-int ToPercent(Int64 N1,Int64 N2);
+int ToPercent(Int64 N1, Int64 N2);
 const char *St(MSGID StringId);
 
 #endif

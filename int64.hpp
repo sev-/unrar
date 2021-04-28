@@ -21,53 +21,55 @@ typedef long long Int64;
 
 class Int64
 {
-  public:
-    Int64();
-    Int64(uint n);
-    Int64(uint HighPart,uint LowPart);
+public:
+	Int64();
+	Int64(uint n);
+	Int64(uint HighPart, uint LowPart);
 
 //    Int64 operator = (Int64 n);
-    Int64 operator << (int n);
-    Int64 operator >> (int n);
+	Int64 operator << (int n);
+	Int64 operator >> (int n);
 
-    friend Int64 operator / (Int64 n1,Int64 n2);
-    friend Int64 operator * (Int64 n1,Int64 n2);
-    friend Int64 operator % (Int64 n1,Int64 n2);
-    friend Int64 operator + (Int64 n1,Int64 n2);
-    friend Int64 operator - (Int64 n1,Int64 n2);
-    friend Int64 operator += (Int64 &n1,Int64 n2);
-    friend Int64 operator -= (Int64 &n1,Int64 n2);
-    friend Int64 operator *= (Int64 &n1,Int64 n2);
-    friend Int64 operator /= (Int64 &n1,Int64 n2);
-    friend Int64 operator | (Int64 n1,Int64 n2);
-    inline friend void operator -= (Int64 &n1,unsigned int n2)
-    {
-      if (n1.LowPart<n2)
-        n1.HighPart--;
-      n1.LowPart-=n2;
-    }
-    inline friend void operator ++ (Int64 &n)
-    {
-      if (++n.LowPart == 0)
-        ++n.HighPart;
-    }
-    inline friend void operator -- (Int64 &n)
-    {
-      if (n.LowPart-- == 0)
-        n.HighPart--;
-    }
-    friend bool operator == (Int64 n1,Int64 n2);
-    friend bool operator > (Int64 n1,Int64 n2);
-    friend bool operator < (Int64 n1,Int64 n2);
-    friend bool operator != (Int64 n1,Int64 n2);
-    friend bool operator >= (Int64 n1,Int64 n2);
-    friend bool operator <= (Int64 n1,Int64 n2);
+	friend Int64 operator / (Int64 n1, Int64 n2);
+	friend Int64 operator * (Int64 n1, Int64 n2);
+	friend Int64 operator % (Int64 n1, Int64 n2);
+	friend Int64 operator + (Int64 n1, Int64 n2);
+	friend Int64 operator - (Int64 n1, Int64 n2);
+	friend Int64 operator += (Int64 &n1, Int64 n2);
+	friend Int64 operator -= (Int64 &n1, Int64 n2);
+	friend Int64 operator *= (Int64 &n1, Int64 n2);
+	friend Int64 operator /= (Int64 &n1, Int64 n2);
+	friend Int64 operator | (Int64 n1, Int64 n2);
+	inline friend void operator -= (Int64 &n1, unsigned int n2)
+	{
+		if (n1.LowPart < n2)
+			n1.HighPart--;
+		n1.LowPart -= n2;
+	}
+	inline friend void operator ++ (Int64 &n)
+	{
+		if (++n.LowPart == 0)
+			++n.HighPart;
+	}
+	inline friend void operator -- (Int64 &n)
+	{
+		if (n.LowPart-- == 0)
+			n.HighPart--;
+	}
+	friend bool operator == (Int64 n1, Int64 n2);
+	friend bool operator > (Int64 n1, Int64 n2);
+	friend bool operator < (Int64 n1, Int64 n2);
+	friend bool operator != (Int64 n1, Int64 n2);
+	friend bool operator >= (Int64 n1, Int64 n2);
+	friend bool operator <= (Int64 n1, Int64 n2);
 
-    void Set(uint HighPart,uint LowPart);
-    uint GetLowPart() {return(LowPart);}
+	void Set(uint HighPart, uint LowPart);
+	uint GetLowPart() {
+		return (LowPart);
+	}
 
-    uint LowPart;
-    uint HighPart;
+	uint LowPart;
+	uint HighPart;
 };
 
 #define int64to32(x) ((x).GetLowPart())
@@ -78,7 +80,7 @@ class Int64
 
 #define INT64ERR int32to64(0x80000000,0)
 
-void itoa(Int64 n,char *Str);
+void itoa(Int64 n, char *Str);
 Int64 atoil(char *Str);
 
 #endif

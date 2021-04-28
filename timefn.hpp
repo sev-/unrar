@@ -3,7 +3,7 @@
 
 void InitTime();
 uint SecondsToDosTime(uint Seconds);
-void ConvertDate(uint ft,char *DateStr,bool FullYear);
+void ConvertDate(uint ft, char *DateStr, bool FullYear);
 const char *GetMonthName(int Month);
 uint TextAgeToSeconds(char *TimeText);
 uint IsoTextToDosTime(char *TimeText);
