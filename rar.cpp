@@ -9103,13 +9103,7 @@ void CommandData::OutTitle() {
 		sprintf(Version, "%d.%02d %s %d", RARVER_MAJOR, RARVER_MINOR, St(MBeta), RARVER_BETA);
 	else
 		sprintf(Version, "%d.%02d", RARVER_MAJOR, RARVER_MINOR);
-#ifdef UNRAR
 	mprintf(St(MUCopyright), Version, RARVER_YEAR);
-#else
-	mprintf(St(MCopyright), Version, RARVER_YEAR, RARVER_DAY, GetMonthName(RARVER_MONTH - 1), RARVER_YEAR);
-	char RegName[512];
-	strcpy(RegName, Reg.RegName);
-#endif
 #endif
 #endif
 }
@@ -9120,9 +9114,6 @@ void CommandData::OutHelp() {
 #if !defined(GUI) && !defined(SILENT)
 	OutTitle();
 	static MSGID Help[] = {
-#ifdef SFX_MODULE
-		MCHelpCmd, MSHelpCmdE, MSHelpCmdT, MSHelpCmdV
-#elif defined(UNRAR)
 		MUNRARTitle1, MRARTitle2, MCHelpCmd, MCHelpCmdE, MCHelpCmdL, MCHelpCmdP,
 		MCHelpCmdT, MCHelpCmdV, MCHelpCmdX, MCHelpSw, MCHelpSwm, MCHelpSwAC, MCHelpSwAD,
 		MCHelpSwAP, MCHelpSwAVm, MCHelpSwCm, MCHelpSwCFGm, MCHelpSwCL, MCHelpSwCU,
@@ -9131,25 +9122,6 @@ void CommandData::OutHelp() {
 		MCHelpSwR, MCHelpSwRI, MCHelpSwTA, MCHelpSwTB, MCHelpSwTN, MCHelpSwTO,
 		MCHelpSwU, MCHelpSwV, MCHelpSwVER, MCHelpSwVP, MCHelpSwX, MCHelpSwXa,
 		MCHelpSwXal, MCHelpSwY
-#else
-		MRARTitle1, MRARTitle2, MCHelpCmd, MCHelpCmdA, MCHelpCmdC, MCHelpCmdCF,
-		MCHelpCmdCW, MCHelpCmdD, MCHelpCmdE, MCHelpCmdF, MCHelpCmdI, MCHelpCmdK,
-		MCHelpCmdL, MCHelpCmdM, MCHelpCmdP, MCHelpCmdR, MCHelpCmdRC, MCHelpCmdRR,
-		MCHelpCmdRV, MCHelpCmdS, MCHelpCmdT, MCHelpCmdU, MCHelpCmdV, MCHelpCmdX,
-		MCHelpSw, MCHelpSwm, MCHelpSwAC, MCHelpSwAD, MCHelpSwAG, MCHelpSwAO, MCHelpSwAP,
-		MCHelpSwAS, MCHelpSwAV, MCHelpSwAVm, MCHelpSwCm, MCHelpSwCFGm, MCHelpSwCL,
-		MCHelpSwCU, MCHelpSwDF, MCHelpSwDH, MCHelpSwDS, MCHelpSwEa, MCHelpSwED,
-		MCHelpSwEE, MCHelpSwEN, MCHelpSwEP, MCHelpSwEP1, MCHelpSwEP2,
-		MCHelpSwF, MCHelpSwHP, MCHelpSwIDP, MCHelpSwIEML, MCHelpSwIERR, MCHelpSwILOG,
-		MCHelpSwINUL, MCHelpSwISND, MCHelpSwK, MCHelpSwKB, MCHelpSwMn,
-		MCHelpSwMC, MCHelpSwMD, MCHelpSwMS, MCHelpSwOp, MCHelpSwOm, MCHelpSwOL,
-		MCHelpSwOS, MCHelpSwOW, MCHelpSwP, MCHelpSwPm, MCHelpSwR, MCHelpSwR0,
-		MCHelpSwRI, MCHelpSwRR, MCHelpSwRV, MCHelpSwS, MCHelpSwSm, MCHelpSwSFX,
-		MCHelpSwT, MCHelpSwTA, MCHelpSwTB, MCHelpSwTK, MCHelpSwTL, MCHelpSwTN,
-		MCHelpSwTO, MCHelpSwU, MCHelpSwV, MCHelpSwVn, MCHelpSwVD, MCHelpSwVER,
-		MCHelpSwVN, MCHelpSwVP, MCHelpSwW, MCHelpSwX, MCHelpSwXa, MCHelpSwXal,
-		MCHelpSwY, MCHelpSwZ
-#endif
 	};
 
 	for (int I = 0; I < sizeof(Help) / sizeof(Help[0]); I++) {
