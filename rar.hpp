@@ -143,11 +143,7 @@ typedef unsigned int     uint;   //32 bits or more
 typedef unsigned int     uint32; //32 bits exactly
 #define PRESENT_INT32
 
-#if defined(__GNUC__)
 typedef wchar_t wchar;
-#else
-typedef ushort wchar;
-#endif
 
 #define SHORT16(x) (sizeof(ushort)==2 ? (ushort)(x):((x)&0xffff))
 
@@ -506,73 +502,12 @@ typedef ushort wchar;
 /***** File: int64.hpp *****/
 
 
-#if defined(__GNUC__)
 #define NATIVE_INT64
 typedef long long Int64;
-#endif
-
-#ifdef NATIVE_INT64
 
 #define int64to32(x) ((uint)(x))
 #define int32to64(high,low) ((((Int64)(high))<<32)+(low))
 #define is64plus(x) (x>=0)
-
-#else
-
-class Int64 {
-public:
-	Int64();
-	Int64(uint n);
-	Int64(uint HighPart, uint LowPart);
-
-//    Int64 operator = (Int64 n);
-	Int64 operator << (int n);
-	Int64 operator >> (int n);
-
-	friend Int64 operator / (Int64 n1, Int64 n2);
-	friend Int64 operator * (Int64 n1, Int64 n2);
-	friend Int64 operator % (Int64 n1, Int64 n2);
-	friend Int64 operator + (Int64 n1, Int64 n2);
-	friend Int64 operator - (Int64 n1, Int64 n2);
-	friend Int64 operator += (Int64 &n1, Int64 n2);
-	friend Int64 operator -= (Int64 &n1, Int64 n2);
-	friend Int64 operator *= (Int64 &n1, Int64 n2);
-	friend Int64 operator /= (Int64 &n1, Int64 n2);
-	friend Int64 operator | (Int64 n1, Int64 n2);
-	inline friend void operator -= (Int64 &n1, unsigned int n2) {
-		if (n1.LowPart < n2)
-			n1.HighPart--;
-		n1.LowPart -= n2;
-	}
-	inline friend void operator ++ (Int64 &n) {
-		if (++n.LowPart == 0)
-			++n.HighPart;
-	}
-	inline friend void operator -- (Int64 &n) {
-		if (n.LowPart-- == 0)
-			n.HighPart--;
-	}
-	friend bool operator == (Int64 n1, Int64 n2);
-	friend bool operator > (Int64 n1, Int64 n2);
-	friend bool operator < (Int64 n1, Int64 n2);
-	friend bool operator != (Int64 n1, Int64 n2);
-	friend bool operator >= (Int64 n1, Int64 n2);
-	friend bool operator <= (Int64 n1, Int64 n2);
-
-	void Set(uint HighPart, uint LowPart);
-	uint GetLowPart() {
-		return (LowPart);
-	}
-
-	uint LowPart;
-	uint HighPart;
-};
-
-#define int64to32(x) ((x).GetLowPart())
-#define int32to64(high,low) (Int64((high),(low)))
-#define is64plus(x) ((int)(x).HighPart>=0)
-
-#endif
 
 #define INT64ERR int32to64(0x80000000,0)
 
@@ -591,7 +526,6 @@ Int64 atoil(char *Str);
 
 void WideToChar(const wchar *Src, char *Dest, int DestSize = 0x10000000);
 void CharToWide(const char *Src, wchar *Dest, int DestSize = 0x10000000);
-byte *WideToRaw(const wchar *Src, byte *Dest, int DestSize = 0x10000000);
 wchar *RawToWide(const byte *Src, wchar *Dest, int DestSize = 0x10000000);
 bool LowAscii(const wchar *Str);
 int strlenw(const wchar *str);
@@ -602,45 +536,16 @@ wchar *strncatw(wchar *dest, const wchar *src, int n);
 int strcmpw(const wchar *s1, const wchar *s2);
 int strncmpw(const wchar *s1, const wchar *s2, int n);
 int stricmpw(const wchar *s1, const wchar *s2);
-int strnicmpw(const wchar *s1, const wchar *s2, int n);
 wchar *strchrw(const wchar *s, int c);
 wchar *strrchrw(const wchar *s, int c);
 wchar *strpbrkw(const wchar *s1, const wchar *s2);
 wchar *strlowerw(wchar *Str);
 wchar *strupperw(wchar *Str);
-int toupperw(int ch);
 int atoiw(const wchar *s);
 
-#ifdef DBCS_SUPPORTED
-class SupportDBCS {
-public:
-	SupportDBCS();
-
-	char *charnext(const char *s);
-	char *strchrd(const char *s, int c);
-	char *strrchrd(const char *s, int c);
-
-	bool IsLeadByte[256];
-	bool DBCSMode;
-};
-
-extern SupportDBCS gdbcs;
-
-inline char *charnext(const char *s) {
-	return (char *)(gdbcs.DBCSMode ? gdbcs.charnext(s) : s + 1);
-}
-inline char *strchrd(const char *s, int c) {
-	return (char *)(gdbcs.DBCSMode ? gdbcs.strchrd(s, c) : strchr(s, c));
-}
-inline char *strrchrd(const char *s, int c) {
-	return (char *)(gdbcs.DBCSMode ? gdbcs.strrchrd(s, c) : strrchr(s, c));
-}
-
-#else
 #define charnext(s) ((s)+1)
 #define strchrd strchr
 #define strrchrd strrchr
-#endif
 
 
 /***** File: array.hpp *****/
@@ -1057,7 +962,6 @@ void GetConfigName(const char *Name, char *FullName);
 void NextVolumeName(char *ArcName, bool OldNumbering);
 bool IsNameUsable(const char *Name);
 void MakeNameUsable(char *Name, bool Extended);
-char *UnixSlashToDos(char *SrcName, char *DestName = NULL);
 char *DosSlashToUnix(char *SrcName, char *DestName = NULL);
 bool IsFullPath(const char *Path);
 bool IsDiskLetter(const char *Path);
@@ -1227,10 +1131,6 @@ typedef struct {
 	uint32 count[2];
 	unsigned char buffer[64];
 } hash_context;
-
-void hash_initial(hash_context *c);
-void hash_process(hash_context *c, unsigned char *data, unsigned len);
-void hash_final(hash_context *c, uint32[HW]);
 
 /***** File: crc.hpp *****/
 
@@ -1402,7 +1302,6 @@ class Unpack;
 
 class ComprDataIO {
 private:
-	void ShowPackRead(Int64 CurSize, Int64 UnpSize);
 	void ShowPackWrite();
 	void ShowUnpRead(Int64 ArcPos, Int64 ArcSize);
 	void ShowUnpWrite();
@@ -2095,11 +1994,7 @@ public:
 const int N1 = 4, N2 = 4, N3 = 4, N4 = (128 + 3 - 1 * N1 - 2 * N2 - 3 * N3) / 4;
 const int N_INDEXES = N1 + N2 + N3 + N4;
 
-#if defined(__GNUC__)
 #define _PACK_ATTR __attribute__ ((packed))
-#else
-#define _PACK_ATTR
-#endif /* defined(__GNUC__) */
 
 #pragma pack(1)
 struct MEM_BLK {
