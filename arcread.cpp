@@ -44,30 +44,7 @@ int Archive::ReadHeader()
 
   if (Decrypt)
   {
-#if defined(SHELL_EXT) || defined(NOCRYPT)
     return(0);
-#else
-    if (Read(HeadersSalt,SALT_SIZE)!=SALT_SIZE)
-      return(0);
-    if (*Cmd->Password==0)
-#ifdef RARDLL
-      if (Cmd->Callback==NULL ||
-          Cmd->Callback(UCM_NEEDPASSWORD,Cmd->UserData,(LONG)Cmd->Password,sizeof(Cmd->Password))==-1)
-      {
-        Close();
-        ErrHandler.Exit(USER_BREAK);
-      }
-
-#else
-      if (!GetPassword(PASSWORD_ARCHIVE,FileName,Cmd->Password,sizeof(Cmd->Password)))
-      {
-        Close();
-        ErrHandler.Exit(USER_BREAK);
-      }
-#endif
-    HeadersCrypt.SetCryptKeys(Cmd->Password,HeadersSalt,false);
-    Raw.SetCrypt(&HeadersCrypt);
-#endif
   }
 
   Raw.Read(SIZEOF_SHORTBLOCKHEAD);
@@ -141,7 +118,7 @@ int Archive::ReadHeader()
           Raw.Get(hd->HighPackSize);
           Raw.Get(hd->HighUnpSize);
         }
-        else 
+        else
           hd->HighPackSize=hd->HighUnpSize=0;
         hd->FullPackSize=int32to64(hd->HighPackSize,hd->PackSize);
         hd->FullUnpSize=int32to64(hd->HighUnpSize,hd->UnpSize);

@@ -39,10 +39,6 @@ Archive::Archive(RAROptions *InitCmd)
   VolWrite=0;
   AddingFilesSize=0;
   AddingHeadersSize=0;
-#if !defined(SHELL_EXT) && !defined(NOCRYPT)
-  *HeadersSalt=0;
-  *SubDataSalt=0;
-#endif
   *FirstVolumeName=0;
   *FirstVolumeNameW=0;
 
@@ -234,5 +230,3 @@ int Archive::GetRecoverySize(bool Required)
   return(RecoverySectors);
 }
 #endif
-
-

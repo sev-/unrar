@@ -1,6 +1,9 @@
 #ifndef _RAR_RARCOMMON_
 #define _RAR_RARCOMMON_
 
+#include "errhnd.hpp"
+#include "global.hpp"
+
 #include "raros.hpp"
 #include "os.hpp"
 
@@ -25,8 +28,6 @@
 #include "file.hpp"
 #include "sha1.hpp"
 #include "crc.hpp"
-#include "rijndael.hpp"
-#include "crypt.hpp"
 #include "filefn.hpp"
 #include "filestr.hpp"
 #include "find.hpp"

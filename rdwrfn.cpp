@@ -84,22 +84,6 @@ int ComprDataIO::UnpRead(byte *Addr,uint Count)
   if (RetCode!=-1)
   {
     RetCode=TotalRead;
-#ifndef NOCRYPT
-    if (Decryption)
-#ifndef SFX_MODULE
-      if (Decryption<20)
-        Decrypt.Crypt(Addr,RetCode,(Decryption==15) ? NEW_CRYPT : OLD_DECODE);
-      else
-        if (Decryption==20)
-          for (uint I=0;I<RetCode;I+=16)
-            Decrypt.DecryptBlock20(&Addr[I]);
-        else
-#endif
-        {
-          int CryptSize=(RetCode & 0xf)==0 ? RetCode:((RetCode & ~0xf)+16);
-          Decrypt.DecryptBlock(Addr,CryptSize);
-        }
-#endif
   }
   Wait();
   return(RetCode);
@@ -231,37 +215,12 @@ void ComprDataIO::SetEncryption(int Method,char *Password,byte *Salt,bool Encryp
   if (Encrypt)
   {
     Encryption=*Password ? Method:0;
-#ifndef NOCRYPT
-    Crypt.SetCryptKeys(Password,Salt,Encrypt);
-#endif
   }
   else
   {
     Decryption=*Password ? Method:0;
-#ifndef NOCRYPT
-    Decrypt.SetCryptKeys(Password,Salt,Encrypt,Method<29);
-#endif
   }
 }
-
-
-#ifndef SFX_MODULE
-void ComprDataIO::SetAV15Encryption()
-{
-  Decryption=15;
-  Decrypt.SetAV15Encryption();
-}
-#endif
-
-
-#ifndef SFX_MODULE
-void ComprDataIO::SetCmt13Encryption()
-{
-  Decryption=13;
-  Decrypt.SetCmt13Encryption();
-}
-#endif
-
 
 
 
@@ -271,5 +230,3 @@ void ComprDataIO::SetUnpackToMemory(byte *Addr,uint Size)
   UnpackToMemoryAddr=Addr;
   UnpackToMemorySize=Size;
 }
-
-

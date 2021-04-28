@@ -8,9 +8,6 @@ class RawRead
     File *SrcFile;
     int DataSize;
     int ReadPos;
-#ifndef SHELL_EXT
-    CryptData *Crypt;
-#endif
   public:
     RawRead(File *SrcFile);
     void Read(int Size);
@@ -24,9 +21,6 @@ class RawRead
     uint GetCRC(bool ProcessedOnly);
     int Size() {return DataSize;}
     int PaddedSize() {return Data.Size()-DataSize;}
-#ifndef SHELL_EXT
-    void SetCrypt(CryptData *Crypt) {RawRead::Crypt=Crypt;}
-#endif
 };
 
 #endif

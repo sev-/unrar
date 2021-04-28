@@ -48,7 +48,6 @@ bool Archive::GetComment(Array<byte> &CmtData)
     {
       UnpCmtLength=GetByte()+(GetByte()<<8);
       CmtLength-=2;
-      DataIO.SetCmt13Encryption();
     }
     else
       UnpCmtLength=CommHead.UnpSize;
@@ -76,7 +75,7 @@ bool Archive::GetComment(Array<byte> &CmtData)
   else
   {
     CmtData.Alloc(CmtLength);
-    
+
     Read(&CmtData[0],CmtLength);
     if (!OldFormat && CommHead.CommCRC!=(~CRC(0xffffffff,&CmtData[0],CmtLength)&0xffff))
     {

@@ -48,12 +48,6 @@ class ComprDataIO
     FileHeader *SubHead;
     Int64 *SubHeadPos;
 
-#ifndef NOCRYPT
-    CryptData Crypt;
-    CryptData Decrypt;
-#endif
-
-
     int LastPercent;
 
     char CurrentCommand;
@@ -72,8 +66,6 @@ class ComprDataIO
     void SetCommand(CmdAdd *Cmd) {Command=Cmd;}
     void SetSubHeader(FileHeader *hd,Int64 *Pos) {SubHead=hd;SubHeadPos=Pos;}
     void SetEncryption(int Method,char *Password,byte *Salt,bool Encrypt);
-    void SetAV15Encryption();
-    void SetCmt13Encryption();
     void SetUnpackToMemory(byte *Addr,uint Size);
     void SetCurrentCommand(char Cmd) {CurrentCommand=Cmd;}
 

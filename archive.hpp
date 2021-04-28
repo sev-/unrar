@@ -17,10 +17,6 @@ class Archive:public File
     bool AddArcComment(char *NameToShow);
     int ReadOldHeader();
 
-#if !defined(SHELL_EXT) && !defined(NOCRYPT)
-    CryptData HeadersCrypt;
-    byte HeadersSalt[SALT_SIZE];
-#endif
 #ifndef SHELL_EXT
     ComprDataIO SubDataIO;
     byte SubDataSalt[SALT_SIZE];
