@@ -1,3 +1,6 @@
+/***** File: extract.hpp *****/
+
+
 #ifndef _RAR_EXTRACT_
 #define _RAR_EXTRACT_
 

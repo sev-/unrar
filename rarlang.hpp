@@ -1,3 +1,6 @@
+/***** File: rarlang.hpp *****/
+
+
 #ifndef _RAR_LANG_
 #define _RAR_LANG_
 

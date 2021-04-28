@@ -1,3 +1,6 @@
+/***** File: strfn.cpp *****/
+
+
 #include "rar.hpp"
 
 const char *NullToEmpty(const char *Str) {

@@ -1,3 +1,6 @@
+/***** File: options.cpp *****/
+
+
 #include "rar.hpp"
 
 RAROptions::RAROptions() {

@@ -1,3 +1,6 @@
+/***** File: consio.cpp *****/
+
+
 #include "rar.hpp"
 
 #ifndef GUI

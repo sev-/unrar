@@ -1,3 +1,6 @@
+/***** File: pathfn.cpp *****/
+
+
 #include "rar.hpp"
 
 char *PointToName(const char *Path) {

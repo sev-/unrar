@@ -1,3 +1,6 @@
+/***** File: scantree.hpp *****/
+
+
 #ifndef _RAR_SCANTREE_
 #define _RAR_SCANTREE_
 

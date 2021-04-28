@@ -1,3 +1,6 @@
+/***** File: volume.hpp *****/
+
+
 #ifndef _RAR_VOLUME_
 #define _RAR_VOLUME_
 

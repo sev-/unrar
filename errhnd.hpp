@@ -1,3 +1,6 @@
+/***** File: errhnd.hpp *****/
+
+
 #ifndef _RAR_ERRHANDLER_
 #define _RAR_ERRHANDLER_
 

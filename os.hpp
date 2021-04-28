@@ -1,3 +1,6 @@
+/***** File: os.hpp *****/
+
+
 #ifndef _RAR_OS_
 #define _RAR_OS_
 

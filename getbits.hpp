@@ -1,3 +1,6 @@
+/***** File: getbits.hpp *****/
+
+
 #ifndef _RAR_GETBITS_
 #define _RAR_GETBITS_
 

@@ -1,3 +1,6 @@
+/***** File: rardefs.hpp *****/
+
+
 #ifndef _RAR_DEFS_
 #define _RAR_DEFS_
 

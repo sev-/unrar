@@ -1,3 +1,6 @@
+/***** File: array.hpp *****/
+
+
 #ifndef _RAR_ARRAY_
 #define _RAR_ARRAY_
 

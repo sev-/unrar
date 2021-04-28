@@ -1,3 +1,6 @@
+/***** File: cmddata.cpp *****/
+
+
 #include "rar.hpp"
 
 CommandData::CommandData() {

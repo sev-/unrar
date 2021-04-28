@@ -1,3 +1,6 @@
+/***** File: archive.cpp *****/
+
+
 #include "rar.hpp"
 
 Archive::Archive(RAROptions *InitCmd)

@@ -1,3 +1,6 @@
+/***** File: file.cpp *****/
+
+
 #include "rar.hpp"
 
 static File *CreatedFiles[16];

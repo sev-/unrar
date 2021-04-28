@@ -1,3 +1,6 @@
+/***** File: strlist.cpp *****/
+
+
 #include "rar.hpp"
 
 StringList::StringList() {

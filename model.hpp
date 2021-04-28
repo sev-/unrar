@@ -1,3 +1,6 @@
+/***** File: model.hpp *****/
+
+
 #ifndef _RAR_PPMMODEL_
 #define _RAR_PPMMODEL_
 

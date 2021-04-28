@@ -1,3 +1,6 @@
+/***** File: rarfn.hpp *****/
+
+
 #ifndef _RAR_FN_
 #define _RAR_FN_
 

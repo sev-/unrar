@@ -1,3 +1,6 @@
+/***** File: rar.cpp *****/
+
+
 #include "rar.hpp"
 
 ErrorHandler ErrHandler;

@@ -1,3 +1,6 @@
+/***** File: unpack.hpp *****/
+
+
 #ifndef _RAR_UNPACK_
 #define _RAR_UNPACK_
 

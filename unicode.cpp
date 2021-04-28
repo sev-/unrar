@@ -1,3 +1,6 @@
+/***** File: unicode.cpp *****/
+
+
 #include "rar.hpp"
 
 void WideToChar(const wchar_t *Src, char *Dest, int DestSize) {

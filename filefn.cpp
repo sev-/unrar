@@ -1,3 +1,6 @@
+/***** File: filefn.cpp *****/
+
+
 #include "rar.hpp"
 
 MKDIR_CODE MakeDir(const char *Name, const wchar *NameW, uint Attr) {

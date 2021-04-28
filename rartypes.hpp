@@ -1,3 +1,6 @@
+/***** File: rartypes.hpp *****/
+
+
 #ifndef _RAR_TYPES_
 #define _RAR_TYPES_
 

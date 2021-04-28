@@ -1,3 +1,6 @@
+/***** File: options.hpp *****/
+
+
 #ifndef _RAR_OPTIONS_
 #define _RAR_OPTIONS_
 

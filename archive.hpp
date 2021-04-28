@@ -1,3 +1,6 @@
+/***** File: archive.hpp *****/
+
+
 #ifndef _RAR_ARCHIVE_
 #define _RAR_ARCHIVE_
 

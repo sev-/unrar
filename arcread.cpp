@@ -1,3 +1,6 @@
+/***** File: arcread.cpp *****/
+
+
 #include "rar.hpp"
 
 int Archive::SearchBlock(int BlockType) {

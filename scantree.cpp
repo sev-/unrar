@@ -1,3 +1,6 @@
+/***** File: scantree.cpp *****/
+
+
 #include "rar.hpp"
 
 ScanTree::ScanTree(StringList *FileMasks, int Recurse, bool GetLinks, int GetDirs) {

@@ -1,3 +1,6 @@
+/***** File: log.cpp *****/
+
+
 #include "rar.hpp"
 
 static void WriteToLog(const char *ArcName, const char *Message);

@@ -1,3 +1,6 @@
+/***** File: extinfo.cpp *****/
+
+
 #include "rar.hpp"
 
 

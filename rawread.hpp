@@ -1,3 +1,6 @@
+/***** File: rawread.hpp *****/
+
+
 #ifndef _RAR_RAWREAD_
 #define _RAR_RAWREAD_
 

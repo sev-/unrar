@@ -1,3 +1,6 @@
+/***** File: sha1.cpp *****/
+
+
 #include "rar.hpp"
 
 /*

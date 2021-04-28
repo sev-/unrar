@@ -1,3 +1,6 @@
+/***** File: coder.cpp *****/
+
+
 
 
 inline unsigned int RangeCoder::GetChar() {

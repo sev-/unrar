@@ -1,3 +1,6 @@
+/***** File: pathfn.hpp *****/
+
+
 #ifndef _RAR_PATHFN_
 #define _RAR_PATHFN_
 

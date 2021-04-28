@@ -1,3 +1,6 @@
+/***** File: find.cpp *****/
+
+
 #include "rar.hpp"
 
 FindFile::FindFile() {

@@ -1,3 +1,6 @@
+/***** File: encname.cpp *****/
+
+
 #include "rar.hpp"
 
 EncodeFileName::EncodeFileName() {

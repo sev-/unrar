@@ -1,3 +1,6 @@
+/***** File: rawread.cpp *****/
+
+
 #include "rar.hpp"
 
 RawRead::RawRead(File *SrcFile) {

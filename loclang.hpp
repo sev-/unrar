@@ -1,3 +1,6 @@
+/***** File: loclang.hpp *****/
+
+
 #define   MYesNo             "_Yes_No"
 #define   MYesNoAll          "_Yes_No_All"
 #define   MYesNoAllRenQ      "_Yes_No_All_nEver_Rename_Quit"

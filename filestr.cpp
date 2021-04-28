@@ -1,3 +1,6 @@
+/***** File: filestr.cpp *****/
+
+
 #include "rar.hpp"
 
 static bool IsUnicode(byte *Data, int Size);

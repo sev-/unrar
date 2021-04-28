@@ -1,3 +1,6 @@
+/***** File: getbits.cpp *****/
+
+
 #include "rar.hpp"
 
 BitInput::BitInput() {

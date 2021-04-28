@@ -1,3 +1,6 @@
+/***** File: filcreat.hpp *****/
+
+
 #ifndef _RAR_FILECREATE_
 #define _RAR_FILECREATE_
 

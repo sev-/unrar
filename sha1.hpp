@@ -1,3 +1,6 @@
+/***** File: sha1.hpp *****/
+
+
 #ifndef _RAR_SHA1_
 #define _RAR_SHA1_
 

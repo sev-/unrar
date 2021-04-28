@@ -1,3 +1,6 @@
+/***** File: rarvm.cpp *****/
+
+
 #include "rar.hpp"
 
 #define VMCF_OP0             0

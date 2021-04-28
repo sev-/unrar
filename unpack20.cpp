@@ -1,3 +1,6 @@
+/***** File: unpack20.cpp *****/
+
+
 #include "rar.hpp"
 
 void Unpack::CopyString20(unsigned int Length, unsigned int Distance) {

@@ -1,3 +1,6 @@
+/***** File: timefn.cpp *****/
+
+
 #include "rar.hpp"
 
 static time_t SystemTime;

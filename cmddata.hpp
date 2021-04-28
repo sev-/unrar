@@ -1,3 +1,6 @@
+/***** File: cmddata.hpp *****/
+
+
 #ifndef _RAR_CMDDATA_
 #define _RAR_CMDDATA_
 

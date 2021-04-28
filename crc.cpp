@@ -1,3 +1,6 @@
+/***** File: crc.cpp *****/
+
+
 #include "rar.hpp"
 
 uint CRCTab[256];

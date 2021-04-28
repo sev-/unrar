@@ -1,3 +1,6 @@
+/***** File: extinfo.hpp *****/
+
+
 #ifndef _RAR_EXTINFO_
 #define _RAR_EXTINFO_
 

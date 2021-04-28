@@ -1,3 +1,6 @@
+/***** File: find.hpp *****/
+
+
 #ifndef _RAR_FINDDATA_
 #define _RAR_FINDDATA_
 

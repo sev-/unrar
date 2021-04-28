@@ -1,3 +1,6 @@
+/***** File: rarvm.hpp *****/
+
+
 #ifndef _RAR_VM_
 #define _RAR_VM_
 

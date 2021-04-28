@@ -1,3 +1,6 @@
+/***** File: savepos.hpp *****/
+
+
 #ifndef _RAR_SAVEPOS_
 #define _RAR_SAVEPOS_
 

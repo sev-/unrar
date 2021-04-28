@@ -1,3 +1,6 @@
+/***** File: rar.hpp *****/
+
+
 #ifndef _RAR_RARCOMMON_
 #define _RAR_RARCOMMON_
 

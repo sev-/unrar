@@ -1,3 +1,6 @@
+/***** File: strfn.hpp *****/
+
+
 #ifndef _RAR_STRFN_
 #define _RAR_STRFN_
 

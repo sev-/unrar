@@ -1,3 +1,6 @@
+/***** File: consio.hpp *****/
+
+
 #ifndef _RAR_CONSIO_
 #define _RAR_CONSIO_
 

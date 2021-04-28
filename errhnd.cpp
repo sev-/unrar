@@ -1,3 +1,6 @@
+/***** File: errhnd.cpp *****/
+
+
 #include "rar.hpp"
 
 static bool UserBreak;

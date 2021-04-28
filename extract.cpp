@@ -1,3 +1,6 @@
+/***** File: extract.cpp *****/
+
+
 #include "rar.hpp"
 
 CmdExtract::CmdExtract(): DataIO(NULL) {

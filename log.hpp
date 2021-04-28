@@ -1,3 +1,6 @@
+/***** File: log.hpp *****/
+
+
 #ifndef _RAR_LOG_
 #define _RAR_LOG_
 

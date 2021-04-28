@@ -1,3 +1,6 @@
+/***** File: unicode.hpp *****/
+
+
 #ifndef _RAR_UNICODE_
 #define _RAR_UNICODE_
 

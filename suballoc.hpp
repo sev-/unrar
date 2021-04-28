@@ -1,3 +1,6 @@
+/***** File: suballoc.hpp *****/
+
+
 /****************************************************************************
  *  This file is part of PPMd project                                       *
  *  Written and distributed to public domain by Dmitry Shkarin 1997,        *

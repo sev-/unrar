@@ -1,3 +1,6 @@
+/***** File: crc.hpp *****/
+
+
 #ifndef _RAR_CRC_
 #define _RAR_CRC_
 

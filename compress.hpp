@@ -1,3 +1,6 @@
+/***** File: compress.hpp *****/
+
+
 #ifndef _RAR_COMPRESS_
 #define _RAR_COMPRESS_
 
