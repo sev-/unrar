@@ -4,10 +4,6 @@
 /***** File: errhnd.hpp *****/
 
 
-#ifndef _RAR_ERRHANDLER_
-#define _RAR_ERRHANDLER_
-
-
 enum { SUCCESS, WARNING, FATAL_ERROR, CRC_ERROR, LOCK_ERROR, WRITE_ERROR,
        OPEN_ERROR, USER_ERROR, MEMORY_ERROR, USER_BREAK = 255
      };
@@ -55,17 +51,12 @@ public:
 	};
 };
 
-#endif
-
 
 extern ErrorHandler ErrHandler;
 
 
 /***** File: os.hpp *****/
 
-
-#ifndef _RAR_OS_
-#define _RAR_OS_
 
 #define FALSE 0
 #define TRUE  1
@@ -130,8 +121,6 @@ extern ErrorHandler ErrHandler;
 
 typedef const char *MSGID;
 
-#endif // _RAR_OS_
-
 
 /***** File: version.hpp *****/
 
@@ -146,9 +135,6 @@ typedef const char *MSGID;
 
 /***** File: rartypes.hpp *****/
 
-
-#ifndef _RAR_TYPES_
-#define _RAR_TYPES_
 
 typedef unsigned char    byte;   //8 bits
 typedef unsigned short   ushort; //preferably 16 bits, but can be more
@@ -165,14 +151,9 @@ typedef ushort wchar;
 
 #define SHORT16(x) (sizeof(ushort)==2 ? (ushort)(x):((x)&0xffff))
 
-#endif
-
 
 /***** File: rardefs.hpp *****/
 
-
-#ifndef _RAR_DEFS_
-#define _RAR_DEFS_
 
 #define  Min(x,y) (((x)<(y)) ? (x):(y))
 #define  Max(x,y) (((x)>(y)) ? (x):(y))
@@ -191,24 +172,339 @@ typedef ushort wchar;
 #define FA_ARCH     0x20
 #endif
 
-#endif
 
+/***** File: loclang.hpp *****/
 
-/***** File: rarlang.hpp *****/
-
-
-#ifndef _RAR_LANG_
-#define _RAR_LANG_
-
-#include "loclang.hpp"
-
-#endif
+#define   MYesNo             "_Yes_No"
+#define   MYesNoAll          "_Yes_No_All"
+#define   MYesNoAllRenQ      "_Yes_No_All_nEver_Rename_Quit"
+#define   MContinueQuit      "_Continue_Quit"
+#define   MRetryAbort        "_Retry_Abort"
+#define   MCopyright         "\nRAR %s    Copyright (c) 1993-%d Eugene Roshal    %d %s %d"
+#define   MRegTo             "\nRegistered to %s\n"
+#define   MShare             "\nShareware version         Type RAR -? for help\n"
+#define   MUCopyright        "\nUNRAR %s freeware      Copyright (c) 1993-%d Eugene Roshal\n"
+#define   MBeta              "beta"
+#define   MMonthJan          "Jan"
+#define   MMonthFeb          "Feb"
+#define   MMonthMar          "Mar"
+#define   MMonthApr          "Apr"
+#define   MMonthMay          "May"
+#define   MMonthJun          "Jun"
+#define   MMonthJul          "Jul"
+#define   MMonthAug          "Aug"
+#define   MMonthSep          "Sep"
+#define   MMonthOct          "Oct"
+#define   MMonthNov          "Nov"
+#define   MMonthDec          "Dec"
+#define   MRARTitle1         "\nUsage:     rar <command> -<switch 1> -<switch N> <archive> <files...>"
+#define   MUNRARTitle1       "\nUsage:     unrar <command> -<switch 1> -<switch N> <archive> <files...>"
+#define   MRARTitle2         "\n               <@listfiles...> <path_to_extract\\>"
+#define   MCHelpCmd          "\n\n<Commands>"
+#define   MCHelpCmdA         "\n  a             Add files to archive"
+#define   MCHelpCmdC         "\n  c             Add archive comment"
+#define   MCHelpCmdCF        "\n  cf            Add files comment"
+#define   MCHelpCmdCW        "\n  cw            Write archive comment to file"
+#define   MCHelpCmdD         "\n  d             Delete files from archive"
+#define   MCHelpCmdE         "\n  e             Extract files to current directory"
+#define   MCHelpCmdF         "\n  f             Freshen files in archive"
+#define   MCHelpCmdI         "\n  i[par]=<str>  Find string in archives"
+#define   MCHelpCmdK         "\n  k             Lock archive"
+#define   MCHelpCmdL         "\n  l[t]          List archive [technical]"
+#define   MCHelpCmdM         "\n  m[f]          Move to archive [files only]"
+#define   MCHelpCmdP         "\n  p             Print file to stdout"
+#define   MCHelpCmdR         "\n  r             Repair archive"
+#define   MCHelpCmdRC        "\n  rc            Reconstruct missing volumes"
+#define   MCHelpCmdRR        "\n  rr[N]         Add data recovery record"
+#define   MCHelpCmdRV        "\n  rv[N]         Create recovery volumes"
+#define   MCHelpCmdS         "\n  s[name|-]     Convert archive to or from SFX"
+#define   MCHelpCmdT         "\n  t             Test archive files"
+#define   MCHelpCmdU         "\n  u             Update files in archive"
+#define   MCHelpCmdV         "\n  v[t]          Verbosely list archive [technical]"
+#define   MCHelpCmdX         "\n  x             Extract files with full path"
+#define   MCHelpSw           "\n\n<Switches>"
+#define   MCHelpSwm          "\n  -             Stop switches scanning"
+#define   MCHelpSwAC         "\n  ac            Clear Archive attribute after compression or extraction"
+#define   MCHelpSwAD         "\n  ad            Append archive name to destination path"
+#define   MCHelpSwAG         "\n  ag[format]    Generate archive name using the current date"
+#define   MCHelpSwAO         "\n  ao            Add files with Archive attribute set"
+#define   MCHelpSwAP         "\n  ap<path>      Set path inside archive"
+#define   MCHelpSwAS         "\n  as            Synchronize archive contents"
+#define   MCHelpSwAV         "\n  av            Put authenticity verification (registered versions only)"
+#define   MCHelpSwAVm        "\n  av-           Disable authenticity verification check"
+#define   MCHelpSwCm         "\n  c-            Disable comments show"
+#define   MCHelpSwCFGm       "\n  cfg-          Disable read configuration"
+#define   MCHelpSwCL         "\n  cl            Convert names to lower case"
+#define   MCHelpSwCU         "\n  cu            Convert names to upper case"
+#define   MCHelpSwDF         "\n  df            Delete files after archiving"
+#define   MCHelpSwDH         "\n  dh            Open shared files"
+#define   MCHelpSwDS         "\n  ds            Disable name sort for solid archive"
+#define   MCHelpSwEa         "\n  e<attr>       Set file exclude attributes"
+#define   MCHelpSwED         "\n  ed            Do not add empty directories"
+#define   MCHelpSwEE         "\n  ee            Do not save and extract extended attributes"
+#define   MCHelpSwEN         "\n  en            Do not put 'end of archive' block"
+#define   MCHelpSwEP         "\n  ep            Exclude paths from names"
+#define   MCHelpSwEP1        "\n  ep1           Exclude base directory from names"
+#define   MCHelpSwEP2        "\n  ep2           Expand paths to full"
+#define   MCHelpSwF          "\n  f             Freshen files"
+#define   MCHelpSwHP         "\n  hp[password]  Encrypt both file data and headers"
+#define   MCHelpSwIDP        "\n  idp           Disable percentage display"
+#define   MCHelpSwIEML       "\n  ieml[addr]    Send archive by email"
+#define   MCHelpSwIERR       "\n  ierr          Send all messages to stderr"
+#define   MCHelpSwILOG       "\n  ilog[name]    Log errors to file (registered versions only)"
+#define   MCHelpSwINUL       "\n  inul          Disable all messages"
+#define   MCHelpSwISND       "\n  isnd          Enable sound"
+#define   MCHelpSwK          "\n  k             Lock archive"
+#define   MCHelpSwKB         "\n  kb            Keep broken extracted files"
+#define   MCHelpSwMn         "\n  m<0..5>       Set compression level (0-store...3-default...5-maximal)"
+#define   MCHelpSwMC         "\n  mc<par>       Set advanced compression parameters"
+#define   MCHelpSwMD         "\n  md<size>      Dictionary size in KB (64,128,256,512,1024,2048,4096 or A-G)"
+#define   MCHelpSwMS         "\n  ms[ext;ext]   Specify file types to store"
+#define   MCHelpSwOp         "\n  o+            Overwrite existing files"
+#define   MCHelpSwOm         "\n  o-            Do not overwrite existing files"
+#define   MCHelpSwOL         "\n  ol            Save symbolic links as the link instead of the file"
+#define   MCHelpSwOS         "\n  os            Save NTFS streams"
+#define   MCHelpSwOW         "\n  ow            Save or restore file owner and group"
+#define   MCHelpSwP          "\n  p[password]   Set password"
+#define   MCHelpSwPm         "\n  p-            Do not query password"
+#define   MCHelpSwR          "\n  r             Recurse subdirectories"
+#define   MCHelpSwR0         "\n  r0            Recurse subdirectories for wildcard names only"
+#define   MCHelpSwRI         "\n  ri<P>[:<S>]   Set priority (0-default,1-min..15-max) and sleep time in ms"
+#define   MCHelpSwRR         "\n  rr[N]         Add data recovery record"
+#define   MCHelpSwRV         "\n  rv[N]         Create recovery volumes"
+#define   MCHelpSwS          "\n  s[<N>,v[-],e] Create solid archive"
+#define   MCHelpSwSm         "\n  s-            Disable solid archiving"
+#define   MCHelpSwSFX        "\n  sfx[name]     Create SFX archive"
+#define   MCHelpSwT          "\n  t             Test files after archiving"
+#define   MCHelpSwTK         "\n  tk            Keep original archive time"
+#define   MCHelpSwTL         "\n  tl            Set archive time to latest file"
+#define   MCHelpSwTN         "\n  tn<time>      Process files newer than <time>"
+#define   MCHelpSwTO         "\n  to<time>      Process files older than <time>"
+#define   MCHelpSwTA         "\n  ta<date>      Process files modified after <date> in YYYYMMDDHHMMSS format"
+#define   MCHelpSwTB         "\n  tb<date>      Process files modified before <date> in YYYYMMDDHHMMSS format"
+#define   MCHelpSwU          "\n  u             Update files"
+#define   MCHelpSwV          "\n  v             Create volumes with size autodetection or list all volumes"
+#define   MCHelpSwVn         "\n  v<size>[k,b]  Create volumes with size=<size>*1000 [*1024, *1]"
+#define   MCHelpSwVD         "\n  vd            Erase disk contents before creating volume"
+#define   MCHelpSwVER        "\n  ver[n]        File version control"
+#define   MCHelpSwVN         "\n  vn            Use the old style volume naming scheme"
+#define   MCHelpSwVP         "\n  vp            Pause before each volume"
+#define   MCHelpSwW          "\n  w<path>       Assign work directory"
+#define   MCHelpSwX          "\n  x<file>       Exclude specified file"
+#define   MCHelpSwXa         "\n  x@            Read file names to exclude from stdin"
+#define   MCHelpSwXal        "\n  x@<list>      Exclude files in specified list file"
+#define   MCHelpSwY          "\n  y             Assume Yes on all queries"
+#define   MCHelpSwZ          "\n  z<file>       Read archive comment from file"
+#define   MBadArc            "\nERROR: Bad archive %s\n"
+#define   MAskPsw            "Enter password (will not be echoed)"
+#define   MAskPswEcho        "Enter password"
+#define   MReAskPsw          "\nReenter password: "
+#define   MFor               " for "
+#define   MNotMatchPsw       "\nERROR: Passwords do not match\n"
+#define   MErrWrite          "Write error in the file %s"
+#define   MErrRead           "Read error in the file %s"
+#define   MErrSeek           "Seek error in the file %s"
+#define   MErrFClose         "Cannot close the file %s"
+#define   MErrOutMem         "Not enough memory"
+#define   MErrBrokenArc      "Corrupt archive - use 'Repair' command"
+#define   MProgAborted       "Program aborted"
+#define   MErrRename         "\nCannot rename %s to %s"
+#define   MAbsNextVol        "\nCannot find volume %s"
+#define   MBreak             "\nUser break\n"
+#define   MAskCreatVol       "\nCreate next volume ?"
+#define   MAskNextDisk       "\nDisk full. Insert next"
+#define   MCreatVol          "\n\nCreating %sarchive %s\n"
+#define   MAskNextVol        "\nInsert disk with %s"
+#define   MTestVol           "\n\nTesting archive %s\n"
+#define   MExtrVol           "\n\nExtracting from %s\n"
+#define   MConverting        "\nConverting %s"
+#define   MCvtToSFX          "\nConvert archives to SFX"
+#define   MCvtFromSFX        "\nRemoving SFX module"
+#define   MNotSFX            "\n%s is not SFX archive"
+#define   MNotRAR            "\n%s is not RAR archive"
+#define   MNotFirstVol       "\n%s is not the first volume"
+#define   MCvtOldFormat      "\n%s - cannot convert to SFX archive with old format"
+#define   MCannotCreate      "\nCannot create %s"
+#define   MCannotOpen        "\nCannot open %s"
+#define   MUnknownMeth       "\nUnknown method in %s"
+#define   MVerRequired       "\nYou need RAR %d.%d to unpack it"
+#define   MOk                " OK"
+#define   MDone              "\nDone"
+#define   MLockingArc        "\nLocking archive"
+#define   MNotMdfOld         "\n\nERROR: Cannot modify old format archive"
+#define   MNotMdfLock        "\n\nERROR: Locked archive"
+#define   MNotMdfVol         "\n\nERROR: Cannot modify volume"
+#define   MVerifyAV          "\nVerifying authenticity information ... "
+#define   MFailedAV          " Failed\n"
+#define   MStrAV1            "\n\nArchive %s"
+#define   MStrAV2            "\ncreated at %s"
+#define   MStrAV3            "\nby %s\n"
+#define   MLogFailedAV       "Invalid authenticity information"
+#define   MAddingAV          "\nAdding authenticity verification "
+#define   MAVOldStyle        "\n\nOld style authenticity information"
+#define   MPackAskReg        "\nEvaluation copy. Please register.\n"
+#define   MCreateArchive     "\nCreating %sarchive %s\n"
+#define   MUpdateArchive     "\nUpdating %sarchive %s\n"
+#define   MAddSolid          "solid "
+#define   MAddFile           "\nAdding    %-58s     "
+#define   MUpdFile           "\nUpdating  %-58s     "
+#define   MAddPoints         "\n...       %-58s     "
+#define   MCannotUpdPswSolid "\nERROR: Cannot update solid archives with password\n"
+#define   MMoveDelFiles      "\n\nDeleting files %s..."
+#define   MMoveDelDirs       "and directories"
+#define   MMoveDelFile       "\nDeleting %-30s"
+#define   MMoveDeleted       "    deleted"
+#define   MMoveNotDeleted    "    NOT DELETED"
+#define   MClearAttrib       "\n\nClearing attributes..."
+#define   MMoveDelDir        "\nDeleting directory %-30s"
+#define   MWarErrFOpen       "\nWARNING: Cannot open %d %s"
+#define   MErrOpenFiles      "files"
+#define   MErrOpenFile       "file"
+#define   MAddNoFiles        "\nWARNING: No files"
+#define   MMdfEncrSol        "\n%s: encrypted"
+#define   MCannotMdfEncrSol  "\nCannot modify solid archive containing encrypted files"
+#define   MAddAnalyze        "\nAnalyzing archived files: "
+#define   MRepacking         "\nRepacking archived files: "
+#define   MCRCFailed         "\n%-20s - CRC failed"
+#define   MExtrTest          "\n\nTesting archive %s\n"
+#define   MExtracting        "\n\nExtracting from %s\n"
+#define   MUseCurPsw         "\n%s - use current password ?"
+#define   MCreatDir          "\nCreating    %-56s"
+#define   MExtrSkipFile      "\nSkipping    %-56s"
+#define   MExtrTestFile      "\nTesting     %-56s"
+#define   MExtrFile          "\nExtracting  %-56s"
+#define   MExtrPoints        "\n...         %-56s"
+#define   MExtrErrMkDir      "\nCannot create directory %s"
+#define   MExtrPrinting      "\n------ Printing %s\n\n"
+#define   MEncrBadCRC        "\nEncrypted file:  CRC failed in %s (password incorrect ?)"
+#define   MExtrNoFiles       "\nNo files to extract"
+#define   MExtrAllOk         "\nAll OK"
+#define   MExtrTotalErr      "\nTotal errors: %ld"
+#define   MFileExists        "\n\n%s already exists. Overwrite it ?"
+#define   MAskOverwrite      "\nOverwrite %s ?"
+#define   MAskNewName        "\nEnter new name: "
+#define   MLogMainHead       "\nThe archive header is corrupt"
+#define   MLogFileHead       "\n%s - the file header is corrupt"
+#define   MLogCommHead       "\nThe comment header is corrupt\n"
+#define   MLogProtectHead    "The data recovery header is corrupt"
+#define   MReadStdinCmt      "\nReading comment from stdin\n"
+#define   MReadCommFrom      "\nReading comment from %s"
+#define   MDelComment        "\nDeleting comment from %s"
+#define   MAddComment        "\nAdding comment to %s"
+#define   MFCommAdd          "\nAdding file comments"
+#define   MAskFComm          "\n\nReading comment for %s : %s from stdin\n"
+#define   MLogCommBrk        "\nThe archive comment is corrupt"
+#define   MCommAskCont       "\nPress 'Enter' to continue or 'Q' to quit:"
+#define   MLogBrokFCmt       "\nThe file comment is corrupt"
+#define   MAbsDestName       "\nDestination file name required"
+#define   MWriteCommTo       "\nWrite comment to %s"
+#define   MCommNotPres       "\nComment is not present"
+#define   MDelFrom           "\nDeleting from %s"
+#define   MDeleting          "\nDeleting %s"
+#define   MEraseArc          "\nErasing empty archive %s"
+#define   MNoDelFiles        "\nNo files to delete"
+#define   MLogTitle          "\n\n--------  %2d %s %d, archive %s\n"
+#define   MPathTooLong       "\nERROR: Path too long\n"
+#define   MListSolid         "Solid "
+#define   MListSFX           "SFX "
+#define   MListVol1          "volume"
+#define   MListVol2          "Volume"
+#define   MListArc1          "archive"
+#define   MListArc2          "Archive"
+#define   MListRecRec        "\nRecovery record is present\n"
+#define   MListLock          "\nLock is present\n"
+#define   MListPathComm      "\nPathname/Comment\n            "
+#define   MListName          "\n Name       "
+#define   MListTitle         "      Size   Packed Ratio  Date   Time     Attr      CRC   Meth Ver\n"
+#define   MListTechTitle     "               Host OS    Solid   Old\n"
+#define   MListEAHead        "\n   OS/2 extended attributes"
+#define   MListUOHead        "\n   Unix Owner/Group data:    %-14s %-14s"
+#define   MListBeEAHead      "\n   BeOS extended attributes"
+#define   MListNTACLHead     "\n   NTFS security data"
+#define   MListStrmHead      "\n   NTFS stream: %s"
+#define   MListUnkHead       "\n   Unknown subheader type: 0x%04x"
+#define   MFileComment       "\nComment: "
+#define   MYes               "Yes"
+#define   MNo                "No"
+#define   MListNoFiles       "  0 files\n"
+#define   MRprReconstr       "\nReconstructing %s"
+#define   MRprBuild          "\nBuilding %s"
+#define   MRprOldFormat      "\nCannot repair archive with old format"
+#define   MRprFind           "\nFound  %s"
+#define   MRprAskIsSol       "\nThe archive header is corrupt. Mark archive as solid ?"
+#define   MRprNoFiles        "\nNo files found"
+#define   MRprSuspEntry      "\n\nSuspicious entry %s"
+#define   MRprDir            "\nDirectory"
+#define   MRprSuspSize       "\nSize %ld  Packed %ld"
+#define   MRprSuspAdd        "\nAdd it to archive ?"
+#define   MLogUnexpEOF       "\nUnexpected end of archive"
+#define   MRepAskReconst     "\nReconstruct archive structure ?"
+#define   MRecScanning       "\nScanning..."
+#define   MRecRNotFound      "\nData recovery record not found"
+#define   MRecRFound         "\nData recovery record found"
+#define   MRecSecDamage      "\nSector %ld (offsets %lX...%lX) damaged"
+#define   MRecCorrected      " - data recovered"
+#define   MRecFailed         " - cannot recover data"
+#define   MAddRecRec         "\nAdding data recovery record"
+#define   MEraseForVolume    "\n\nErasing contents of drive %c:\n"
+#define   MGetOwnersError    "\nWARNING: Cannot get %s owner and group\n"
+#define   MErrGetOwnerID     "\nWARNING: Cannot get owner %s ID\n"
+#define   MErrGetGroupID     "\nWARNING: Cannot get group %s ID\n"
+#define   MOwnersBroken      "\nERROR: %s group and owner data are corrupt\n"
+#define   MSetOwnersError    "\nWARNING: Cannot set %s owner and group\n"
+#define   MErrLnkRead        "\nWARNING: Cannot read symbolic link %s"
+#define   MErrCreateLnk      "\nWARNING: Cannot create link %s"
+#define   MSymLinkExists     "\nWARNING: Symbolic link %s already exists"
+#define   MAskRetryCreate    "\nCannot create %s. Retry ?"
+#define   MListMACHead1      "\n MacOS file type:  %c%c%c%c  ; "
+#define   MListMACHead2      "file creator:  %c%c%c%c\n"
+#define   MDataBadCRC        "\n%-20s : packed data CRC failed in volume %s"
+#define   MFileRO            "\n%s is read-only"
+#define   MACLGetError       "\nWARNING: Cannot get %s security data\n"
+#define   MACLSetError       "\nWARNING: Cannot set %s security data\n"
+#define   MACLBroken         "\nERROR: %s security data are corrupt\n"
+#define   MACLUnknown        "\nWARNING: Unknown format of %s security data\n"
+#define   MStreamBroken      "\nERROR: %s stream data are corrupt\n"
+#define   MStreamUnknown     "\nWARNING: Unknown format of %s stream data\n"
+#define   MInvalidName       "\nERROR: Invalid file name %s"
+#define   MEABroken          "\nERROR: %s extended attributes are corrupt\n"
+#define   MEAUnknHeader      "\nWARNING: %s - unknown format of extended attributes\n"
+#define   MCannotSetEA       "\nWARNING: cannot set extended attributes to %s\n"
+#define   MCannotGetEA       "\nERROR: Cannot get extended attributes of %s\n"
+#define   MShowEA            " (+EA)"
+#define   MSkipEA            "\n...skipping extended attributes"
+#define   MProcessArc        "\n\nProcessing archive %s"
+#define   MSyncScanError     "\nFile search errors, cannot synchronize archive"
+#define   MCorrectingName    "\nWARNING: Attempting to correct the invalid file name"
+#define   MUnpCannotMerge    "\nWARNING: You need to start extraction from a previous volume to unpack %s"
+#define   MUnknownOption     "\nERROR: Unknown option: %s"
+#define   MSubHeadCorrupt    "\nERROR: Corrupt data header found, ignored"
+#define   MSubHeadUnknown    "\nWARNING: Unknown data header format, ignored"
+#define   MSubHeadDataCRC    "\nERROR: Corrupt %s data block"
+#define   MSubHeadType       "\nData header type: %s"
+#define   MScanError         "\nCannot read contents of %s"
+#define   MNotVolume         "\n%s is not volume"
+#define   MRecVolDiffSets    "\nERROR: %s and %s belong to different sets"
+#define   MRecVolMissing     "\n%d volumes missing"
+#define   MRecVolFound       "\n%d recovery volumes found"
+#define   MRecVolAllExist    "\nNothing to reconstruct"
+#define   MRecVolCannotFix   "\nReconstruction impossible"
+#define   MReconstructing    "\nReconstructing..."
+#define   MCreating          "\nCreating %s"
+#define   MRenaming          "\nRenaming %s to %s"
+#define   MNTFSRequired      "\nWrite error: only NTFS file system supports files larger than 4 GB"
+#define   MErrChangeAttr     "\nWARNING: Cannot change attributes of %s"
+#define   MWrongSFXVer       "\nERROR: default SFX module does not support RAR %d.%d archives"
+#define   MCannotEncName     "\nCannot encrypt archive already contained encrypted files"
+#define   MCannotEmail       "\nCannot email the file %s"
+#define   MCopyrightS        "\nRAR SFX archive"
+#define   MSHelpCmd          "\n\n<Commands>"
+#define   MSHelpCmdE         "\n  -x      Extract from archive (default)"
+#define   MSHelpCmdT         "\n  -t      Test archive files"
+#define   MSHelpCmdV         "\n  -v      Verbosely list contents of archive"
 
 /***** File: int64.hpp *****/
 
-
-#ifndef _RAR_INT64_
-#define _RAR_INT64_
 
 #if defined(__GNUC__)
 #define NATIVE_INT64
@@ -283,14 +579,9 @@ public:
 void itoa(Int64 n, char *Str);
 Int64 atoil(char *Str);
 
-#endif
-
 
 /***** File: unicode.hpp *****/
 
-
-#ifndef _RAR_UNICODE_
-#define _RAR_UNICODE_
 
 #define MBFUNCTIONS
 
@@ -351,71 +642,8 @@ inline char *strrchrd(const char *s, int c) {
 #define strrchrd strrchr
 #endif
 
-#endif
-
-
-/***** File: errhnd.hpp *****/
-
-
-#ifndef _RAR_ERRHANDLER_
-#define _RAR_ERRHANDLER_
-
-
-enum { SUCCESS, WARNING, FATAL_ERROR, CRC_ERROR, LOCK_ERROR, WRITE_ERROR,
-       OPEN_ERROR, USER_ERROR, MEMORY_ERROR, USER_BREAK = 255
-     };
-
-class ErrorHandler {
-private:
-	void ErrMsg(char *ArcName, const char *fmt, ...);
-
-	int ExitCode;
-	int ErrCount;
-	bool EnableBreak;
-	bool Silent;
-	bool DoShutdown;
-public:
-	ErrorHandler();
-	void Clean();
-	void MemoryError();
-	void OpenError(const char *FileName);
-	void CloseError(const char *FileName);
-	void ReadError(const char *FileName);
-	bool AskRepeatRead(const char *FileName);
-	void WriteError(const char *FileName);
-	void WriteErrorFAT(const char *FileName);
-	bool AskRepeatWrite(const char *FileName);
-	void SeekError(const char *FileName);
-	void MemoryErrorMsg();
-	void OpenErrorMsg(const char *FileName);
-	void CreateErrorMsg(const char *FileName);
-	void ReadErrorMsg(const char *FileName);
-	void Exit(int ExitCode);
-	void SetErrorCode(int Code);
-	int GetErrorCode() {
-		return (ExitCode);
-	}
-	int GetErrorCount() {
-		return (ErrCount);
-	}
-	void SetSignalHandlers(bool Enable);
-	void Throw(int Code);
-	void SetSilent(bool Mode) {
-		Silent = Mode;
-	};
-	void SetShutdown(bool Mode) {
-		DoShutdown = Mode;
-	};
-};
-
-#endif
-
 
 /***** File: array.hpp *****/
-
-
-#ifndef _RAR_ARRAY_
-#define _RAR_ARRAY_
 
 template <class T> class Array {
 private:
@@ -522,13 +750,8 @@ template <class T> void Array<T>::Push(T Item) {
 	(*this)[Size() - 1] = Item;
 }
 
-#endif
-
 /***** File: headers.hpp *****/
 
-
-#ifndef _RAR_HEADERS_
-#define _RAR_HEADERS_
 
 #define  SIZEOF_MARKHEAD         7
 #define  SIZEOF_OLDMHD           7
@@ -799,25 +1022,14 @@ struct MacFInfoHeader: SubBlockHeader {
 };
 
 
-#endif
-
 /***** File: rarfn.hpp *****/
 
-
-#ifndef _RAR_FN_
-#define _RAR_FN_
 
 void RARInitData();
 
 
-#endif
-
-
 /***** File: pathfn.hpp *****/
 
-
-#ifndef _RAR_PATHFN_
-#define _RAR_PATHFN_
 
 char *PointToName(const char *Path);
 wchar *PointToName(const wchar *Path);
@@ -854,15 +1066,9 @@ int ParseVersionFileName(char *Name, wchar *NameW, bool Truncate);
 char *VolNameToFirstName(const char *VolName, char *FirstName, bool NewNumbering);
 void GenerateArcName(char *ArcName, char *GenerateMask);
 
-#endif
-
-
 
 /***** File: strfn.hpp *****/
 
-
-#ifndef _RAR_STRFN_
-#define _RAR_STRFN_
 
 const char *NullToEmpty(const char *Str);
 const wchar *NullToEmpty(const wchar *Str);
@@ -879,15 +1085,7 @@ unsigned int loctolower(unsigned int ch);
 unsigned int loctoupper(unsigned int ch);
 
 
-
-#endif
-
-
 /***** File: strlist.hpp *****/
-
-
-#ifndef _RAR_STRLIST_
-#define _RAR_STRLIST_
 
 class StringList {
 private:
@@ -925,14 +1123,8 @@ public:
 	void RestorePosition();
 };
 
-#endif
-
 
 /***** File: file.hpp *****/
-
-
-#ifndef _RAR_FILE_
-#define _RAR_FILE_
 
 typedef FILE *FileHandle;
 #define BAD_HANDLE NULL
@@ -1024,14 +1216,9 @@ public:
 	}
 };
 
-#endif
-
 
 /***** File: sha1.hpp *****/
 
-
-#ifndef _RAR_SHA1_
-#define _RAR_SHA1_
 
 #define HW 5
 
@@ -1045,13 +1232,8 @@ void hash_initial(hash_context *c);
 void hash_process(hash_context *c, unsigned char *data, unsigned len);
 void hash_final(hash_context *c, uint32[HW]);
 
-#endif
-
 /***** File: crc.hpp *****/
 
-
-#ifndef _RAR_CRC_
-#define _RAR_CRC_
 
 extern uint CRCTab[256];
 
@@ -1059,15 +1241,8 @@ void InitCRC();
 uint CRC(uint StartCRC, void *Addr, uint Size);
 ushort OldCRC(ushort StartCRC, void *Addr, uint Size);
 
-#endif
-
-
 
 /***** File: filefn.hpp *****/
-
-
-#ifndef _RAR_FILEFN_
-#define _RAR_FILEFN_
 
 enum MKDIR_CODE {MKDIR_SUCCESS, MKDIR_ERROR, MKDIR_BADPATH};
 
@@ -1093,25 +1268,15 @@ void ConvertNameToFull(const wchar *Src, wchar *Dest);
 char *MkTemp(char *Name);
 uint CalcFileCRC(File *SrcFile, Int64 Size = INT64ERR);
 
-#endif
 
 /***** File: filestr.hpp *****/
-
-
-#ifndef _RAR_FILESTR_
-#define _RAR_FILESTR_
 
 bool ReadTextFile(char *Name, StringList *List, bool Config,
                   bool AbortOnError = false, bool ConvertToAnsi = false,
                   bool Unquote = false, bool SkipComments = false);
 
-#endif
-
 /***** File: find.hpp *****/
 
-
-#ifndef _RAR_FINDDATA_
-#define _RAR_FINDDATA_
 
 struct FindData {
 	char Name[NM];
@@ -1139,14 +1304,9 @@ public:
 	static bool FastFind(const char *FindMask, const wchar *FindMaskW, struct FindData *fd, bool GetSymLink = false);
 };
 
-#endif
-
 
 /***** File: scantree.hpp *****/
 
-
-#ifndef _RAR_SCANTREE_
-#define _RAR_SCANTREE_
 
 enum { RECURSE_NONE = 0, RECURSE_ALWAYS, RECURSE_WILDCARDS };
 enum { SCAN_SKIPDIRS = 0, SCAN_GETDIRS, SCAN_GETDIRSTWICE, SCAN_GETCURDIRS };
@@ -1189,14 +1349,8 @@ public:
 	};
 };
 
-#endif
-
 
 /***** File: savepos.hpp *****/
-
-
-#ifndef _RAR_SAVEPOS_
-#define _RAR_SAVEPOS_
 
 class SaveFilePos {
 private:
@@ -1207,13 +1361,8 @@ public:
 	~SaveFilePos();
 };
 
-#endif
 
 /***** File: getbits.hpp *****/
-
-
-#ifndef _RAR_GETBITS_
-#define _RAR_GETBITS_
 
 class BitInput {
 public:
@@ -1244,13 +1393,9 @@ public:
 	void faddbits(int Bits);
 	unsigned int fgetbits();
 };
-#endif
+
 
 /***** File: rdwrfn.hpp *****/
-
-
-#ifndef _RAR_DATAIO_
-#define _RAR_DATAIO_
 
 class CmdAdd;
 class Unpack;
@@ -1347,14 +1492,8 @@ public:
 	int Decryption;
 };
 
-#endif
-
 
 /***** File: options.hpp *****/
-
-
-#ifndef _RAR_OPTIONS_
-#define _RAR_OPTIONS_
 
 #define DEFAULT_RECOVERY    -1
 
@@ -1449,14 +1588,9 @@ public:
 	bool AppendArcNameToPath;
 	bool Shutdown;
 };
-#endif
 
 
 /***** File: archive.hpp *****/
-
-
-#ifndef _RAR_ARCHIVE_
-#define _RAR_ARCHIVE_
 
 class Pack;
 
@@ -1585,14 +1719,8 @@ public:
 	wchar FirstVolumeNameW[NM];
 };
 
-#endif
-
 
 /***** File: cmddata.hpp *****/
-
-
-#ifndef _RAR_CMDDATA_
-#define _RAR_CMDDATA_
 
 #define DefaultStoreList "ace;arj;bz2;cab;gz;jpeg;jpg;lha;lzh;mp3;rar;zip;taz;tgz;z"
 
@@ -1641,27 +1769,15 @@ public:
 	StringList *StoreArgs;
 };
 
-#endif
-
 
 /***** File: filcreat.hpp *****/
-
-
-#ifndef _RAR_FILECREATE_
-#define _RAR_FILECREATE_
 
 bool FileCreate(RAROptions *Cmd, File *NewFile, char *Name, wchar *NameW,
                 OVERWRITE_MODE Mode, bool *UserReject, Int64 FileSize = INT64ERR,
                 uint FileTime = 0);
 
-#endif
-
 
 /***** File: consio.hpp *****/
-
-
-#ifndef _RAR_CONSIO_
-#define _RAR_CONSIO_
 
 enum {ALARM_SOUND, ERROR_SOUND, QUESTION_SOUND};
 
@@ -1702,13 +1818,8 @@ inline int Ask(const char *AskStr) {
 }
 #endif
 
-#endif
 
 /***** File: system.hpp *****/
-
-
-#ifndef _RAR_SYSTEM_
-#define _RAR_SYSTEM_
 
 void InitSystemOptions(int SleepTime);
 void SetPriority(int Priority);
@@ -1716,25 +1827,8 @@ void Wait();
 bool EmailFile(char *FileName, char *MailTo);
 void Shutdown();
 
-#endif
-
-/***** File: isnt.hpp *****/
-
-
-#ifndef _RAR_ISNT_
-#define _RAR_ISNT_
-
-int WinNT();
-
-#endif
-
-
 
 /***** File: log.hpp *****/
-
-
-#ifndef _RAR_LOG_
-#define _RAR_LOG_
 
 void InitLogOptions(char *LogName);
 
@@ -1746,15 +1840,8 @@ void Log(const char *ArcName, const char *Format, ...);
 inline void Log(const char *a, const char *b, const char *c = NULL, const char *d = NULL) {}
 #endif
 
-#endif
-
-
 
 /***** File: rawread.hpp *****/
-
-
-#ifndef _RAR_RAWREAD_
-#define _RAR_RAWREAD_
 
 class RawRead {
 private:
@@ -1781,14 +1868,8 @@ public:
 	}
 };
 
-#endif
-
 
 /***** File: encname.hpp *****/
-
-
-#ifndef _RAR_ENCNAME_
-#define _RAR_ENCNAME_
 
 class EncodeFileName {
 private:
@@ -1805,13 +1886,8 @@ public:
 	void Decode(char *Name, byte *EncName, int EncSize, wchar *NameW, int MaxDecSize);
 };
 
-#endif
 
 /***** File: match.hpp *****/
-
-
-#ifndef _RAR_MATCH_
-#define _RAR_MATCH_
 
 enum {MATCH_NAMES, MATCH_PATH, MATCH_SUBPATH, MATCH_WILDSUBPATH};
 
@@ -1823,13 +1899,7 @@ int stricompcw(const wchar *Str1, const wchar *Str2);
 int strnicompc(const char *Str1, const char *Str2, int N);
 int strnicompcw(const wchar *Str1, const wchar *Str2, int N);
 
-#endif
-
 /***** File: timefn.hpp *****/
-
-
-#ifndef _RAR_TIMEFN_
-#define _RAR_TIMEFN_
 
 void InitTime();
 uint SecondsToDosTime(uint Seconds);
@@ -1843,14 +1913,8 @@ time_t DosTimeToUnix(uint DosTime);
 void GetCurSysTime(struct tm *T);
 bool IsLeapYear(int Year);
 
-#endif
-
 
 /***** File: compress.hpp *****/
-
-
-#ifndef _RAR_COMPRESS_
-#define _RAR_COMPRESS_
 
 class ComprDataIO;
 class PackingFileTable;
@@ -1885,14 +1949,8 @@ enum FilterType {
 	FILTER_ITANIUM, FILTER_E8E9V2
 };
 
-#endif
-
 
 /***** File: rarvm.hpp *****/
-
-
-#ifndef _RAR_VM_
-#define _RAR_VM_
 
 #define VM_STANDARDFILTERS
 
@@ -1997,17 +2055,108 @@ public:
 	static uint ReadData(BitInput &Inp);
 };
 
-#endif
+
+/***** File: coder.hpp *****/
+
+/****************************************************************************
+ *  Contents: 'Carryless rangecoder' by Dmitry Subbotin                     *
+ ****************************************************************************/
+
+const uint TOP = 1 << 24, BOT = 1 << 15;
+
+class RangeCoder {
+public:
+	void InitDecoder(Unpack *UnpackRead);
+	inline int GetCurrentCount();
+	inline uint GetCurrentShiftCount(uint SHIFT);
+	inline void Decode();
+	inline void PutChar(unsigned int c);
+	inline unsigned int GetChar();
+
+	uint low, code, range;
+	struct SUBRANGE {
+		uint LowCount, HighCount, scale;
+	} SubRange;
+
+	Unpack *UnpackRead;
+};
+
+
+/***** File: suballoc.hpp *****/
+
+
+/****************************************************************************
+ *  This file is part of PPMd project                                       *
+ *  Written and distributed to public domain by Dmitry Shkarin 1997,        *
+ *  1999-2000                                                               *
+ *  Contents: interface to memory allocation routines                       *
+ ****************************************************************************/
+
+const int N1 = 4, N2 = 4, N3 = 4, N4 = (128 + 3 - 1 * N1 - 2 * N2 - 3 * N3) / 4;
+const int N_INDEXES = N1 + N2 + N3 + N4;
+
+#if defined(__GNUC__)
+#define _PACK_ATTR __attribute__ ((packed))
+#else
+#define _PACK_ATTR
+#endif /* defined(__GNUC__) */
+
+#pragma pack(1)
+struct MEM_BLK {
+	ushort Stamp, NU;
+	MEM_BLK *next, * prev;
+	void insertAt(MEM_BLK *p) {
+		next = (prev = p)->next;
+		p->next = next->prev = this;
+	}
+	void remove() {
+		prev->next = next;
+		next->prev = prev;
+	}
+} _PACK_ATTR;
+#pragma pack()
+
+struct NODE {
+	NODE *next;
+};
+
+class SubAllocator {
+private:
+	inline void InsertNode(void *p, int indx);
+	inline void *RemoveNode(int indx);
+	inline uint U2B(int NU);
+	inline void SplitBlock(void *pv, int OldIndx, int NewIndx);
+	uint GetUsedMemory();
+	inline void GlueFreeBlocks();
+	void *AllocUnitsRare(int indx);
+
+	long SubAllocatorSize;
+	byte Indx2Units[N_INDEXES], Units2Indx[128], GlueCount;
+	byte *HeapStart, *LoUnit, *HiUnit;
+	struct NODE FreeList[N_INDEXES];
+public:
+	SubAllocator();
+	~SubAllocator() {
+		StopSubAllocator();
+	}
+	void Clean();
+	bool StartSubAllocator(int SASize);
+	void StopSubAllocator();
+	void  InitSubAllocator();
+	inline void *AllocContext();
+	inline void *AllocUnits(int NU);
+	inline void *ExpandUnits(void *ptr, int OldNU);
+	inline void *ShrinkUnits(void *ptr, int OldNU, int NewNU);
+	inline void  FreeUnits(void *ptr, int OldNU);
+	long GetAllocatedMemory() {
+		return (SubAllocatorSize);
+	};
+
+	byte *pText, *UnitsStart, *HeapEnd, *FakeUnitsStart;
+};
 
 
 /***** File: model.hpp *****/
-
-
-#ifndef _RAR_PPMMODEL_
-#define _RAR_PPMMODEL_
-
-#include "coder.hpp"
-#include "suballoc.hpp"
 
 const int MAX_O = 64;                 /* maximum allowed model order */
 
@@ -2117,13 +2266,8 @@ public:
 	int DecodeChar();
 };
 
-#endif
 
 /***** File: unpack.hpp *****/
-
-
-#ifndef _RAR_UNPACK_
-#define _RAR_UNPACK_
 
 enum BLOCK_TYPES {BLOCK_LZ, BLOCK_PPM};
 
@@ -2319,27 +2463,14 @@ public:
 	}
 };
 
-#endif
-
 
 /***** File: extinfo.hpp *****/
-
-
-#ifndef _RAR_EXTINFO_
-#define _RAR_EXTINFO_
-
 
 void SetExtraInfo(CommandData *Cmd, Archive &Arc, char *Name, wchar *NameW);
 void SetExtraInfoNew(CommandData *Cmd, Archive &Arc, char *Name, wchar *NameW);
 
-#endif
-
 
 /***** File: extract.hpp *****/
-
-
-#ifndef _RAR_EXTRACT_
-#define _RAR_EXTRACT_
 
 enum EXTRACT_ARC_CODE {EXTRACT_ARC_NEXT, EXTRACT_ARC_REPEAT};
 
@@ -2375,26 +2506,13 @@ public:
 	static void UnstoreFile(ComprDataIO &DataIO, Int64 DestUnpSize);
 };
 
-#endif
-
 
 /***** File: list.hpp *****/
 
-
-#ifndef _RAR_LIST_
-#define _RAR_LIST_
-
 void ListArchive(CommandData *Cmd);
-
-#endif
-
 
 
 /***** File: rs.hpp *****/
-
-
-#ifndef _RAR_RS_
-#define _RAR_RS_
 
 #define MAXPAR 255
 #define MAXPOL 512
@@ -2423,14 +2541,7 @@ public:
 	bool Decode(byte *Data, int DataSize, int *EraLoc, int EraSize);
 };
 
-#endif
-
-
 /***** File: recvol.hpp *****/
-
-
-#ifndef _RAR_RECVOL_
-#define _RAR_RECVOL_
 
 class RecVolumes {
 private:
@@ -2443,13 +2554,8 @@ public:
 	bool Restore(RAROptions *Cmd, const char *Name, const wchar *NameW, bool Silent);
 };
 
-#endif
 
 /***** File: volume.hpp *****/
-
-
-#ifndef _RAR_VOLUME_
-#define _RAR_VOLUME_
 
 void SplitArchive(Archive &Arc, FileHeader *fh, Int64 *HeaderPos,
                   ComprDataIO *DataIO);
@@ -2458,20 +2564,13 @@ bool MergeArchive(Archive &Arc, ComprDataIO *DataIO, bool ShowFileName,
 void SetVolWrite(Archive &Dest, Int64 VolSize);
 bool AskNextVol(char *ArcName);
 
-#endif
 
 /***** File: ulinks.hpp *****/
-
-
-#ifndef _RAR_ULINKS_
-#define _RAR_ULINKS_
 
 void SaveLinkData(ComprDataIO &DataIO, Archive &TempArc, FileHeader &hd,
                   char *Name);
 int ExtractLink(ComprDataIO &DataIO, Archive &Arc, char *DestName,
                 uint &LinkCRC, bool Create);
-
-#endif
 
 
 int ToPercent(Int64 N1, Int64 N2);
