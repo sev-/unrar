@@ -10,12 +10,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/file.h>
-#if defined(__FreeBSD__) || defined (__NetBSD__) || defined(__APPLE__)
 #include <sys/param.h>
 #include <sys/mount.h>
-#else
-#include <sys/statfs.h>
-#endif
 #include <pwd.h>
 #include <grp.h>
 #include <stdio.h>
@@ -67,16 +63,5 @@
 #endif
 
 typedef const char *MSGID;
-
-#if defined(LITTLE_ENDIAN) && defined(BIG_ENDIAN)
-#if defined(BYTE_ORDER) && BYTE_ORDER == BIG_ENDIAN
-#undef LITTLE_ENDIAN
-#elif defined(BYTE_ORDER) && BYTE_ORDER == LITTLE_ENDIAN
-#undef BIG_ENDIAN
-#elif
-#error "Both LITTLE_ENDIAN and BIG_ENDIAN are defined. Undef something one"
-#endif
-#endif
-
 
 #endif // _RAR_OS_

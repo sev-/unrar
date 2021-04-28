@@ -1,11 +1,6 @@
 #ifndef _RAR_INT64_
 #define _RAR_INT64_
 
-#ifdef __BORLANDC__
-#define NATIVE_INT64
-typedef __int64 Int64;
-#endif
-
 #if defined(__GNUC__)
 #define NATIVE_INT64
 typedef long long Int64;

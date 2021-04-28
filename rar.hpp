@@ -2,7 +2,8 @@
 #define _RAR_RARCOMMON_
 
 #include "errhnd.hpp"
-#include "global.hpp"
+
+extern ErrorHandler ErrHandler;
 
 #include "os.hpp"
 
@@ -64,8 +65,6 @@
 #include "recvol.hpp"
 #include "volume.hpp"
 #include "ulinks.hpp"
-
-#include "global.hpp"
 
 
 int ToPercent(Int64 N1, Int64 N2);
