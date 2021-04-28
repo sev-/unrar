@@ -1,9 +1,5 @@
 #include "rar.hpp"
 
-#ifdef _WIN_32
-#include "win32acl.cpp"
-#include "win32stm.cpp"
-#endif
 #ifdef _UNIX
 #include "uowners.cpp"
 #endif

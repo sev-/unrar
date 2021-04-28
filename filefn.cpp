@@ -15,11 +15,7 @@ MKDIR_CODE MakeDir(const char *Name,const wchar *NameW,uint Attr)
 
 void CreatePath(const char *Path,const wchar *PathW,bool SkipLastName)
 {
-#ifdef _WIN_32
-  uint DirAttr=0;
-#else
   uint DirAttr=0777;
-#endif
   int PosW=0;
   for (const char *s=Path;*s!=0 && PosW<NM;s=charnext(s),PosW++)
   {
@@ -53,19 +49,6 @@ void CreatePath(const char *Path,const wchar *PathW,bool SkipLastName)
 
 void SetDirTime(const char *Name,uint ft)
 {
-#ifdef _WIN_32
-  if (!WinNT())
-    return;
-  HANDLE hFile=CreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,
-                          NULL,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS,NULL);
-  if (hFile==INVALID_HANDLE_VALUE)
-    return;
-  FILETIME LocalTime,FileTime;
-  DosDateTimeToFileTime(HIWORD(ft),LOWORD(ft),&LocalTime);
-  LocalFileTimeToFileTime(&LocalTime,&FileTime);
-  SetFileTime(hFile,NULL,NULL,&FileTime);
-  CloseHandle(hFile);
-#endif
 #if defined(_UNIX)
   struct utimbuf ut;
   ut.actime=ut.modtime=DosTimeToUnix(ft);
@@ -83,60 +66,15 @@ bool IsRemovable(const char *FileName)
 #ifndef SFX_MODULE
 Int64 GetFreeDisk(const char *FileName)
 {
-#ifdef _WIN_32
-  char Root[NM];
-  GetPathRoot(FileName,Root);
-
-  typedef BOOL (WINAPI *GETDISKFREESPACEEX)(
-    LPCTSTR,PULARGE_INTEGER,PULARGE_INTEGER,PULARGE_INTEGER
-   );
-  static GETDISKFREESPACEEX pGetDiskFreeSpaceEx=NULL;
-
-  if (pGetDiskFreeSpaceEx==NULL)
-  {
-    HMODULE hKernel=GetModuleHandle("kernel32.dll");
-    if (hKernel!=NULL)
-      pGetDiskFreeSpaceEx=(GETDISKFREESPACEEX)GetProcAddress(hKernel,"GetDiskFreeSpaceExA");
-  }
-  if (pGetDiskFreeSpaceEx!=NULL)
-  {
-    GetFilePath(FileName,Root);
-    ULARGE_INTEGER uiTotalSize,uiTotalFree,uiUserFree;
-    uiUserFree.u.LowPart=uiUserFree.u.HighPart=0;
-    if (pGetDiskFreeSpaceEx(*Root ? Root:NULL,&uiUserFree,&uiTotalSize,&uiTotalFree) &&
-        uiUserFree.u.HighPart<=uiTotalFree.u.HighPart)
-      return(int32to64(uiUserFree.u.HighPart,uiUserFree.u.LowPart));
-  }
-
-  DWORD SectorsPerCluster,BytesPerSector,FreeClusters,TotalClusters;
-  if (!GetDiskFreeSpace(*Root ? Root:NULL,&SectorsPerCluster,&BytesPerSector,&FreeClusters,&TotalClusters))
-    return(1457664);
-  Int64 FreeSize=SectorsPerCluster*BytesPerSector;
-  FreeSize=FreeSize*FreeClusters;
-  return(FreeSize);
-#elif defined(_UNIX)
   return(1457664);
-#else
-  #define DISABLEAUTODETECT
-  return(1457664);
-#endif
 }
 #endif
 
 
 bool FileExist(const char *FileName,const wchar *FileNameW)
 {
-#ifdef _WIN_32
-  if (WinNT() && FileNameW!=NULL && *FileNameW!=0)
-    return(GetFileAttributesW(FileNameW)!=0xffffffff);
-  else
-    return(GetFileAttributes(FileName)!=0xffffffff);
-#elif defined(ENABLE_ACCESS)
-  return(access(FileName,0)==0);
-#else
   struct FindData FD;
   return(FindFile::FastFind(FileName,FileNameW,&FD));
-#endif
 }
 
 
@@ -223,14 +161,6 @@ bool SetFileAttr(const char *Name,const wchar *NameW,uint Attr)
 
 void ConvertNameToFull(const char *Src,char *Dest)
 {
-#ifdef _WIN_32
-  char FullName[NM],*NamePtr;
-  if (GetFullPathName(Src,sizeof(FullName),FullName,&NamePtr))
-    strcpy(Dest,FullName);
-  else
-    if (Src!=Dest)
-      strcpy(Dest,Src);
-#else
   char FullName[NM];
   if (IsPathDiv(*Src) || *Src!=0 && IsDriveDiv(Src[1]))
     strcpy(FullName,Src);
@@ -241,7 +171,6 @@ void ConvertNameToFull(const char *Src,char *Dest)
     strcat(FullName,Src);
   }
   strcpy(Dest,FullName);
-#endif
 }
 
 
@@ -253,29 +182,10 @@ void ConvertNameToFull(const wchar *Src,wchar *Dest)
     *Dest=0;
     return;
   }
-#ifdef _WIN_32
-  if (WinNT())
-  {
-    wchar FullName[NM],*NamePtr;
-    if (GetFullPathNameW(Src,sizeof(FullName)/sizeof(FullName[0]),FullName,&NamePtr))
-      strcpyw(Dest,FullName);
-    else
-      if (Src!=Dest)
-        strcpyw(Dest,Src);
-  }
-  else
-  {
-    char AnsiName[NM];
-    WideToChar(Src,AnsiName);
-    ConvertNameToFull(AnsiName,AnsiName);
-    CharToWide(AnsiName,Dest);
-  }
-#else
   char AnsiName[NM];
   WideToChar(Src,AnsiName);
   ConvertNameToFull(AnsiName,AnsiName);
   CharToWide(AnsiName,Dest);
-#endif
 }
 #endif
 

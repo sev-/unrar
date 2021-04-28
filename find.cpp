@@ -5,23 +5,14 @@ FindFile::FindFile()
   *FindMask=0;
   *FindMaskW=0;
   FirstCall=TRUE;
-#ifdef _WIN_32
-  hFind=INVALID_HANDLE_VALUE;
-#else
   dirp=NULL;
-#endif
 }
 
 
 FindFile::~FindFile()
 {
-#ifdef _WIN_32
-  if (hFind!=INVALID_HANDLE_VALUE)
-    FindClose(hFind);
-#else
   if (dirp!=NULL)
     closedir(dirp);
-#endif
 }
 
 
@@ -50,16 +41,6 @@ bool FindFile::Next(struct FindData *fd,bool GetSymLink)
   fd->Error=false;
   if (*FindMask==0)
     return(false);
-#ifdef _WIN_32
-  if (FirstCall)
-  {
-    if ((hFind=Win32Find(INVALID_HANDLE_VALUE,FindMask,FindMaskW,fd))==INVALID_HANDLE_VALUE)
-      return(false);
-  }
-  else
-    if (Win32Find(hFind,FindMask,FindMaskW,fd)==INVALID_HANDLE_VALUE)
-      return(false);
-#else
   if (FirstCall)
   {
     char DirName[NM];
@@ -103,7 +84,7 @@ bool FindFile::Next(struct FindData *fd,bool GetSymLink)
     }
   }
   *fd->NameW=0;
-#endif
+
   fd->IsDir=IsDir(fd->FileAttr);
   FirstCall=FALSE;
   char *Name=PointToName(fd->Name);
@@ -120,12 +101,7 @@ bool FindFile::FastFind(const char *FindMask,const wchar *FindMaskW,struct FindD
   if (IsWildcard(FindMask,FindMaskW))
     return(false);
 #endif
-#ifdef _WIN_32
-  HANDLE hFind=Win32Find(INVALID_HANDLE_VALUE,FindMask,FindMaskW,fd);
-  if (hFind==INVALID_HANDLE_VALUE)
-    return(false);
-  FindClose(hFind);
-#else
+
   struct stat st;
   if (GetSymLink)
   {
@@ -151,104 +127,7 @@ bool FindFile::FastFind(const char *FindMask,const wchar *FindMaskW,struct FindD
   fd->FileTime=UnixTimeToDos(st.st_mtime);
   strcpy(fd->Name,FindMask);
   *fd->NameW=0;
-#endif
+
   fd->IsDir=IsDir(fd->FileAttr);
   return(true);
 }
-
-
-#ifdef _WIN_32
-HANDLE FindFile::Win32Find(HANDLE hFind,const char *Mask,const wchar *MaskW,struct FindData *fd)
-{
-  if (WinNT())
-  {
-    wchar WideMask[NM];
-    if (MaskW!=NULL && *MaskW!=0)
-      strcpyw(WideMask,MaskW);
-    else
-      CharToWide(Mask,WideMask);
-
-    WIN32_FIND_DATAW FindData;
-    if (hFind==INVALID_HANDLE_VALUE)
-    {
-      hFind=FindFirstFileW(WideMask,&FindData);
-      if (hFind==INVALID_HANDLE_VALUE)
-      {
-        int SysErr=GetLastError();
-        fd->Error=(SysErr!=ERROR_FILE_NOT_FOUND && SysErr!=ERROR_PATH_NOT_FOUND);
-      }
-    }
-    else
-      if (!FindNextFileW(hFind,&FindData))
-      {
-        hFind=INVALID_HANDLE_VALUE;
-        fd->Error=GetLastError()!=ERROR_NO_MORE_FILES;
-      }
-
-    if (hFind!=INVALID_HANDLE_VALUE)
-    {
-      strcpyw(fd->NameW,WideMask);
-      strcpyw(PointToName(fd->NameW),FindData.cFileName);
-      WideToChar(fd->NameW,fd->Name);
-      fd->Size=int32to64(FindData.nFileSizeHigh,FindData.nFileSizeLow);
-      fd->FileAttr=FindData.dwFileAttributes;
-      fd->FileTime=NTTimeToDos(&FindData.ftLastWriteTime);
-      fd->ftCreationTime=FindData.ftCreationTime;
-      fd->ftLastAccessTime=FindData.ftLastAccessTime;
-      fd->ftLastWriteTime=FindData.ftLastWriteTime;
-
-      if (LowAscii(fd->NameW))
-        *fd->NameW=0;
-    }
-  }
-  else
-  {
-    char CharMask[NM];
-    if (Mask!=NULL && *Mask!=0)
-      strcpy(CharMask,Mask);
-    else
-      WideToChar(MaskW,CharMask);
-
-    WIN32_FIND_DATA FindData;
-    if (hFind==INVALID_HANDLE_VALUE)
-    {
-      hFind=FindFirstFile(CharMask,&FindData);
-      if (hFind==INVALID_HANDLE_VALUE)
-      {
-        int SysErr=GetLastError();
-        fd->Error=SysErr!=ERROR_FILE_NOT_FOUND && SysErr!=ERROR_PATH_NOT_FOUND;
-      }
-    }
-    else
-      if (!FindNextFile(hFind,&FindData))
-      {
-        hFind=INVALID_HANDLE_VALUE;
-        fd->Error=GetLastError()!=ERROR_NO_MORE_FILES;
-      }
-
-    if (hFind!=INVALID_HANDLE_VALUE)
-    {
-      strcpy(fd->Name,CharMask);
-      strcpy(PointToName(fd->Name),FindData.cFileName);
-      CharToWide(fd->Name,fd->NameW);
-      fd->Size=int32to64(FindData.nFileSizeHigh,FindData.nFileSizeLow);
-      fd->FileAttr=FindData.dwFileAttributes;
-      fd->FileTime=NTTimeToDos(&FindData.ftLastWriteTime);
-      fd->ftCreationTime=FindData.ftCreationTime;
-      fd->ftLastAccessTime=FindData.ftLastAccessTime;
-      fd->ftLastWriteTime=FindData.ftLastWriteTime;
-
-      bool LowerAscii=true;
-      for (int I=0;fd->Name[I]!=0;I++)
-        if ((byte)fd->Name[I]<32 || (byte)fd->Name[I]>127)
-        {
-          LowerAscii=false;
-          break;
-        }
-      if (LowerAscii)
-        *fd->NameW=0;
-    }
-  }
-  return(hFind);
-}
-#endif

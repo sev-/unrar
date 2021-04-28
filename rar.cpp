@@ -1,7 +1,14 @@
 #include "rar.hpp"
 
 
-#include "smallfn.cpp"
+int ToPercent(Int64 N1,Int64 N2)
+{
+  if (N2==0)
+    return(0);
+  if (N2<N1)
+    return(100);
+  return(int64to32(N1*100/N2));
+}
 
 #if !defined(GUI) && !defined(RARDLL)
 int main(int argc, char *argv[])
@@ -15,20 +22,6 @@ int main(int argc, char *argv[])
 
   RARInitData();
 
-#ifdef SFX_MODULE
-  char ModuleName[NM];
-#ifdef _WIN_32
-  GetModuleFileName(NULL,ModuleName,sizeof(ModuleName));
-#else
-  strcpy(ModuleName,argv[0]);
-#endif
-#endif
-
-#ifdef _WIN_32
-  SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
-
-
-#endif
   bool ShutdownOnClose;
 
 #ifdef ALLOW_EXCEPTIONS

@@ -3,12 +3,8 @@
 
 #define MBFUNCTIONS
 
-#if defined(MBFUNCTIONS ) || defined(_WIN_32)
+#if defined(MBFUNCTIONS )
 #define UNICODE_SUPPORTED
-#endif
-
-#if defined(_WIN_32) && !defined(SFX_MODULE)
-#define DBCS_SUPPORTED
 #endif
 
 void WideToChar(const wchar *Src,char *Dest,int DestSize=0x10000000);

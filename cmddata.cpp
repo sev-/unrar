@@ -313,11 +313,6 @@ void CommandData::ProcessSwitch(char *Switch)
           SaveLinks=true;
           break;
 #endif
-#ifdef _WIN_32
-        case 'S':
-          SaveStreams=true;
-          break;
-#endif
         default :
           BadSwitch(Switch);
           break;
@@ -517,11 +512,6 @@ void CommandData::ProcessSwitch(char *Switch)
     case 'V':
       switch(toupper(Switch[1]))
       {
-#ifdef _WIN_32
-        case 'D':
-          EraseDisk=true;
-          break;
-#endif
         case 'N':
           OldNumbering=true;
           break;
@@ -700,9 +690,6 @@ void CommandData::OutTitle()
   mprintf(St(MCopyright),Version,RARVER_YEAR,RARVER_DAY,GetMonthName(RARVER_MONTH-1),RARVER_YEAR);
   char RegName[512];
   strcpy(RegName,Reg.RegName);
-#ifdef _WIN_32
-  OemToChar(RegName,RegName);
-#endif
 #endif
 #endif
 #endif
@@ -754,15 +741,9 @@ void CommandData::OutHelp()
     if (Help[I]==MCHelpSwV)
       continue;
 #endif
-#ifndef _WIN_32
     if (Help[I]==MCHelpSwIEML || Help[I]==MCHelpSwVD || Help[I]==MCHelpSwAC ||
         Help[I]==MCHelpSwAO || Help[I]==MCHelpSwDH || Help[I]==MCHelpSwOS)
       continue;
-#endif
-#if !defined(_UNIX) && !defined(_WIN_32)
-    if (Help[I]==MCHelpSwOW)
-      continue;
-#endif
 #ifndef SAVE_LINKS
     if (Help[I]==MCHelpSwOL)
       continue;

@@ -9,29 +9,17 @@ struct FindData
   uint FileAttr;
   uint FileTime;
   int IsDir;
-#ifdef _WIN_32
-  FILETIME ftCreationTime; 
-  FILETIME ftLastAccessTime; 
-  FILETIME ftLastWriteTime; 
-#endif
   bool Error;
 };
 
 class FindFile
 {
   private:
-#ifdef _WIN_32
-    static HANDLE Win32Find(HANDLE hFind,const char *Mask,const wchar *MaskW,struct FindData *fd);
-#endif
 
     char FindMask[NM];
     wchar FindMaskW[NM];
     int FirstCall;
-#ifdef _WIN_32
-    HANDLE hFind;
-#else
     DIR *dirp;
-#endif
   public:
     FindFile();
     ~FindFile();

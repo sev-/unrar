@@ -7,13 +7,7 @@ inline uint toupperc(uint ch)
 {
 /*
 */
-#if defined(_WIN_32)
-  return((uint)CharUpper((LPTSTR)(ch)));
-#elif defined(_UNIX)
   return(ch);
-#else
-  return(toupper(ch));
-#endif
 }
 
 

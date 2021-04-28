@@ -75,17 +75,6 @@ void ErrorHandler::WriteError(const char *FileName)
 }
 
 
-#ifdef _WIN_32
-void ErrorHandler::WriteErrorFAT(const char *FileName)
-{
-#if !defined(SILENT) && !defined(SFX_MODULE)
-  ErrMsg(NULL,St(MNTFSRequired),FileName);
-  Throw(WRITE_ERROR);
-#endif
-}
-#endif
-
-
 bool ErrorHandler::AskRepeatWrite(const char *FileName)
 {
 #ifndef SILENT
@@ -160,10 +149,6 @@ void ErrorHandler::ErrMsg(char *ArcName,const char *fmt,...)
   va_start(argptr,fmt);
   vsprintf(Msg,fmt,argptr);
   va_end(argptr);
-#ifdef _WIN_32
-  if (UserBreak)
-    Sleep(5000);
-#endif
   Alarm();
   if (*Msg)
   {
@@ -196,16 +181,8 @@ void ErrorHandler::SetErrorCode(int Code)
 
 
 #if !defined(GUI) && !defined(_SFX_RTL_)
-#ifdef _WIN_32
-BOOL __stdcall ProcessSignal(DWORD SigType)
-#else
 void _stdfunction ProcessSignal(int SigType)
-#endif
 {
-#ifdef _WIN_32
-  if (SigType==CTRL_LOGOFF_EVENT)
-    return(TRUE);
-#endif
   UserBreak=true;
   mprintf(St(MBreak));
   File::RemoveCreated();
@@ -213,9 +190,6 @@ void _stdfunction ProcessSignal(int SigType)
   ExtRes.UnloadDLL();
 #endif
   exit(USER_BREAK);
-#ifdef _WIN_32
-  return(TRUE);
-#endif
 }
 #endif
 
@@ -224,13 +198,8 @@ void ErrorHandler::SetSignalHandlers(bool Enable)
 {
   EnableBreak=Enable;
 #if !defined(GUI) && !defined(_SFX_RTL_)
-#ifdef _WIN_32
-  SetConsoleCtrlHandler(Enable ? ProcessSignal:NULL,TRUE);
-//  signal(SIGBREAK,Enable ? ProcessSignal:SIG_IGN);
-#else
   signal(SIGINT,Enable ? ProcessSignal:SIG_IGN);
   signal(SIGTERM,Enable ? ProcessSignal:SIG_IGN);
-#endif
 #endif
 }
 
@@ -247,4 +216,3 @@ void ErrorHandler::Throw(int Code)
   exit(Code);
 #endif
 }
-

@@ -113,10 +113,6 @@ bool ReadTextFile(char *Name,StringList *List,bool Config,bool AbortOnError,
             CurStr++;
           }
         }
-#ifdef _WIN_32
-        if (ConvertToAnsi)
-          OemToChar(CurStr,CurStr);
-#endif
         List->AddString(CurStr);
       }
       CurStr=NextStr+1;

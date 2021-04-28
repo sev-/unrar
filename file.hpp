@@ -1,13 +1,8 @@
 #ifndef _RAR_FILE_
 #define _RAR_FILE_
 
-#ifdef _WIN_32
-typedef HANDLE FileHandle;
-#define BAD_HANDLE INVALID_HANDLE_VALUE
-#else
 typedef FILE* FileHandle;
 #define BAD_HANDLE NULL
-#endif
 
 class RAROptions;
 

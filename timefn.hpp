@@ -10,12 +10,7 @@ uint IsoTextToDosTime(char *TimeText);
 uint UnixTimeToDos(time_t UnixTime);
 time_t DosTimeToUnix(uint DosTime);
 
-#ifdef _WIN_32
-uint NTTimeToDos(FILETIME *ft);
-#endif
-
 void GetCurSysTime(struct tm *T);
 bool IsLeapYear(int Year);
 
 #endif
-

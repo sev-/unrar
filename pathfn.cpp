@@ -79,11 +79,7 @@ wchar* ConvertPath(const wchar *SrcPath,wchar *DestPath)
     if (IsPathDiv(ChPtr[0]) && ChPtr[1]=='.' && ChPtr[2]=='.' && IsPathDiv(ChPtr[3]))
       DestPtr=ChPtr+4;
   for (const wchar *ChPtr=DestPtr;*ChPtr!=0;ChPtr++)
-#ifdef _WIN_32
-    if (*ChPtr=='/' || *ChPtr=='\\')
-#else
     if (*ChPtr==CPATHDIVIDER)
-#endif
       DestPtr=ChPtr+1;
     else
       if (*ChPtr!='.')
@@ -193,11 +189,7 @@ bool IsWildcard(const char *Str,const wchar *StrW)
 
 bool IsPathDiv(int Ch)
 {
-#ifdef _WIN_32
-  return(Ch=='\\' || Ch=='/');
-#else
   return(Ch==CPATHDIVIDER);
-#endif
 }
 
 

@@ -1,33 +1,17 @@
 #include "rar.hpp"
 
-#ifdef _WIN_32
-static FILETIME SystemTime;
-#else
 static time_t SystemTime;
-#endif
 
 
 void InitTime()
 {
-#ifdef _WIN_32
-  GetSystemTimeAsFileTime(&SystemTime);
-#else
   time(&SystemTime);
-#endif
 }
 
 
 #ifndef SFX_MODULE
 uint SecondsToDosTime(uint Seconds)
 {
-#ifdef _WIN_32
-  FILETIME ft=SystemTime;
-  Int64 f=int32to64(ft.dwHighDateTime,ft.dwLowDateTime),s=Seconds;
-  f=f-s*10000000;
-  ft.dwHighDateTime=int64to32(f>>32);
-  ft.dwLowDateTime=int64to32(f);
-  return(NTTimeToDos(&ft));
-#endif
 #if defined(_UNIX)
   return(UnixTimeToDos(SystemTime-Seconds));
 #endif
@@ -147,17 +131,5 @@ time_t DosTimeToUnix(uint DosTime)
   t.tm_year=(DosTime>>25)+80;
   t.tm_isdst=-1;
   return(mktime(&t));
-}
-#endif
-
-
-#ifdef _WIN_32
-uint NTTimeToDos(FILETIME *ft)
-{
-  WORD DosDate,DosTime;
-  FILETIME ct;
-  FileTimeToLocalFileTime(ft,&ct);
-  FileTimeToDosDateTime(&ct,&DosDate,&DosTime);
-  return(((uint)DosDate<<16)|DosTime);
 }
 #endif

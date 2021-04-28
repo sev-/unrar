@@ -48,15 +48,7 @@ bool FileCreate(RAROptions *Cmd,File *NewFile,char *Name,wchar *NameW,
         mprintf(St(MAskNewName));
 
         char NewName[NM];
-#ifdef  _WIN_32
-        File SrcFile;
-        SrcFile.SetHandleType(FILE_HANDLESTD);
-        int Size=SrcFile.Read(NewName,NM);
-        NewName[Size]=0;
-        OemToChar(NewName,NewName);
-#else
         fgets(NewName,sizeof(NewName),stdin);
-#endif
         RemoveLF(NewName);
         if (PointToName(NewName)==NewName)
           strcpy(PointToName(Name),NewName);

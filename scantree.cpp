@@ -56,9 +56,6 @@ bool ScanTree::PrepareMasks()
 {
   if (!FileMasks->GetString(CurMask,CurMaskW,sizeof(CurMask)))
     return(false);
-#ifdef _WIN_32
-  UnixSlashToDos(CurMask);
-#endif
   char *Name=PointToName(CurMask);
   if (*Name==0)
     strcat(CurMask,MASKALL);
@@ -143,11 +140,6 @@ int ScanTree::FindProc(FindData *FindData)
   if (!FastFindFile && !FindStack[Depth]->Next(FindData,GetLinks))
   {
     bool Error=FindData->Error;
-
-#ifdef _WIN_32
-    if (Error && strstr(CurMask,"System Volume Information\\")!=NULL)
-      Error=false;
-#endif
 
 #ifndef SILENT
     if (Error)

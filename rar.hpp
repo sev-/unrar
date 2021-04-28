@@ -69,10 +69,11 @@
 #include "rs.hpp"
 #include "recvol.hpp"
 #include "volume.hpp"
-#include "smallfn.hpp"
 #include "ulinks.hpp"
 
 #include "global.hpp"
 
+
+int ToPercent(Int64 N1,Int64 N2);
 
 #endif
