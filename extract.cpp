@@ -648,10 +648,6 @@ bool CmdExtract::ExtractCurrentFile(CommandData *Cmd,Archive &Arc,int HeaderSize
       if (!TestMode && (Command=='X' || Command=='E') &&
           !IsLink(Arc.NewLhd.FileAttr))
       {
-#if defined(_WIN_32) || defined(_EMX)
-        if (Cmd->ClearArc)
-          Arc.NewLhd.FileAttr&=~FA_ARCH;
-#endif
         if (!BrokenFile || Cmd->KeepBroken)
         {
           if (BrokenFile)

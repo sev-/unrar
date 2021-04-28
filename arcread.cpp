@@ -394,28 +394,6 @@ bool Archive::IsArcLabel()
 
 void Archive::ConvertAttributes()
 {
-#if defined(_WIN_32) || defined(_EMX)
-  switch(NewLhd.HostOS)
-  {
-    case MS_DOS:
-    case OS2:
-    case WIN_32:
-      break;
-    case UNIX:
-    case BEOS:
-      if ((NewLhd.Flags & LHD_WINDOWMASK)==LHD_DIRECTORY)
-        NewLhd.FileAttr=0x10;
-      else
-        NewLhd.FileAttr=0x20;
-      break;
-    default:
-      if ((NewLhd.Flags & LHD_WINDOWMASK)==LHD_DIRECTORY)
-        NewLhd.FileAttr=0x10;
-      else
-        NewLhd.FileAttr=0x20;
-      break;
-  }
-#endif
 #ifdef _UNIX
   static mode_t mask = (mode_t) -1;
 

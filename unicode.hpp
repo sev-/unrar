@@ -1,9 +1,7 @@
 #ifndef _RAR_UNICODE_
 #define _RAR_UNICODE_
 
-#ifndef _EMX
 #define MBFUNCTIONS
-#endif
 
 #if defined(MBFUNCTIONS ) || defined(_WIN_32)
 #define UNICODE_SUPPORTED

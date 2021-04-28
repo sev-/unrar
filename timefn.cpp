@@ -28,7 +28,7 @@ uint SecondsToDosTime(uint Seconds)
   ft.dwLowDateTime=int64to32(f);
   return(NTTimeToDos(&ft));
 #endif
-#if defined(_UNIX) || defined(_EMX)
+#if defined(_UNIX)
   return(UnixTimeToDos(SystemTime-Seconds));
 #endif
 }
@@ -123,7 +123,7 @@ uint IsoTextToDosTime(char *TimeText)
 #endif
 
 
-#if defined(_UNIX) || defined(_EMX)
+#if defined(_UNIX)
 uint UnixTimeToDos(time_t UnixTime)
 {
   struct tm *t;
@@ -161,7 +161,3 @@ uint NTTimeToDos(FILETIME *ft)
   return(((uint)DosDate<<16)|DosTime);
 }
 #endif
-
-
-
-

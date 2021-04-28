@@ -64,19 +64,7 @@ bool File::Open(const char *Name,const wchar *NameW,bool OpenShared,bool Update)
 #ifdef O_BINARY
   flags|=O_BINARY;
 #endif
-#if defined(_EMX) && !defined(_DJGPP)
-  int sflags=OpenShared ? SH_DENYNO:SH_DENYRW;
-  int handle=sopen(Name,flags,sflags);
-#else
   int handle=open(Name,flags);
-#ifdef LOCK_EX
-  if (!OpenShared && handle>=0 && flock(handle,LOCK_EX|LOCK_NB)==-1)
-  {
-    close(handle);
-    return(false);
-  }
-#endif
-#endif
   hNewFile=handle==-1 ? BAD_HANDLE:fdopen(handle,Update ? UPDATEBINARY:READBINARY);
   if (hNewFile==BAD_HANDLE && errno==ENOENT)
     ErrorType=FILE_NOTFOUND;
@@ -450,7 +438,7 @@ void File::SetOpenFileTime(uint ft)
 
 void File::SetCloseFileTime(uint ft)
 {
-#if defined(_UNIX) || defined(_EMX)
+#if defined(_UNIX)
   struct utimbuf ut;
   ut.actime=ut.modtime=DosTimeToUnix(ft);
   utime(FileName,&ut);
@@ -468,7 +456,7 @@ uint File::GetOpenFileTime()
   FileTimeToDosDateTime(&LocalTime,&FatDate,&FatTime);
   return((FatDate<<16)|FatTime);
 #endif
-#if defined(_UNIX) || defined(_EMX)
+#if defined(_UNIX)
   struct stat st;
   fstat(fileno(hFile),&st);
   return(UnixTimeToDos(st.st_mtime));
@@ -487,10 +475,6 @@ void File::SetOpenFileStat(uint FileTime)
 void File::SetCloseFileStat(uint FileTime,uint FileAttr)
 {
 #ifdef _WIN_32
-  SetFileAttr(FileName,FileNameW,FileAttr);
-#endif
-#ifdef _EMX
-  SetCloseFileTime(FileTime);
   SetFileAttr(FileName,FileNameW,FileAttr);
 #endif
 #ifdef _UNIX

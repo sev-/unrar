@@ -774,12 +774,7 @@ void CommandData::OutHelp()
 #if !defined(_BEOS)
     if (Help[I]==MCHelpSwEE)
     {
-#if defined(_EMX) && !defined(_DJGPP)
-      if (_osmode != OS2_MODE)
-        continue;
-#else
       continue;
-#endif
     }
 #endif
 #endif
@@ -960,11 +955,7 @@ bool CommandData::GetArcName(char *Name,wchar *NameW,int MaxSize)
 
 bool CommandData::IsSwitch(int Ch)
 {
-#if defined(_WIN_32) || defined(_EMX)
-  return(Ch=='-' || Ch=='/');
-#else
   return(Ch=='-');
-#endif
 }
 
 
@@ -973,34 +964,6 @@ uint CommandData::GetExclAttr(char *Str)
 {
 #ifdef _UNIX
   return(strtol(Str,NULL,0));
-#endif
-#if defined(_WIN_32) || defined(_EMX)
-  uint Attr;
-  if (isdigit(*Str))
-    return(strtol(Str,NULL,0));
-  else
-  {
-    for (Attr=0;*Str;Str++)
-      switch(toupper(*Str))
-      {
-        case 'R':
-          Attr|=0x1;
-          break;
-        case 'H':
-          Attr|=0x2;
-          break;
-        case 'S':
-          Attr|=0x4;
-          break;
-        case 'D':
-          Attr|=0x10;
-          break;
-        case 'A':
-          Attr|=0x20;
-          break;
-      }
-    return(Attr);
-  }
 #endif
 }
 #endif

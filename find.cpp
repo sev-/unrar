@@ -119,7 +119,7 @@ bool FindFile::FastFind(const char *FindMask,const wchar *FindMaskW,struct FindD
 #ifndef _UNIX
   if (IsWildcard(FindMask,FindMaskW))
     return(false);
-#endif    
+#endif
 #ifdef _WIN_32
   HANDLE hFind=Win32Find(INVALID_HANDLE_VALUE,FindMask,FindMaskW,fd);
   if (hFind==INVALID_HANDLE_VALUE)
@@ -145,13 +145,7 @@ bool FindFile::FastFind(const char *FindMask,const wchar *FindMaskW,struct FindD
       fd->Error=(errno!=ENOENT);
       return(false);
     }
-#ifdef _DJGPP
-  fd->FileAttr=chmod(FindMask,0);
-#elif defined(_EMX)
-  fd->FileAttr=st.st_attr;
-#else
   fd->FileAttr=st.st_mode;
-#endif
   fd->IsDir=IsDir(st.st_mode);
   fd->Size=st.st_size;
   fd->FileTime=UnixTimeToDos(st.st_mtime);
@@ -258,4 +252,3 @@ HANDLE FindFile::Win32Find(HANDLE hFind,const char *Mask,const wchar *MaskW,stru
   return(hFind);
 }
 #endif
-

@@ -146,10 +146,6 @@ void SetSFXExt(char *SFXName)
 #ifdef _UNIX
   SetExt(SFXName,"sfx");
 #endif
-
-#if defined(_WIN_32) || defined(_EMX)
-  SetExt(SFXName,"exe");
-#endif
 }
 #endif
 
@@ -164,9 +160,6 @@ void SetSFXExt(wchar *SFXName)
   SetExt(SFXName,L"sfx");
 #endif
 
-#if defined(_WIN_32) || defined(_EMX)
-  SetExt(SFXName,L"exe");
-#endif
 }
 #endif
 
@@ -283,24 +276,6 @@ void RemoveNameFromPath(wchar *Path)
 #ifndef SFX_MODULE
 void GetConfigName(const char *Name,char *FullName)
 {
-#ifdef _EMX
-  static char RARFileName[NM];
-  if (Name==NULL)
-  {
-    strcpy(RARFileName,FullName);
-    return;
-  }
-  if (_osmode==OS2_MODE)
-  {
-    PTIB ptib;
-    PPIB ppib;
-    DosGetInfoBlocks(&ptib, &ppib);
-    DosQueryModuleName(ppib->pib_hmte,NM,FullName);
-  }
-  else
-    strcpy(FullName,RARFileName);
-  strcpy(PointToName(FullName),Name);
-#elif defined(_UNIX)
   char *EnvStr=getenv("HOME");
   if (EnvStr!=NULL)
   {
@@ -324,10 +299,6 @@ void GetConfigName(const char *Name,char *FullName)
       strcpy(FullName,HomeName);
     }
   }
-#elif defined(_WIN_32)
-  GetModuleFileName(NULL,FullName,NM);
-  strcpy(PointToName(FullName),Name);
-#endif
 }
 #endif
 
@@ -430,14 +401,6 @@ void MakeNameUsable(char *Name,bool Extended)
     if (strchr(Extended ? "?*<>|\"":"?*",Name[I])!=NULL ||
         Extended && Name[I]<32)
       Name[I]='_';
-#ifdef _EMX
-    if (Name[I]=='=')
-      Name[I]='_';
-#endif
-#ifndef _UNIX
-    if (I>1 && Name[I]==':')
-      Name[I]='_';
-#endif
   }
 }
 
@@ -480,12 +443,7 @@ bool IsFullPath(const char *Path)
   GetFilePath(Path,PathOnly);
   if (IsWildcard(PathOnly))
     return(true);
-#if defined(_WIN_32) || defined(_EMX)
-  return(Path[0]=='\\' && Path[1]=='\\' ||
-         IsDiskLetter(Path) && IsPathDiv(Path[2]));
-#else
   return(IsPathDiv(Path[0]));
-#endif
 }
 
 
@@ -590,5 +548,3 @@ char* VolNameToFirstName(const char *VolName,char *FirstName,bool NewNumbering)
   }
   return(VolNumStart);
 }
-
-

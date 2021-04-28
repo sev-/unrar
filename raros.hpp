@@ -1,15 +1,6 @@
 #ifndef _RAR_RAROS_
 #define _RAR_RAROS_
 
-#ifdef __EMX__
-  #define _EMX
-#endif
-
-#ifdef __DJGPP__
-  #define _DJGPP
-  #define _EMX
-#endif
-
 #if defined(__WIN32__) || defined(_WIN32)
   #define _WIN_32
 #endif
@@ -19,8 +10,6 @@
   #define _APPLE
 #endif
 
-#if !defined(_EMX) && !defined(_WIN_32) && !defined(_BEOS) && !defined(_APPLE)
   #define _UNIX
-#endif
 
 #endif

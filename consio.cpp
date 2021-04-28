@@ -74,7 +74,7 @@ void RawPrint(char *Msg,MESSAGE_TYPE MessageType)
   *OutPos=0;
   strcpy(Msg,OutMsg);
 #endif
-#if defined(_UNIX) || defined(_EMX)
+#if defined(_UNIX)
   char OutMsg[MaxMsgSize],*OutPos=OutMsg;
   for (int I=0;Msg[I]!=0;I++)
     if (Msg[I]!='\r')

@@ -2,34 +2,6 @@
 
 MKDIR_CODE MakeDir(const char *Name,const wchar *NameW,uint Attr)
 {
-#ifdef _WIN_32
-  int Success;
-  if (WinNT() && NameW!=NULL && *NameW!=0)
-    Success=CreateDirectoryW(NameW,NULL);
-  else
-    Success=CreateDirectory(Name,NULL);
-  if (Success)
-  {
-    SetFileAttr(Name,NameW,Attr);
-    return(MKDIR_SUCCESS);
-  }
-  int ErrCode=GetLastError();
-  if (ErrCode==ERROR_FILE_NOT_FOUND || ErrCode==ERROR_PATH_NOT_FOUND)
-    return(MKDIR_BADPATH);
-  return(MKDIR_ERROR);
-#endif
-#ifdef _EMX
-#ifdef _DJGPP
-  if (mkdir(Name,(Attr & FA_RDONLY) ? 0:S_IWUSR)==0)
-#else
-  if (__mkdir(Name)==0)
-#endif
-  {
-    SetFileAttr(Name,NameW,Attr);
-    return(MKDIR_SUCCESS);
-  }
-  return(errno==ENOENT ? MKDIR_BADPATH:MKDIR_ERROR);
-#endif
 #ifdef _UNIX
   int prevmask=umask(0);
   int ErrCode=mkdir(Name,(mode_t)Attr);
@@ -94,7 +66,7 @@ void SetDirTime(const char *Name,uint ft)
   SetFileTime(hFile,NULL,NULL,&FileTime);
   CloseHandle(hFile);
 #endif
-#if defined(_UNIX) || defined(_EMX)
+#if defined(_UNIX)
   struct utimbuf ut;
   ut.actime=ut.modtime=DosTimeToUnix(ft);
   utime(Name,&ut);
@@ -104,17 +76,7 @@ void SetDirTime(const char *Name,uint ft)
 
 bool IsRemovable(const char *FileName)
 {
-#ifdef _WIN_32
-  char Root[NM];
-  GetPathRoot(FileName,Root);
-  int Type=GetDriveType(*Root ? Root:NULL);
-  return(Type==DRIVE_REMOVABLE || Type==DRIVE_CDROM);
-#elif defined(_EMX)
-  char Drive=toupper(FileName[0]);
-  return((Drive=='A' || Drive=='B') && FileName[1]==':');
-#else
   return(false);
-#endif
 }
 
 
@@ -194,9 +156,6 @@ bool WildFileExist(const char *FileName,const wchar *FileNameW)
 
 bool IsDir(uint Attr)
 {
-#if defined (_WIN_32) || defined(_EMX)
-  return(Attr!=0xffffffff && (Attr & 0x10)!=0);
-#endif
 #if defined(_UNIX)
   return((Attr & 0xF000)==0x4000);
 #endif
@@ -214,11 +173,7 @@ bool IsUnreadable(uint Attr)
 
 bool IsLabel(uint Attr)
 {
-#if defined (_WIN_32) || defined(_EMX)
-  return((Attr & 8)!=0);
-#else
   return(false);
-#endif
 }
 
 
@@ -237,19 +192,12 @@ bool IsLink(uint Attr)
 
 bool IsDeleteAllowed(uint FileAttr)
 {
-#if defined(_WIN_32) || defined(_EMX)
-  return((FileAttr & (FA_RDONLY|FA_SYSTEM|FA_HIDDEN))==0);
-#else
   return(false);
-#endif
 }
 
 
 void PrepareToDelete(const char *Name,const wchar *NameW)
 {
-#if defined(_WIN_32) || defined(_EMX)
-  SetFileAttr(Name,NameW,0);
-#endif
 #ifdef _UNIX
   chmod(Name,S_IRUSR|S_IWUSR);
 #endif
@@ -258,43 +206,17 @@ void PrepareToDelete(const char *Name,const wchar *NameW)
 
 uint GetFileAttr(const char *Name,const wchar *NameW)
 {
-#ifdef _WIN_32
-  if (WinNT() && NameW!=NULL && *NameW!=0)
-    return(GetFileAttributesW(NameW));
-  else
-    return(GetFileAttributes(Name));
-#elif defined(_DJGPP)
-  return(_chmod(Name,0));
-#else
   struct stat st;
   if (stat(Name,&st)!=0)
     return(0);
-#ifdef _EMX
-  return(st.st_attr);
-#else
   return(st.st_mode);
-#endif
-#endif
 }
 
 
 bool SetFileAttr(const char *Name,const wchar *NameW,uint Attr)
 {
   bool Success;
-#ifdef _WIN_32
-  if (WinNT() && NameW!=NULL && *NameW!=0)
-    Success=SetFileAttributesW(NameW,Attr)!=0;
-  else
-    Success=SetFileAttributes(Name,Attr)!=0;
-#elif defined(_DJGPP)
-  Success=_chmod(Name,1,Attr)!=-1;
-#elif defined(_EMX)
-  Success=__chmod(Name,1,Attr)!=-1;
-#elif defined(_UNIX)
   Success=chmod(Name,(mode_t)Attr)==0;
-#else
-  Success=false;
-#endif
   return(Success);
 }
 

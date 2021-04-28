@@ -3,20 +3,12 @@
 
 #include "smallfn.cpp"
 
-#ifdef _DJGPP
-extern "C" char **__crt0_glob_function (char *arg) { return 0; }
-extern "C" void   __crt0_load_environment_file (char *progname) { }
-#endif
-
 #if !defined(GUI) && !defined(RARDLL)
 int main(int argc, char *argv[])
 {
 #ifndef SFX_MODULE
   setbuf(stdout,NULL);
 
-  #ifdef _EMX
-    GetConfigName(NULL,argv[0]);
-  #endif
 #endif
 
   ErrHandler.SetSignalHandlers(true);
@@ -40,10 +32,10 @@ int main(int argc, char *argv[])
   bool ShutdownOnClose;
 
 #ifdef ALLOW_EXCEPTIONS
-  try 
+  try
 #endif
   {
-  
+
     CommandData Cmd;
 #ifdef SFX_MODULE
     strcpy(Cmd.Command,"X");
@@ -114,9 +106,6 @@ int main(int argc, char *argv[])
   }
 #endif
   File::RemoveCreated();
-#if defined(SFX_MODULE) && defined(_DJGPP)
-  _chmod(ModuleName,1,0x20);
-#endif
   return(ErrHandler.GetErrorCode());
 }
 #endif
@@ -130,5 +119,3 @@ void RARInitData()
 #endif
   ErrHandler.Clean();
 }
-
-
